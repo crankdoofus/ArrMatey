@@ -8,19 +8,14 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-class RocketComponent {
-    private val httpClient = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
-        }
-    }
+class RocketComponent : KoinComponent {
+
+    private val httpClient : HttpClient by inject()
 
     @OptIn(ExperimentalTime::class)
     private suspend fun getDateOfLastSuccessfulLaunch(): String {
