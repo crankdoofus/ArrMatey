@@ -1,0 +1,31 @@
+package com.dnfapps.arrmatey.database
+
+import androidx.room.ConstructedBy
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.dnfapps.arrmatey.database.dao.InstanceDao
+import com.dnfapps.arrmatey.model.Instance
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+
+@Database(entities = [Instance::class], version = 1)
+@ConstructedBy(ArrMateyDatabaseConstructor::class)
+abstract class ArrMateyDatabase : RoomDatabase() {
+    abstract fun getInstanceDao(): InstanceDao
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object ArrMateyDatabaseConstructor : RoomDatabaseConstructor<ArrMateyDatabase> {
+    override fun initialize(): ArrMateyDatabase
+}
+
+fun getRoomDatabase(
+    builder: RoomDatabase.Builder<ArrMateyDatabase>
+): ArrMateyDatabase {
+    return builder
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .build()
+}

@@ -1,17 +1,16 @@
 package com.dnfapps.arrmatey.model
 
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@OptIn(ExperimentalUuidApi::class)
+@Entity(tableName = "instances")
 data class Instance(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val type: InstanceType,
     var label: String,
     var url: String,
     var apiKey: String
-) {
-    val id = Uuid.random()
-}
+)
 
 enum class InstanceType {
     Sonarr
