@@ -1,5 +1,9 @@
 <resources>
+    <!-- General -->
     <string name="app_name">ArrMatey</string>
-    <string name="shows">Series</string>
+
+    <!-- Tabs -->
+    <string name="series">Series</string>
     <string name="settings">Settings</string>
+
 </resources>

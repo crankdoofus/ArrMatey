@@ -1,0 +1,11 @@
+[[General]]
+    [app_name]
+        en = ArrMatey
+        comment = App name
+
+[[Tabs]]
+    [series]
+        en = Series
+    [settings]
+        en = Settings
+        fr = FRANCH

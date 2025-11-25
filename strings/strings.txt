@@ -1,0 +1,9 @@
+[[General]]
+    [app_name]
+        en = ArrMatey
+
+[[Tabs]]
+    [series]
+        en = Series
+    [settings]
+        en = Settings
