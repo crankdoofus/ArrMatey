@@ -6,4 +6,10 @@
     <string name="series">Series</string>
     <string name="settings">Settings</string>
 
+    <!-- Test -->
+    <plurals name="plural_test">
+        <item quantity="one">%1$d test</item>
+        <item quantity="other">%1$d tests</item>
+    </plurals>
+
 </resources>

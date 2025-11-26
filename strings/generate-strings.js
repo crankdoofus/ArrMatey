@@ -103,20 +103,69 @@ function convertToIosStrings(input) {
         localizations: {},
       };
 
-      for (const locale of Object.keys(subSection)) {
-        if (locale === "comment") continue;
-        obj.localizations[locale] = {
-          stringUnit: {
-            state: "translated",
-            value: subSection[locale],
-          },
-        };
+      // Detect is this key is plural at all
+      const locales = Object.keys(subSection).filter(
+        (k) => k !== "comment" && !k.startsWith("plural_"),
+      );
+      const hasAnyPlural = locales.some(
+        (l) => subSection["plural_" + l] !== undefined,
+      );
+
+      if (hasAnyPlural) {
+        // Validate for every locale that a base value and plural exist
+        for (const locale of locales) {
+          const pluralKey = "plural_" + locale;
+          if (
+            subSection[locale] != undefined &&
+            subSection[pluralKey] === undefined
+          ) {
+            throw new Error(
+              `Plural definition missing for local "${locale}" on key "${subKey}"`,
+            );
+          }
+        }
+
+        // Build plural structure
+        for (const locale of locales) {
+          const pluralKey = "plural_" + locale;
+          if (subSection[locale] === undefined) continue; // skip stray plural-only langs
+          obj.localizations[locale] = {
+            variations: {
+              plural: {
+                one: {
+                  stringUnit: {
+                    state: "translated",
+                    value: subSection[locale],
+                  },
+                },
+                other: {
+                  stringUnit: {
+                    state: "translated",
+                    value: subSection[pluralKey],
+                  },
+                },
+              },
+            },
+          };
+        }
+        const iosKey = `%d ${subKey}`;
+        output.strings[iosKey] = obj;
+      } else {
+        for (const locale of Object.keys(subSection)) {
+          if (locale === "comment") continue;
+          obj.localizations[locale] = {
+            stringUnit: {
+              state: "translated",
+              value: subSection[locale],
+            },
+          };
+        }
+        output.strings[subKey] = obj;
       }
-      output.strings[subKey] = obj;
     }
   }
-  console.log("iOS Strings generated");
 
+  console.log("iOS Strings generated");
   return output;
 }
 
@@ -128,12 +177,23 @@ function generateAndroidStringsXML(json) {
   for (const category in json) {
     for (const key in json[category]) {
       Object.keys(json[category][key]).forEach((lang) => {
-        if (lang !== "comment") supportedLangs.add(lang);
+        if (lang !== "comment" && !lang.startsWith("plural_")) {
+          supportedLangs.add(lang);
+        }
       });
     }
   }
+  console.log("Supported langs: ", supportedLangs);
 
   const langFiles = {};
+
+  const escapeXml = (str) =>
+    str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
 
   supportedLangs.forEach((lang) => {
     const dir =
@@ -143,6 +203,8 @@ function generateAndroidStringsXML(json) {
     let xmlContent = `<resources>\n`;
 
     for (const category in json) {
+      if (!Object.prototype.hasOwnProperty.call(json, category)) continue;
+
       // Filter keys in this category that have the current lang
       const keysForLang = Object.keys(json[category]).filter(
         (key) => lang in json[category][key],
@@ -155,22 +217,36 @@ function generateAndroidStringsXML(json) {
 
       keysForLang.forEach((key) => {
         const entry = json[category][key];
+        const pluralKey = "plural_" + lang;
+        const hasPlural = entry[pluralKey] !== undefined;
 
-        // Escape XML special chars in value
-        const value = entry[lang]
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&apos;");
+        if (hasPlural) {
+          //Valudate plural has base and plural defined for all languages
+          if (entry[lang] === undefined) {
+            throw new Error(
+              `Base value missing for plural locale "${lang}" on key "${key}"`,
+            );
+          }
 
-        xmlContent += `    <string name="${key}">${value}</string>`;
+          const oneVal = escapeXml(entry[lang]);
+          const otherVal = escapeXml(entry[pluralKey]);
 
-        // Add comment only for default language and if comment exists
-        if (lang === DEFAULT_LANG && entry.comment) {
-          xmlContent += `  <!-- ${entry.comment} -->\n`;
+          xmlContent += `    <plurals name="${key}">\n`;
+          xmlContent += `        <item quantity="one">${oneVal}</item>\n`;
+          xmlContent += `        <item quantity="other">${otherVal}</item>\n`;
+          xmlContent += `    </plurals>\n`;
         } else {
-          xmlContent += "\n";
+          // Escape XML special chars in value
+          const value = escapeXml(entry[lang]);
+
+          xmlContent += `    <string name="${key}">${value}</string>`;
+
+          // Add comment only for default language and if comment exists
+          if (lang === DEFAULT_LANG && entry.comment) {
+            xmlContent += `  <!-- ${entry.comment} -->\n`;
+          } else {
+            xmlContent += "\n";
+          }
         }
       });
 
@@ -181,8 +257,8 @@ function generateAndroidStringsXML(json) {
     langFiles[dir] = xmlContent;
     console.log(`Android file generated for ${lang}`);
   });
-  console.log("Android string files generated");
 
+  console.log("Android string files generated");
   return langFiles;
 }
 

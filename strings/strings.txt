@@ -7,3 +7,10 @@
         en = Series
     [settings]
         en = Settings
+
+[[Test]]
+    [plural_test]
+        en = %1$d test
+        plural_en = %1$d tests
+        fr = %1$d french test
+        plural_fr = %1$d french tests
