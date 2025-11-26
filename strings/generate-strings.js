@@ -5,9 +5,10 @@ const VERSION = "1.1";
 const DEFAULT_LANG = "en";
 // const IOS_FILE = "./iosDir/Localizable.xcstrings"
 // const ANDROID_DIR = "./androidDir"
-const IOS_FILE = "../iosApp/Localizable.xcstrings";
-const ANDROID_DIR = "../composeApp/src/androidMain/res";
-const STRINGS_FILE = "./strings.txt";
+const PROJECT_ROOT = "/Users/owen.lejeune/AndroidStudioProjects/ArrMatey";
+const IOS_FILE = `${PROJECT_ROOT}/iosApp/Localizable.xcstrings`;
+const ANDROID_DIR = `${PROJECT_ROOT}/composeApp/src/androidMain/res`;
+const STRINGS_FILE = `${PROJECT_ROOT}/strings/strings.txt`;
 const CLEAR_ON_RUN = true;
 
 const RESERVED_KEYWORDS = ["comment", "iosKey"];

@@ -11,13 +11,20 @@ plugins {
     kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
+tasks.register<Exec>("generateLocalization") {
+    group = "build setup"
+    description = "Generation localization files"
+
+    commandLine("/Users/owen.lejeune/.nvm/versions/node/v22.3.0/bin/node", "$rootDir/strings/generate-strings.js")
+}
+
 kotlin {
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,7 +34,14 @@ kotlin {
             isStatic = true
         }
     }
-    
+
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
+        binaries.all {
+            linkTaskProvider.get()
+                .dependsOn(tasks.named("generateLocalization"))
+        }
+    }
+
     sourceSets {
         all { languageSettings.optIn("kotlin.time.ExperimentalTime") }
 
@@ -90,4 +104,11 @@ dependencies {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+afterEvaluate {
+    tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }
+        .configureEach {
+            dependsOn(tasks.named("generateLocalization"))
+        }
 }
