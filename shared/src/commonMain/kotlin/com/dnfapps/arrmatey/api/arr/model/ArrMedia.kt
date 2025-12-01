@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
-sealed class ArrMedia<AT, AO, R, ST: ArrStatistics> {
+sealed class ArrMedia<AT, AO, R, STAT: ArrStatistics, S> {
     abstract val id: Int
     abstract val title: String
     abstract val originalLanguage: Language
@@ -14,7 +14,7 @@ sealed class ArrMedia<AT, AO, R, ST: ArrStatistics> {
     abstract val monitored: Boolean
     abstract val runtime: Int
     abstract val tmdbId: Int
-    abstract val status: String
+    abstract val status: S
     abstract val images: List<ArrImage>
     abstract val sortTitle: String?
     abstract val overview: String?
@@ -30,7 +30,7 @@ sealed class ArrMedia<AT, AO, R, ST: ArrStatistics> {
     abstract val alternateTitles: List<AT>
     abstract val addOptions: AO?
     abstract val ratings: R
-    abstract val statistics: ST
+    abstract val statistics: STAT
     @Contextual abstract val added: Instant
 
     abstract fun ratingScore(): Double

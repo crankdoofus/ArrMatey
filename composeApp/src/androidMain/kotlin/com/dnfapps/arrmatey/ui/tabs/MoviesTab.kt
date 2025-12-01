@@ -26,10 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.compose.components.FilterMenuButton
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.components.SortMenuButton
+import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
+import com.dnfapps.arrmatey.compose.utils.applyMovieFiltering
 import com.dnfapps.arrmatey.compose.utils.applyMovieSorting
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.model.InstanceType
@@ -46,6 +49,7 @@ fun MoviesTab() {
 
     var selectedSortOption by remember { mutableStateOf(SortBy.Title) }
     var selectedSortOrder by remember { mutableStateOf(SortOrder.Asc) }
+    var selectedFilter by remember { mutableStateOf(FilterBy.All) }
 
     Scaffold(
         topBar = {
@@ -53,6 +57,11 @@ fun MoviesTab() {
                 title = { Text(text = stringResource(R.string.movies)) },
                 actions = {
                     instance?.let {
+                        FilterMenuButton(
+                            InstanceType.Radarr,
+                            selectedFilter = selectedFilter,
+                            onFilterChange = { selectedFilter = it }
+                        )
                         SortMenuButton(
                             InstanceType.Radarr,
                             onSortChanged = {
@@ -93,7 +102,9 @@ fun MoviesTab() {
                     )
                 } else {
                     PosterGrid(
-                        items = library.applyMovieSorting(selectedSortOption, selectedSortOrder),
+                        items = library
+                            .applyMovieFiltering(selectedFilter)
+                            .applyMovieSorting(selectedSortOption, selectedSortOrder),
                         onItemClick = { movie ->
                             Toast.makeText(context, movie.title, Toast.LENGTH_SHORT).show()
                         },

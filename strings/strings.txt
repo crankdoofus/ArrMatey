@@ -73,6 +73,24 @@
         en = Ascending
     [sort_descending]
         en = Descending
+    [all]
+        en = All
+    [monitored]
+        en = Monitored
+    [unmonitored]
+        en = Unmonitored
+    [wanted]
+        en = Wanted
+    [missing]
+        en = Missing
+    [downloaded]
+        en = Downloaded
+    [cutoff_unmet]
+        en = Cutoff Unmet
+    [continuing_only]
+        en = Continuing Only
+    [ended_only]
+        en = Ended Only
 
 [[Instances]]
     [sonarr_description]

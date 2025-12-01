@@ -40,7 +40,7 @@ fun SortMenuButton(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val options = remember { SortBy.entries(instanceType) }
+    val options = remember { SortBy.typeEntries(instanceType) }
 
     IconButton(
         onClick = { expanded = !expanded }

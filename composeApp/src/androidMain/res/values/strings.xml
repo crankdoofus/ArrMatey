@@ -41,6 +41,15 @@
     <string name="previous_airing">Previous Airing</string>
     <string name="sort_ascending">Ascending</string>
     <string name="sort_descending">Descending</string>
+    <string name="all">All</string>
+    <string name="monitored">Monitored</string>
+    <string name="unmonitored">Unmonitored</string>
+    <string name="wanted">Wanted</string>
+    <string name="missing">Missing</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="cutoff_unmet">Cutoff Unmet</string>
+    <string name="continuing_only">Continuing Only</string>
+    <string name="ended_only">Ended Only</string>
 
     <!-- Instances -->
     <string name="sonarr_description">Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.</string>

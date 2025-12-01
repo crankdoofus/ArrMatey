@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Star
@@ -24,7 +23,6 @@ import arrmatey.shared.generated.resources.sort_ascending
 import arrmatey.shared.generated.resources.sort_descending
 import arrmatey.shared.generated.resources.title
 import arrmatey.shared.generated.resources.year
-import coil3.Image
 import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
@@ -53,7 +51,7 @@ enum class SortBy(
     PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, "previous_airing", Res.string.previous_airing);
 
     companion object {
-        fun entries(type: InstanceType) =
+        fun typeEntries(type: InstanceType) =
             when (type) {
                 InstanceType.Sonarr -> listOf(Title, Year, Added, Rating, FileSize, NextAiring, PreviousAiring)
                 InstanceType.Radarr -> listOf(Title, Year, Added, Rating, FileSize, Grabbed, DigitalRelease)
@@ -72,7 +70,7 @@ enum class SortOrder(
     Desc("arrow.down", "descending", Icons.Default.ArrowDownward, Res.string.sort_descending)
 }
 
-private fun List<ArrMedia<*,*,*,*>>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
+private fun List<ArrMedia<*,*,*,*,*>>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
     SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.title } else sortedByDescending { it.title }
     SortBy.Year -> if (order == SortOrder.Asc) sortedBy { it.year } else sortedByDescending { it.year }
     SortBy.Added -> if (order == SortOrder.Asc) sortedBy { it.added } else sortedByDescending { it.added }
@@ -82,15 +80,13 @@ private fun List<ArrMedia<*,*,*,*>>.applyBaseSorting(sortBy: SortBy, order: Sort
 }
 
 fun List<ArrSeries>.applySeriesSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-    SortBy.Title, SortBy.Year, SortBy.Added, SortBy.Rating, SortBy.FileSize -> applyBaseSorting(sortBy, order)
     SortBy.NextAiring -> if (order == SortOrder.Asc) sortedBy { it.nextAiring } else sortedByDescending { it.nextAiring }
     SortBy.PreviousAiring -> if (order == SortOrder.Asc) sortedBy { it.previousAiring } else sortedByDescending { it.previousAiring }
-    else -> this
+    else -> applyBaseSorting(sortBy, order) as List<ArrSeries>
 }
 
 fun List<ArrMovie>.applyMovieSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-    SortBy.Title, SortBy.Year, SortBy.Added, SortBy.Rating, SortBy.FileSize -> applyBaseSorting(sortBy, order)
     SortBy.Grabbed -> if (order == SortOrder.Asc) sortedBy { it.movieFile?.dateAdded } else sortedByDescending { it.movieFile?.dateAdded }
     SortBy.DigitalRelease -> if (order == SortOrder.Asc) sortedBy { it.digitalRelease } else sortedByDescending { it.digitalRelease }
-    else -> this
+    else -> applyBaseSorting(sortBy, order) as List<ArrMovie>
 }

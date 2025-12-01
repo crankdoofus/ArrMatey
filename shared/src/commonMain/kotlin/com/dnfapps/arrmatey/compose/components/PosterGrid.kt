@@ -23,7 +23,7 @@ import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.CoverType
 
 @Composable
-fun <T: ArrMedia<*,*,*,*>> PosterGrid(
+fun <T: ArrMedia<*,*,*,*,*>> PosterGrid(
     items: List<T>,
     onItemClick: (T) -> Unit,
     modifier: Modifier = Modifier

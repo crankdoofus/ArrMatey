@@ -14,7 +14,7 @@ data class ArrMovie(
     override val monitored: Boolean,
     override val runtime: Int,
     override val tmdbId: Int,
-    override val status: String,
+    override val status: MovieStatus,
     override val sortTitle: String? = null,
     override val overview: String? = null,
     override val path: String? = null,
@@ -56,7 +56,7 @@ data class ArrMovie(
     val collection: MovieCollection? = null,
     val popularity: Double,
     val lastSearchTime: String? = null,
-): ArrMedia<MovieAlternateTitle, MovieAddOptions, MovieRatings, MovieStatistics>() {
+): ArrMedia<MovieAlternateTitle, MovieAddOptions, MovieRatings, MovieStatistics, MovieStatus>() {
 
     override fun ratingScore(): Double {
         val imdb = ratings.imdb?.value

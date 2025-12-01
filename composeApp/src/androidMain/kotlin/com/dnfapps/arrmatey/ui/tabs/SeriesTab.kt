@@ -25,12 +25,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.compose.components.FilterMenuButton
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.components.SortMenuButton
+import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
+import com.dnfapps.arrmatey.compose.utils.applySeriesFiltering
 import com.dnfapps.arrmatey.compose.utils.applySeriesSorting
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.rememberSonarrViewModel
@@ -45,6 +48,7 @@ fun SeriesTab() {
 
     var selectedSortOption by remember { mutableStateOf(SortBy.Title) }
     var selectedSortOrder by remember { mutableStateOf(SortOrder.Asc) }
+    var selectedFilter by remember { mutableStateOf(FilterBy.All) }
 
     Scaffold(
         topBar = {
@@ -52,8 +56,13 @@ fun SeriesTab() {
                 title = { Text(text = stringResource(R.string.series)) },
                 actions = {
                     instance?.let {
+                        FilterMenuButton(
+                            InstanceType.Sonarr,
+                            selectedFilter = selectedFilter,
+                            onFilterChange = { selectedFilter = it }
+                        )
                         SortMenuButton(
-                            InstanceType.Radarr,
+                            InstanceType.Sonarr,
                             onSortChanged = {
                                 selectedSortOption = it
                             },
@@ -92,7 +101,9 @@ fun SeriesTab() {
                     )
                 } else {
                     PosterGrid(
-                        items = library.applySeriesSorting(selectedSortOption, selectedSortOrder),
+                        items = library
+                            .applySeriesFiltering(selectedFilter)
+                            .applySeriesSorting(selectedSortOption, selectedSortOrder),
                         onItemClick = {},
                         modifier = Modifier.fillMaxSize()
                     )
