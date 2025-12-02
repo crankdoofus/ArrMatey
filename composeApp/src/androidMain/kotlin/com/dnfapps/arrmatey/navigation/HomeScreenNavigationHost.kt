@@ -6,8 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import com.dnfapps.arrmatey.ui.tabs.MoviesTab
-import com.dnfapps.arrmatey.ui.tabs.SeriesTab
+import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.ui.tabs.ArrTab
 
 @Composable
 fun HomeScreenNavHost() {
@@ -25,9 +25,9 @@ fun HomeScreenNavHost() {
         },
         entryProvider = { key ->
             when (key) {
-                HomeTab.SeriesTab -> NavEntry(key) { SeriesTab() }
+                HomeTab.SeriesTab -> NavEntry(key) { ArrTab(InstanceType.Sonarr) }
+                HomeTab.MoviesTab -> NavEntry(key) { ArrTab(InstanceType.Radarr) }
                 HomeTab.SettingsTab -> NavEntry(key) { SettingsTabNavHost() }
-                HomeTab.MoviesTab -> NavEntry(key) { MoviesTab() }
             }
         }
     )

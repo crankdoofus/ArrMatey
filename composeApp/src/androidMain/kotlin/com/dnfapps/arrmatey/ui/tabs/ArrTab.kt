@@ -31,18 +31,18 @@ import com.dnfapps.arrmatey.compose.components.SortMenuButton
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
-import com.dnfapps.arrmatey.compose.utils.applySeriesFiltering
-import com.dnfapps.arrmatey.compose.utils.applySeriesSorting
+import com.dnfapps.arrmatey.compose.utils.applyFiltering
+import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.rememberSonarrViewModel
+import com.dnfapps.arrmatey.ui.viewmodel.rememberArrViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SeriesTab() {
+fun ArrTab(type: InstanceType) {
     val instanceViewModel = viewModel<InstanceViewModel>()
-    val instance by instanceViewModel.getFirstInstance(InstanceType.Sonarr).collectAsState(null)
+    val instance by instanceViewModel.getFirstInstance(type).collectAsState(null)
 
     var selectedSortOption by remember { mutableStateOf(SortBy.Title) }
     var selectedSortOrder by remember { mutableStateOf(SortOrder.Asc) }
@@ -50,30 +50,33 @@ fun SeriesTab() {
 
     var loading by remember { mutableStateOf(false) }
 
+    val title = when (type) {
+        InstanceType.Sonarr -> stringResource(R.string.series)
+        InstanceType.Radarr -> stringResource(R.string.movies)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.series)) },
+                title = { Text(text = title) },
                 actions = {
                     instance?.let {
-                        if (!loading) {
-                            FilterMenuButton(
-                                InstanceType.Sonarr,
-                                selectedFilter = selectedFilter,
-                                onFilterChange = { selectedFilter = it }
-                            )
-                            SortMenuButton(
-                                InstanceType.Sonarr,
-                                onSortChanged = {
-                                    selectedSortOption = it
-                                },
-                                onOrderChanged = {
-                                    selectedSortOrder = it
-                                },
-                                sortBy = selectedSortOption,
-                                sortOrder = selectedSortOrder
-                            )
-                        }
+                        FilterMenuButton(
+                            instanceType = type,
+                            selectedFilter = selectedFilter,
+                            onFilterChange = { selectedFilter = it }
+                        )
+                        SortMenuButton(
+                            instanceType = type,
+                            onSortChanged = {
+                                selectedSortOption = it
+                            },
+                            onOrderChanged = {
+                                selectedSortOrder = it
+                            },
+                            sortBy = selectedSortOption,
+                            sortOrder = selectedSortOrder
+                        )
                     }
                 }
             )
@@ -85,7 +88,7 @@ fun SeriesTab() {
                 .fillMaxSize()
         ) {
             instance?.let { instance ->
-                val viewModel = rememberSonarrViewModel(instance)
+                val viewModel = rememberArrViewModel(instance)
                 val library by viewModel.library.collectAsStateWithLifecycle()
 
                 var isRefreshing by remember { mutableStateOf(false) }
@@ -120,8 +123,8 @@ fun SeriesTab() {
                     ) {
                         PosterGrid(
                             items = library
-                                .applySeriesFiltering(selectedFilter)
-                                .applySeriesSorting(selectedSortOption, selectedSortOrder),
+                                .applyFiltering(type, selectedFilter)
+                                .applySorting(type, selectedSortOption, selectedSortOrder),
                             onItemClick = {},
                             modifier = Modifier.fillMaxSize()
                         )

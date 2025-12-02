@@ -90,3 +90,8 @@ fun List<ArrMovie>.applyMovieSorting(sortBy: SortBy, order: SortOrder = SortOrde
     SortBy.DigitalRelease -> if (order == SortOrder.Asc) sortedBy { it.digitalRelease } else sortedByDescending { it.digitalRelease }
     else -> applyBaseSorting(sortBy, order) as List<ArrMovie>
 }
+
+fun List<ArrMedia<*,*,*,*,*>>.applySorting(type: InstanceType, sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(type) {
+    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesSorting(sortBy, order)
+    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieSorting(sortBy, order)
+}

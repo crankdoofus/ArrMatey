@@ -62,3 +62,8 @@ fun List<ArrMovie>.applyMovieFiltering(filterBy: FilterBy) = when(filterBy) {
     FilterBy.Downloaded -> filter { it.movieFile != null }
     else -> applyBaseFiltering(filterBy) as List<ArrMovie>
 }
+
+fun List<ArrMedia<*,*,*,*,*>>.applyFiltering(type: InstanceType, filterBy: FilterBy) = when(type) {
+    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesFiltering(filterBy)
+    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieFiltering(filterBy)
+}
