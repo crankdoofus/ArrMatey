@@ -4,15 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
+import com.dnfapps.arrmatey.database.dao.MovieDao
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
-class RadarrViewModel(instance: Instance): KoinComponent, IArrViewModel {
+class RadarrViewModel(instance: Instance): BaseArrViewModel<ArrMovie>(instance) {
+
+    override val client: RadarrClient by inject { parametersOf(instance) }
+    override val dao: MovieDao by inject()
 
     init {
         if (instance.type != InstanceType.Radarr) {
@@ -20,15 +21,6 @@ class RadarrViewModel(instance: Instance): KoinComponent, IArrViewModel {
         }
     }
 
-    private val radarrClient: RadarrClient by inject { parametersOf(instance) }
-
-    private val _library = MutableStateFlow<List<ArrMovie>>(emptyList())
-    val library: StateFlow<List<ArrMovie>> = _library
-
-    override suspend fun refreshLibrary() {
-        val newLibrary = radarrClient.getLibrary()
-        _library.emit(newLibrary)
-    }
 }
 
 @Composable

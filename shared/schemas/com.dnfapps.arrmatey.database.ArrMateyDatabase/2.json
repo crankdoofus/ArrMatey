@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "927f604e28f4894c0c9b72c07b3f66dc",
+    "identityHash": "a72f5795f051f9c97feb23260e5b13db",
     "entities": [
       {
         "tableName": "instances",
@@ -67,11 +67,612 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "arr_series",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `originalLanguage` TEXT NOT NULL, `year` INTEGER NOT NULL, `qualityProfileId` INTEGER NOT NULL, `monitored` INTEGER NOT NULL, `runtime` INTEGER NOT NULL, `tmdbId` INTEGER NOT NULL, `status` TEXT NOT NULL, `sortTitle` TEXT, `overview` TEXT, `path` TEXT, `cleanTitle` TEXT, `imdbId` TEXT, `titleSlug` TEXT, `rootFolderPath` TEXT, `folder` TEXT, `certification` TEXT, `images` TEXT NOT NULL, `alternateTitles` TEXT NOT NULL, `genres` TEXT NOT NULL, `tags` TEXT NOT NULL, `addOptions` TEXT, `ratings` TEXT NOT NULL, `statistics` TEXT NOT NULL, `added` INTEGER NOT NULL, `instanceId` INTEGER, `ended` INTEGER NOT NULL, `seasonFolder` INTEGER NOT NULL, `monitorNewItems` TEXT NOT NULL, `useSceneNumbering` INTEGER NOT NULL, `tvdbId` INTEGER NOT NULL, `tvRageId` INTEGER NOT NULL, `tvMazeId` INTEGER NOT NULL, `seriesType` TEXT NOT NULL, `seasons` TEXT NOT NULL, `profileName` TEXT, `nextAiring` INTEGER, `previousAiring` INTEGER, `network` TEXT, `airTime` TEXT, `remotePoster` TEXT, `firstAired` TEXT, `lastAired` TEXT, `episodesChanged` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`instanceId`) REFERENCES `instances`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalLanguage",
+            "columnName": "originalLanguage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "qualityProfileId",
+            "columnName": "qualityProfileId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monitored",
+            "columnName": "monitored",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "runtime",
+            "columnName": "runtime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tmdbId",
+            "columnName": "tmdbId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortTitle",
+            "columnName": "sortTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "overview",
+            "columnName": "overview",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cleanTitle",
+            "columnName": "cleanTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imdbId",
+            "columnName": "imdbId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "titleSlug",
+            "columnName": "titleSlug",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rootFolderPath",
+            "columnName": "rootFolderPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "folder",
+            "columnName": "folder",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "certification",
+            "columnName": "certification",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "images",
+            "columnName": "images",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alternateTitles",
+            "columnName": "alternateTitles",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "genres",
+            "columnName": "genres",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addOptions",
+            "columnName": "addOptions",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ratings",
+            "columnName": "ratings",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statistics",
+            "columnName": "statistics",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "added",
+            "columnName": "added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instanceId",
+            "columnName": "instanceId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "ended",
+            "columnName": "ended",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seasonFolder",
+            "columnName": "seasonFolder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monitorNewItems",
+            "columnName": "monitorNewItems",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useSceneNumbering",
+            "columnName": "useSceneNumbering",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tvdbId",
+            "columnName": "tvdbId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tvRageId",
+            "columnName": "tvRageId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tvMazeId",
+            "columnName": "tvMazeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesType",
+            "columnName": "seriesType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seasons",
+            "columnName": "seasons",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileName",
+            "columnName": "profileName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nextAiring",
+            "columnName": "nextAiring",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "previousAiring",
+            "columnName": "previousAiring",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "network",
+            "columnName": "network",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "airTime",
+            "columnName": "airTime",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "remotePoster",
+            "columnName": "remotePoster",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "firstAired",
+            "columnName": "firstAired",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastAired",
+            "columnName": "lastAired",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "episodesChanged",
+            "columnName": "episodesChanged",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_arr_series_instanceId",
+            "unique": false,
+            "columnNames": [
+              "instanceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_arr_series_instanceId` ON `${TABLE_NAME}` (`instanceId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "instances",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instanceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "arr_movies",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `originalLanguage` TEXT NOT NULL, `year` INTEGER NOT NULL, `qualityProfileId` INTEGER NOT NULL, `monitored` INTEGER NOT NULL, `runtime` INTEGER NOT NULL, `tmdbId` INTEGER NOT NULL, `status` TEXT NOT NULL, `sortTitle` TEXT, `overview` TEXT, `path` TEXT, `cleanTitle` TEXT, `imdbId` TEXT, `titleSlug` TEXT, `rootFolderPath` TEXT, `folder` TEXT, `certification` TEXT, `images` TEXT NOT NULL, `alternateTitles` TEXT NOT NULL, `genres` TEXT NOT NULL, `tags` TEXT NOT NULL, `addOptions` TEXT, `ratings` TEXT NOT NULL, `statistics` TEXT NOT NULL, `added` INTEGER NOT NULL, `instanceId` INTEGER, `originalTitle` TEXT NOT NULL, `secondaryYear` INTEGER, `secondaryYearSourceId` INTEGER NOT NULL, `sizeOnDisk` INTEGER NOT NULL, `inCinemas` TEXT, `physicalRelease` TEXT, `digitalRelease` INTEGER, `releaseDate` TEXT, `physicalReleaseNote` TEXT, `website` TEXT NOT NULL, `remotePoster` TEXT, `youTubeTrailerId` TEXT NOT NULL, `studio` TEXT NOT NULL, `hasFile` INTEGER NOT NULL, `movieFileId` INTEGER NOT NULL, `minimumAvailability` TEXT NOT NULL, `isAvailable` INTEGER NOT NULL, `folderName` TEXT NOT NULL, `keywords` TEXT NOT NULL, `movieFile` TEXT, `collection` TEXT, `popularity` REAL NOT NULL, `lastSearchTime` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`instanceId`) REFERENCES `instances`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalLanguage",
+            "columnName": "originalLanguage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "qualityProfileId",
+            "columnName": "qualityProfileId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monitored",
+            "columnName": "monitored",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "runtime",
+            "columnName": "runtime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tmdbId",
+            "columnName": "tmdbId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortTitle",
+            "columnName": "sortTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "overview",
+            "columnName": "overview",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cleanTitle",
+            "columnName": "cleanTitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imdbId",
+            "columnName": "imdbId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "titleSlug",
+            "columnName": "titleSlug",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rootFolderPath",
+            "columnName": "rootFolderPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "folder",
+            "columnName": "folder",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "certification",
+            "columnName": "certification",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "images",
+            "columnName": "images",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alternateTitles",
+            "columnName": "alternateTitles",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "genres",
+            "columnName": "genres",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addOptions",
+            "columnName": "addOptions",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ratings",
+            "columnName": "ratings",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statistics",
+            "columnName": "statistics",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "added",
+            "columnName": "added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instanceId",
+            "columnName": "instanceId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "originalTitle",
+            "columnName": "originalTitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secondaryYear",
+            "columnName": "secondaryYear",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "secondaryYearSourceId",
+            "columnName": "secondaryYearSourceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeOnDisk",
+            "columnName": "sizeOnDisk",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inCinemas",
+            "columnName": "inCinemas",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "physicalRelease",
+            "columnName": "physicalRelease",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "digitalRelease",
+            "columnName": "digitalRelease",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "releaseDate",
+            "columnName": "releaseDate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "physicalReleaseNote",
+            "columnName": "physicalReleaseNote",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "website",
+            "columnName": "website",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remotePoster",
+            "columnName": "remotePoster",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youTubeTrailerId",
+            "columnName": "youTubeTrailerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "studio",
+            "columnName": "studio",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasFile",
+            "columnName": "hasFile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "movieFileId",
+            "columnName": "movieFileId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minimumAvailability",
+            "columnName": "minimumAvailability",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isAvailable",
+            "columnName": "isAvailable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folderName",
+            "columnName": "folderName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keywords",
+            "columnName": "keywords",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "movieFile",
+            "columnName": "movieFile",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "collection",
+            "columnName": "collection",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "popularity",
+            "columnName": "popularity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSearchTime",
+            "columnName": "lastSearchTime",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_arr_movies_instanceId",
+            "unique": false,
+            "columnNames": [
+              "instanceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_arr_movies_instanceId` ON `${TABLE_NAME}` (`instanceId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "instances",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instanceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '927f604e28f4894c0c9b72c07b3f66dc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a72f5795f051f9c97feb23260e5b13db')"
     ]
   }
 }

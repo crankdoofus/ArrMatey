@@ -5,9 +5,9 @@ import com.dnfapps.arrmatey.model.Instance
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 
-class SonarrClient(instance: Instance) : BaseArrClient(instance) {
+class SonarrClient(instance: Instance) : BaseArrClient(instance), IArrClient<ArrSeries> {
 
-    suspend fun getLibrary(): List<ArrSeries> {
+    override suspend fun getLibrary(): List<ArrSeries> {
         val resp: List<ArrSeries> = httpClient.get("api/v3/series").body()
         return resp
     }

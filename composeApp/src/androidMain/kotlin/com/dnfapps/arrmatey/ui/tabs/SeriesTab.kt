@@ -10,6 +10,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,15 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.compose.components.FilterMenuButton
-import com.dnfapps.arrmatey.entensions.copy
-import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.components.SortMenuButton
 import com.dnfapps.arrmatey.compose.utils.FilterBy
@@ -35,14 +33,14 @@ import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.applySeriesFiltering
 import com.dnfapps.arrmatey.compose.utils.applySeriesSorting
+import com.dnfapps.arrmatey.entensions.copy
+import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.rememberSonarrViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SeriesTab() {
-    val context = LocalContext.current
-
     val instanceViewModel = viewModel<InstanceViewModel>()
     val instance by instanceViewModel.getFirstInstance(InstanceType.Sonarr).collectAsState(null)
 
@@ -90,26 +88,44 @@ fun SeriesTab() {
                 val viewModel = rememberSonarrViewModel(instance)
                 val library by viewModel.library.collectAsStateWithLifecycle()
 
+                var isRefreshing by remember { mutableStateOf(false) }
+
+                LaunchedEffect(loading, library) {
+                    isRefreshing = loading && library.isNotEmpty()
+                }
+
+                LaunchedEffect(isRefreshing) {
+                    if (isRefreshing && !loading) {
+                        viewModel.refreshLibrary()
+                        isRefreshing = false
+                    }
+                }
+
                 LaunchedEffect(Unit) {
                     loading = true
                     viewModel.refreshLibrary()
                     loading = false
                 }
 
-                if (loading) {
+                if (loading && library.isEmpty()) {
                     LoadingIndicator(
                         modifier = Modifier
                             .size(96.dp)
                             .align(Alignment.Center)
                     )
                 } else {
-                    PosterGrid(
-                        items = library
-                            .applySeriesFiltering(selectedFilter)
-                            .applySeriesSorting(selectedSortOption, selectedSortOrder),
-                        onItemClick = {},
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = { isRefreshing = true }
+                    ) {
+                        PosterGrid(
+                            items = library
+                                .applySeriesFiltering(selectedFilter)
+                                .applySeriesSorting(selectedSortOption, selectedSortOrder),
+                            onItemClick = {},
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             } ?: run {
                 Text(text = "No instances found")

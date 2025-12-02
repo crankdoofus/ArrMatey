@@ -7,6 +7,7 @@ import kotlin.time.Instant
 
 @Serializable
 sealed class ArrMedia<AT, AO, R, STAT: ArrStatistics, S> {
+    abstract var instanceId: Long?
     abstract val id: Int
     abstract val title: String
     abstract val originalLanguage: Language

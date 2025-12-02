@@ -5,9 +5,9 @@ import com.dnfapps.arrmatey.model.Instance
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 
-class RadarrClient(instance: Instance): BaseArrClient(instance) {
+class RadarrClient(instance: Instance): BaseArrClient(instance), IArrClient<ArrMovie> {
 
-    suspend fun getLibrary(): List<ArrMovie> {
+    override suspend fun getLibrary(): List<ArrMovie> {
         val resp: List<ArrMovie> = httpClient.get("api/v3/movie").body()
         return resp
     }

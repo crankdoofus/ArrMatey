@@ -1,6 +1,11 @@
 package com.dnfapps.arrmatey.api.arr.model
 
 import androidx.compose.ui.graphics.Color
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.ui.theme.SonarrContinuingAllDownloaded
 import com.dnfapps.arrmatey.ui.theme.SonarrEndedAllDownloaded
 import com.dnfapps.arrmatey.ui.theme.SonarrMissingEpsSeriesMonitored
@@ -10,7 +15,20 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
+@Entity(
+    tableName = "arr_series",
+    foreignKeys = [
+        ForeignKey(
+            entity = Instance::class,
+            parentColumns = ["id"],
+            childColumns = ["instanceId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("instanceId")]
+)
 data class ArrSeries(
+    @PrimaryKey(autoGenerate = false)
     override val id: Int,
     override val title: String,
     override val originalLanguage: Language,
@@ -37,6 +55,7 @@ data class ArrSeries(
     override val ratings: SeriesRatings,
     override val statistics: SeriesStatistics,
     @Contextual override val added: Instant,
+    override var instanceId: Long? = null,
 
     val ended: Boolean,
     val seasonFolder: Boolean,

@@ -23,6 +23,8 @@ val databaseModule = module {
     single { getRoomDatabase(get()) }
 
     single { get<ArrMateyDatabase>().getInstanceDao() }
+    single { get<ArrMateyDatabase>().getSeriesDao() }
+    single { get<ArrMateyDatabase>().getMoviesDao() }
 }
 
 expect fun platformModule(): Module

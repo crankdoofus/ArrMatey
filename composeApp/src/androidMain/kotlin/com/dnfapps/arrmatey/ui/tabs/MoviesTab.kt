@@ -11,6 +11,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -91,28 +92,46 @@ fun MoviesTab() {
                 val viewModel = rememberRadarrViewModel(instance)
                 val library by viewModel.library.collectAsStateWithLifecycle()
 
+                var isRefreshing by remember { mutableStateOf(false) }
+
+                LaunchedEffect(loading, library) {
+                    isRefreshing = loading && library.isNotEmpty()
+                }
+
+                LaunchedEffect(isRefreshing) {
+                    if (isRefreshing && !loading) {
+                        viewModel.refreshLibrary()
+                        isRefreshing = false
+                    }
+                }
+
                 LaunchedEffect(Unit) {
                     loading = true
                     viewModel.refreshLibrary()
                     loading = false
                 }
 
-                if (loading) {
+                if (loading && library.isEmpty()) {
                     LoadingIndicator(
                         modifier = Modifier
                             .size(96.dp)
                             .align(Alignment.Center)
                     )
                 } else {
-                    PosterGrid(
-                        items = library
-                            .applyMovieFiltering(selectedFilter)
-                            .applyMovieSorting(selectedSortOption, selectedSortOrder),
-                        onItemClick = { movie ->
-                            Toast.makeText(context, movie.title, Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = { isRefreshing = true }
+                    ) {
+                        PosterGrid(
+                            items = library
+                                .applyMovieFiltering(selectedFilter)
+                                .applyMovieSorting(selectedSortOption, selectedSortOrder),
+                            onItemClick = { movie ->
+                                Toast.makeText(context, movie.title, Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             } ?: run {
                 Text(text = "No instance found")

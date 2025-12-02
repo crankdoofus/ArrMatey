@@ -1,6 +1,11 @@
 package com.dnfapps.arrmatey.api.arr.model
 
 import androidx.compose.ui.graphics.Color
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.ui.theme.RadarrDownloadedMonitored
 import com.dnfapps.arrmatey.ui.theme.RadarrDownloadedUnmonitored
 import com.dnfapps.arrmatey.ui.theme.RadarrMissingMonitored
@@ -11,7 +16,20 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
+@Entity(
+    tableName = "arr_movies",
+    foreignKeys = [
+        ForeignKey(
+            entity = Instance::class,
+            parentColumns = ["id"],
+            childColumns = ["instanceId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("instanceId")]
+)
 data class ArrMovie(
+    @PrimaryKey(autoGenerate = false)
     override val id: Int,
     override val title: String,
     override val originalLanguage: Language,
@@ -38,6 +56,7 @@ data class ArrMovie(
     override val ratings: MovieRatings,
     override val statistics: MovieStatistics,
     @Contextual override val added: Instant,
+    override var instanceId: Long? = null,
 
     val originalTitle: String,
     val secondaryYear: Int? = null,
