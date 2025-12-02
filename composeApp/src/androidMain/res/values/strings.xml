@@ -50,6 +50,9 @@
     <string name="cutoff_unmet">Cutoff Unmet</string>
     <string name="continuing_only">Continuing Only</string>
     <string name="ended_only">Ended Only</string>
+    <string name="slow_instance">Slow instance</string>
+    <string name="custom_timeout_seconds">Custom timeout (seconds)</string>
+    <string name="cache_on_disk">Cache library on disk</string>
 
     <!-- Instances -->
     <string name="sonarr_description">Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.</string>

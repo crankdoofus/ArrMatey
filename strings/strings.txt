@@ -91,6 +91,12 @@
         en = Continuing Only
     [ended_only]
         en = Ended Only
+    [slow_instance]
+        en = Slow instance
+    [custom_timeout_seconds]
+        en = Custom timeout (seconds)
+    [cache_on_disk]
+        en = Cache library on disk
 
 [[Instances]]
     [sonarr_description]

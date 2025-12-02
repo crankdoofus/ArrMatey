@@ -10,7 +10,7 @@ import com.dnfapps.arrmatey.model.Instance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [Instance::class], version = 1)
+@Database(entities = [Instance::class], version = 2)
 @ConstructedBy(ArrMateyDatabaseConstructor::class)
 abstract class ArrMateyDatabase : RoomDatabase() {
     abstract fun getInstanceDao(): InstanceDao

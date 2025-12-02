@@ -40,19 +40,41 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
     private val _apiEndpoint = MutableStateFlow("")
     val apiEndpoint: StateFlow<String> = _apiEndpoint
 
+    private val _apiKey = MutableStateFlow("")
+    val apiKey: StateFlow<String> = _apiKey
+
+    private val _isSlowInstance = MutableStateFlow(false)
+    val isSlowInstance: StateFlow<Boolean> = _isSlowInstance
+
+    private val _customTimeout = MutableStateFlow<Long?>(null)
+    val customTimeout: StateFlow<Long?> = _customTimeout
+
+    private val _cacheOnDisk = MutableStateFlow(false)
+    val cacheOnDisk = _cacheOnDisk
+
+
     fun setApiEndpoint(value: String) {
         _testing.value = false
         _result.value = null
         _apiEndpoint.value = value
     }
 
-    private val _apiKey = MutableStateFlow("")
-    val apiKey: StateFlow<String> = _apiKey
-
     fun setApiKey(value: String) {
         _testing.value = false
         _result.value = null
         _apiKey.value = value
+    }
+
+    fun setIsSlowInstance(value: Boolean) {
+        _isSlowInstance.value = value
+    }
+
+    fun setCustomTimeout(value: Long?) {
+        _customTimeout.value = value
+    }
+
+    fun setCacheOnDisk(value: Boolean) {
+        _cacheOnDisk.value = value
     }
 
     val instanceLabel = mutableStateOf("")
@@ -83,6 +105,9 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
         _apiEndpoint.value = ""
         _apiKey.value = ""
         instanceLabel.value = ""
+        _isSlowInstance.value = false
+        _customTimeout.value = null
+        _cacheOnDisk.value = false
     }
 
     fun dismissInfoCard(instanceType: InstanceType) {
@@ -94,7 +119,10 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
             type = instanceType,
             label = instanceLabel.value.takeUnless { it.isEmpty() },
             url = apiEndpoint.value,
-            apiKey = apiKey.value
+            apiKey = apiKey.value,
+            slowInstance = isSlowInstance.value,
+            customTimeout = customTimeout.value,
+            cacheOnDisk = cacheOnDisk.value
         )
         instanceDao.insert(newInstance)
     }

@@ -10,7 +10,10 @@ data class Instance(
     var label: String?,
     var url: String,
     var apiKey: String,
-    var enabled: Boolean = true
+    var enabled: Boolean = true,
+    var slowInstance: Boolean = false,
+    var customTimeout: Long? = null,
+    var cacheOnDisk: Boolean = false
 )
 
 enum class InstanceType(

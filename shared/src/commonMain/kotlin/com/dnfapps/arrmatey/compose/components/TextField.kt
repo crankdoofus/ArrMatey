@@ -3,12 +3,17 @@ package com.dnfapps.arrmatey.compose.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.sin
@@ -20,19 +25,30 @@ fun AMOutlinedTextField(
     modifier: Modifier = Modifier,
     singleLine: Boolean = false,
     label: String? = null,
+    required: Boolean = false,
     description: String? = null,
     placeholder: String? = null,
     errorMessage: String? = null,
-    isError: Boolean = false
+    isError: Boolean = false,
+    enabled: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
     ) {
         label?.let {
+            val labelText = buildAnnotatedString {
+                if (required) {
+                    withStyle(SpanStyle(color = Color.Red)) {
+                        append("* ")
+                    }
+                }
+                append(label)
+            }
             Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = labelText,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f),
                 fontSize = 14.sp,
                 maxLines = 1
             )
@@ -52,7 +68,9 @@ fun AMOutlinedTextField(
             isError = isError,
             supportingText = if (isError && errorMessage != null) {
                 { Text(text = errorMessage) }
-            } else null
+            } else null,
+            enabled = enabled,
+            keyboardOptions = keyboardOptions
         )
         description?.let {
             Text(
@@ -65,54 +83,54 @@ fun AMOutlinedTextField(
     }
 }
 
-@Composable
-fun AMOutlinedTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    singleLine: Boolean = false,
-    label: AnnotatedString? = null,
-    description: String? = null,
-    placeholder: String? = null,
-    errorMessage: String? = null,
-    isError: Boolean = false
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = modifier
-    ) {
-        label?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 1
-            )
-        }
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = placeholder?.let { {
-                Text(
-                    text = it,
-                    fontSize = 14.sp,
-                    maxLines = 1
-                )
-            } },
-            singleLine = singleLine,
-            isError = isError,
-            supportingText = if (isError && errorMessage != null) {
-                { Text(text = errorMessage) }
-            } else null
-        )
-        description?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 12.sp,
-                lineHeight = 14.sp
-            )
-        }
-    }
-}
+//@Composable
+//fun AMOutlinedTextField(
+//    value: String,
+//    onValueChange: (String) -> Unit,
+//    modifier: Modifier = Modifier,
+//    singleLine: Boolean = false,
+//    label: AnnotatedString? = null,
+//    description: String? = null,
+//    placeholder: String? = null,
+//    errorMessage: String? = null,
+//    isError: Boolean = false
+//) {
+//    Column(
+//        verticalArrangement = Arrangement.spacedBy(4.dp),
+//        modifier = modifier
+//    ) {
+//        label?.let {
+//            Text(
+//                text = it,
+//                color = MaterialTheme.colorScheme.onSurface,
+//                fontSize = 14.sp,
+//                maxLines = 1
+//            )
+//        }
+//        OutlinedTextField(
+//            value = value,
+//            onValueChange = onValueChange,
+//            modifier = Modifier.fillMaxWidth(),
+//            placeholder = placeholder?.let { {
+//                Text(
+//                    text = it,
+//                    fontSize = 14.sp,
+//                    maxLines = 1
+//                )
+//            } },
+//            singleLine = singleLine,
+//            isError = isError,
+//            supportingText = if (isError && errorMessage != null) {
+//                { Text(text = errorMessage) }
+//            } else null
+//        )
+//        description?.let {
+//            Text(
+//                text = it,
+//                color = MaterialTheme.colorScheme.onSurface,
+//                fontSize = 12.sp,
+//                lineHeight = 14.sp
+//            )
+//        }
+//    }
+//}

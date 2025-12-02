@@ -463,6 +463,39 @@
         }
       }
     },
+    "slow_instance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slow instance"
+          }
+        }
+      }
+    },
+    "custom_timeout_seconds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom timeout (seconds)"
+          }
+        }
+      }
+    },
+    "cache_on_disk": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache library on disk"
+          }
+        }
+      }
+    },
     "sonarr_description": {
       "extractionState": "manual",
       "localizations": {
