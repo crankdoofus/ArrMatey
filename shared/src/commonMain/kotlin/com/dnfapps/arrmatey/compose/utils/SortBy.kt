@@ -66,12 +66,12 @@ enum class SortOrder(
     val androidIcon: ImageVector,
     val androidText: StringResource
 ) {
-    Asc("arrow.up", "ascending", Icons.Default.ArrowUpward, Res.string.sort_ascending),
-    Desc("arrow.down", "descending", Icons.Default.ArrowDownward, Res.string.sort_descending)
+    Asc("arrow.up", "sort_ascending", Icons.Default.ArrowUpward, Res.string.sort_ascending),
+    Desc("arrow.down", "sort_descending", Icons.Default.ArrowDownward, Res.string.sort_descending)
 }
 
 private fun List<ArrMedia<*,*,*,*,*>>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
-    SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.title } else sortedByDescending { it.title }
+    SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.title.lowercase() } else sortedByDescending { it.title.lowercase() }
     SortBy.Year -> if (order == SortOrder.Asc) sortedBy { it.year } else sortedByDescending { it.year }
     SortBy.Added -> if (order == SortOrder.Asc) sortedBy { it.added } else sortedByDescending { it.added }
     SortBy.Rating -> if (order == SortOrder.Asc) sortedBy { it.ratingScore() } else sortedByDescending { it.ratingScore() }

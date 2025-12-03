@@ -17,6 +17,12 @@ struct ArrTab: View {
     @State private var uiState: Any = LibraryUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
     
+    @State private var sortBy: Shared.SortBy = .title
+    @State private var sortOrder: Shared.SortOrder = .asc
+    @State private var filterBy: Shared.FilterBy = .all
+    
+    @State private var stableItemsKey: String = UUID().uuidString
+    
     init(type: InstanceType) {
         self.type = type
         self.instanceViewModel = InstanceViewModel(instanceType: type)
@@ -31,6 +37,26 @@ struct ArrTab: View {
             .onDisappear {
                 observationTask?.cancel()
             }
+            .toolbar {
+                toolbarOptions
+            }
+    }
+    
+    private var sortedAndFilteredItems: [GenericArrMedia] {
+        guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>,
+              let items = success?.items as? [GenericArrMedia] else { return [] }
+        
+        print("has items \(items.count)")
+        
+        guard let sorted = SortByKt.applySorting(items, type: type, sortBy: sortBy, order: sortOrder) as? [GenericArrMedia] else { return [] }
+        
+        print("sorted to \(sorted.count)")
+        
+        guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: filterBy) as? [GenericArrMedia] else { return [] }
+        
+        print("filtered to \(filtered.count)")
+        
+        return filtered
     }
     
     @ViewBuilder
@@ -45,13 +71,17 @@ struct ArrTab: View {
                 Text("loading")
             }
         case let success as LibraryUiStateSuccess<AnyObject>:
-            if let items = success.items as? [GenericArrMedia] {
-                PosterGridView(items: items) { media in
+            if sortedAndFilteredItems.isEmpty {
+                Text("No items")
+            } else {
+                PosterGridView(items: sortedAndFilteredItems) { media in
                     print("tapped: \(media.title)")
                 }
+                .id(stableItemsKey)
+                .onChange(of: sortedAndFilteredItems) { _, _ in
+                    stableItemsKey = UUID().uuidString
+                }
                 .ignoresSafeArea(edges: .bottom)
-            } else {
-                Text("unable to cast items")
             }
         case let error as LibraryUiStateError<AnyObject>:
             VStack {
@@ -89,6 +119,19 @@ struct ArrTab: View {
             }
         } catch {
             print("Error observing state: \(error)")
+        }
+    }
+    
+    @ToolbarContentBuilder
+    var toolbarOptions: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            SortByPickerMenu(type: type, sortedBy: self.$sortBy, sortOrder: self.$sortOrder)
+                .menuIndicator(.hidden)
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            FilterByPickerMenu(type: type, filteredBy: self.$filterBy)
+                .menuIndicator(.hidden)
         }
     }
 }
