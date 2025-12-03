@@ -1,32 +1,33 @@
 //
-// Created by Owen LeJeune on 2025-12-02.
+//  ArrTab.swift
+//  iosApp
+//
+//  Created by Owen LeJeune on 2025-12-03.
 //
 
 import Foundation
 import SwiftUI
 import Shared
 
-struct ArrTabView: View {
+struct ArrTab: View {
     let type: InstanceType
-
-    @StateObject private var networkConnectivityViewModel = NetworkConnectivityViewModel()
-//    @StateObject private var networkViewModel = NetworkConnectivityViewModel()
-//    @StateObject private var instanceViewModel = InstanceView
-//    @StateObject private var arrViewModel = ArrLibraryViewMo
     
-    @State private var selectedSortOptions: SortBy = .title
-    @State private var selectedSortOrder: Shared.SortOrder = .asc
-    @State private var selectedFilter: FilterBy = .all
+    @ObservedObject var instanceViewModel: InstanceViewModel
     
-    @State private var hasServerConnectivityError: Bool = false
-    @State private var showServerError: Bool = false
-    @State private var showNetworkError: Bool = false
-    @State private var showGenericError: Bool = false
-    @State private var errorMessage: String = ""
+    init(type: InstanceType) {
+        self.type = type
+        self.instanceViewModel = InstanceViewModel(instanceType: type)
+    }
     
     var body: some View {
         NavigationStack {
-//            if let instance = 
+            VStack {
+//                Text("\(instanceViewModel.firstInstance?.label ?? "")")
+            }
+            .navigationTitle(instanceViewModel.firstInstance?.label ?? "Sonarr")
+        }
+        .task {
+            await instanceViewModel.getFirstInstance()
         }
     }
 }

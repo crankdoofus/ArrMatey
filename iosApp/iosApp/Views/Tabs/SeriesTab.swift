@@ -4,15 +4,21 @@
 
 import Foundation
 import SwiftUI
+import Shared
 
 struct SeriesTab: View {
-    let five = 5
-    let one = 1
+//    @StateObject var instanceViewModel = InstanceViewModel(instanceType: .sonarr)
+    
     var body: some View {
-        VStack {
-            Text("\(five) test")
-            Text("\(one) test")
-            Text("latest \("AKHFSD") \("SLDKFH")")
-        }
+        ArrTab(type: .sonarr)
+//        NavigationStack {
+//            VStack {
+////                Text("\(instanceViewModel.firstInstance?.label ?? "")")
+//            }
+//            .navigationTitle(instanceViewModel.firstInstance?.label ?? "Sonarr")
+//        }
+//        .task {
+//            await instanceViewModel.getFirstInstance()
+//        }
     }
 }

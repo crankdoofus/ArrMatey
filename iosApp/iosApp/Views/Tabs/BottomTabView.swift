@@ -13,6 +13,7 @@ struct BottomTabView: View {
         switch tabItem {
         case .settings: SettingsTab()
         case .shows: SeriesTab()
+        case .movies: SeriesTab()
         default: VStack{}
         }
     }

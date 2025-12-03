@@ -8,14 +8,6 @@ import Shared
 
 struct SettingsTab: View {
     var body: some View {
-        SonarrConfigScreenComposable()
+//        SonarrConfigScreenComposable()
     }
-}
-
-struct SonarrConfigScreenComposable: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> UIViewController {
-        SonarrConfigurationScreenViewControllerKt.SonarrConfigurationScreenViewController()
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
 }

@@ -5,6 +5,7 @@ import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.SonarrClient
 import com.dnfapps.arrmatey.api.client.createInstanceClient
 import com.dnfapps.arrmatey.database.ArrMateyDatabase
+import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.database.getRoomDatabase
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
@@ -22,7 +23,7 @@ val networkModule = module {
 
     single { NetworkConnectivityObserverFactory().create() }
 
-    factory { NetworkConnectivityRepository() }
+    single { NetworkConnectivityRepository() }
 }
 
 val databaseModule = module {
@@ -31,6 +32,8 @@ val databaseModule = module {
     single { get<ArrMateyDatabase>().getInstanceDao() }
     single { get<ArrMateyDatabase>().getSeriesDao() }
     single { get<ArrMateyDatabase>().getMoviesDao() }
+
+    single { InstanceRepository() }
 }
 
 expect fun platformModule(): Module

@@ -7,15 +7,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.navigation.NavigationViewModel
 import com.dnfapps.arrmatey.navigation.SettingsScreen
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,7 +23,7 @@ fun SettingsTab() {
     val viewModel = viewModel<NavigationViewModel>()
     val instanceViewModel = viewModel<InstanceViewModel>()
 
-    val allInstances by instanceViewModel.getAllInstances().collectAsState(emptyList())
+    val allInstances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
 
     Scaffold {
         Column(modifier = Modifier.padding(it)) {

@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.ui.viewmodel
+package com.dnfapps.arrmatey.api.arr.viewmodel
 
 interface IArrViewModel {
 

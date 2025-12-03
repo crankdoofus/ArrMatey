@@ -3,6 +3,7 @@ package com.dnfapps.arrmatey.compose.screens.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dnfapps.arrmatey.api.arr.BaseArrClient
+import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.database.dao.InstanceDao
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
@@ -19,7 +20,8 @@ import org.koin.core.component.inject
 class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
 
     val client: BaseArrClient by inject()
-    val instanceDao: InstanceDao by inject()
+//    val instanceDao: InstanceDao by inject()
+    val instanceRepository: InstanceRepository by inject()
 
     private val _saveButtonEnabled = MutableStateFlow(false)
     val saveButtonEnabled: StateFlow<Boolean> = _saveButtonEnabled
@@ -124,6 +126,7 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
             customTimeout = customTimeout.value,
             cacheOnDisk = cacheOnDisk.value
         )
-        instanceDao.insert(newInstance)
+        instanceRepository.newInstance(newInstance)
+//        instanceDao.insert(newInstance)
     }
 }

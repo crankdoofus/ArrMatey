@@ -18,6 +18,12 @@ tasks.register<Exec>("generateLocalization") {
     commandLine("/Users/owen.lejeune/.nvm/versions/node/v22.3.0/bin/node", "$rootDir/strings/generate-strings.js")
 }
 
+skie {
+    features {
+        enableSwiftUIObservingPreview = true
+    }
+}
+
 kotlin {
     androidTarget {
         compilerOptions {
@@ -43,7 +49,11 @@ kotlin {
     }
 
     sourceSets {
-        all { languageSettings.optIn("kotlin.time.ExperimentalTime") }
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+        }
 
         androidMain.dependencies {
             implementation(compose.preview)

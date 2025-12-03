@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiError
+import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
 import com.dnfapps.arrmatey.compose.components.FilterMenuButton
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.components.SortMenuButton
@@ -50,8 +52,6 @@ import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.LibraryUiError
-import com.dnfapps.arrmatey.ui.viewmodel.LibraryUiState
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.rememberArrViewModel
 import kotlinx.coroutines.launch
@@ -156,8 +156,8 @@ fun ArrTab(type: InstanceType) {
                 .fillMaxSize()
         ) {
             instance?.let { instance ->
-                val viewModel = rememberArrViewModel(instance)
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val arrViewModel = rememberArrViewModel(instance)
+                val uiState by arrViewModel.uiState.collectAsStateWithLifecycle()
 
                 when (val state = uiState) {
                     is LibraryUiState.Initial,
@@ -174,7 +174,7 @@ fun ArrTab(type: InstanceType) {
                             isRefreshing = state.isRefreshing,
                             onRefresh = {
                                 scope.launch {
-                                    viewModel.refreshLibrary()
+                                    arrViewModel.refreshLibrary()
                                 }
                             }
                         ) {
@@ -206,7 +206,7 @@ fun ArrTab(type: InstanceType) {
                             onRefresh = {
                                 isRefreshing = true
                                 scope.launch {
-                                    viewModel.refreshLibrary()
+                                    arrViewModel.refreshLibrary()
                                 }
                             }
                         ) {
