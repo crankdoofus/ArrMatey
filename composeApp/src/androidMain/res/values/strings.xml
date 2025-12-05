@@ -9,6 +9,7 @@
 
     <!-- Titles -->
     <string name="add_instance">Add instance</string>
+    <string name="instances">Instances</string>
 
     <!-- Actions -->
     <string name="close">Close</string>

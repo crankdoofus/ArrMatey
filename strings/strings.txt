@@ -13,6 +13,8 @@
 [[Titles]]
     [add_instance]
         en = Add instance
+    [instances]
+        en = Instances
 
 [[Actions]]
     [close]

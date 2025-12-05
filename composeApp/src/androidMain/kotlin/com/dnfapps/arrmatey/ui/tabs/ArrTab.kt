@@ -71,11 +71,6 @@ fun ArrTab(type: InstanceType) {
     var selectedSortOrder by remember { mutableStateOf(SortOrder.Asc) }
     var selectedFilter by remember { mutableStateOf(FilterBy.All) }
 
-    val title = when (type) {
-        InstanceType.Sonarr -> stringResource(R.string.series)
-        InstanceType.Radarr -> stringResource(R.string.movies)
-    }
-
     val snackbarHostState = remember { SnackbarHostState() }
     var hasServerConnetivityError by remember { mutableStateOf(false) }
     val hasNetworkConnection by networkViewModel.isConnected.collectAsStateWithLifecycle()
@@ -97,7 +92,7 @@ fun ArrTab(type: InstanceType) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = title)
+                        Text(text = instance?.label ?: type.name)
                         if (hasServerConnetivityError) {
                             Icon(
                                 imageVector = Icons.Default.CloudOff,

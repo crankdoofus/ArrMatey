@@ -1,18 +1,39 @@
 package com.dnfapps.arrmatey.ui.tabs
 
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.entensions.getDrawableId
 import com.dnfapps.arrmatey.navigation.NavigationViewModel
 import com.dnfapps.arrmatey.navigation.SettingsScreen
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
@@ -20,22 +41,85 @@ import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTab() {
+    val context = LocalContext.current
+
     val viewModel = viewModel<NavigationViewModel>()
     val instanceViewModel = viewModel<InstanceViewModel>()
 
     val allInstances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
 
-    Scaffold {
-        Column(modifier = Modifier.padding(it)) {
-            allInstances.forEach {
-                Text(text = "${it.type} instance - ${it.url}")
-            }
-            Button(
-                onClick = {
-                    viewModel.navigateToSettingsScreen(SettingsScreen.AddInstance)
-                }
+    val radius = 12.dp
+
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(text = stringResource(R.string.settings)) })
+        }
+    ) {
+        Box(modifier = Modifier.padding(it)) {
+            Column(
+                modifier = Modifier.padding(all = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = stringResource(R.string.add_instance))
+                Text(text = stringResource(R.string.instances), fontSize = 16.sp)
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    allInstances.forEachIndexed { index, instance ->
+                        val topR = if (index == 0) radius else 0.dp
+                        Card(
+                            shape = RoundedCornerShape(topStart = topR, topEnd = topR),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                Toast.makeText(context, "TODO - ${instance.label ?: instance.type.name}", Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(getDrawableId(instance.type.iconKey)),
+                                    contentDescription = instance.type.name,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                                ) {
+                                    Text(text = instance.label ?: instance.type.name, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                                    Text(text = instance.url, fontSize = 16.sp)
+                                }
+                            }
+                        }
+                    }
+                    Card(
+                        shape = RoundedCornerShape(bottomEnd = radius, bottomStart = radius),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            viewModel.navigateToSettingsScreen(SettingsScreen.AddInstance)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddCircleOutline,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(text = stringResource(R.string.add_instance), fontSize = 18.sp, fontWeight = FontWeight.Normal)
+                        }
+                    }
+                }
+
+//                Button(
+//                    onClick = {
+//                        viewModel.navigateToSettingsScreen(SettingsScreen.AddInstance)
+//                    }
+//                ) {
+//                    Text(text = stringResource(R.string.add_instance))
+//                }
             }
         }
     }
