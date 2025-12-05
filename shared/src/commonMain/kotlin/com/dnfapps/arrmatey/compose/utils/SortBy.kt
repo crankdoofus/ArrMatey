@@ -51,10 +51,17 @@ enum class SortBy(
     PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, "previous_airing", Res.string.previous_airing);
 
     companion object {
+
+        private val sonarrOps by lazy {
+            listOf(Title, Year, Added, Rating, FileSize, NextAiring, PreviousAiring)
+        }
+        private val radarrOps by lazy {
+            listOf(Title, Year, Added, Rating, FileSize, Grabbed, DigitalRelease)
+        }
         fun typeEntries(type: InstanceType) =
             when (type) {
-                InstanceType.Sonarr -> listOf(Title, Year, Added, Rating, FileSize, NextAiring, PreviousAiring)
-                InstanceType.Radarr -> listOf(Title, Year, Added, Rating, FileSize, Grabbed, DigitalRelease)
+                InstanceType.Sonarr -> sonarrOps
+                InstanceType.Radarr -> radarrOps
             }
 
     }

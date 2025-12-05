@@ -29,7 +29,8 @@ fun createInstanceClient(instance: Instance?) =
 
         install(HttpTimeout) {
             if (instance?.slowInstance == true) {
-                val timeout = instance.customTimeout ?: (5 * 60_000)
+                val customTimeout = instance.customTimeout?.let { it * 1000 } // convert seconds to millis
+                val timeout = customTimeout ?: (5 * 60_000)
                 requestTimeoutMillis = timeout
                 socketTimeoutMillis = timeout
             }

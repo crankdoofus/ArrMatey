@@ -25,14 +25,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceScreenViewModel
 import com.dnfapps.arrmatey.entensions.getDrawableId
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
 
 @Composable
 fun InstanceInfoCard(instanceType: InstanceType) {
-    val addInstanceViewModel = viewModel<AddInstanceScreenViewModel>()
+    val addInstanceViewModel = viewModel<AddInstanceViewModel>()
 
     Card(
         modifier = Modifier.fillMaxWidth()

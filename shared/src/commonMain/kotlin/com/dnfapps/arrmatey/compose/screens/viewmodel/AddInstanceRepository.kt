@@ -1,27 +1,19 @@
 package com.dnfapps.arrmatey.compose.screens.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import com.dnfapps.arrmatey.api.arr.BaseArrClient
 import com.dnfapps.arrmatey.database.InstanceRepository
-import com.dnfapps.arrmatey.database.dao.InstanceDao
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.utils.isValidUrl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
+class AddInstanceRepository: KoinComponent {
 
-    val client: BaseArrClient by inject()
-//    val instanceDao: InstanceDao by inject()
-    val instanceRepository: InstanceRepository by inject()
+    private val client: BaseArrClient by inject()
+    private val instanceRepository: InstanceRepository by inject()
 
     private val _saveButtonEnabled = MutableStateFlow(false)
     val saveButtonEnabled: StateFlow<Boolean> = _saveButtonEnabled
@@ -54,17 +46,21 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
     private val _cacheOnDisk = MutableStateFlow(false)
     val cacheOnDisk = _cacheOnDisk
 
+    private val _instanceLabel = MutableStateFlow("")
+    val instanceLabel = _instanceLabel
 
     fun setApiEndpoint(value: String) {
         _testing.value = false
         _result.value = null
         _apiEndpoint.value = value
+        _saveButtonEnabled.value = false
     }
 
     fun setApiKey(value: String) {
         _testing.value = false
         _result.value = null
         _apiKey.value = value
+        _saveButtonEnabled.value = false
     }
 
     fun setIsSlowInstance(value: Boolean) {
@@ -79,24 +75,29 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
         _cacheOnDisk.value = value
     }
 
-    val instanceLabel = mutableStateOf("")
+    fun setInstanceLabel(value: String) {
+        _instanceLabel.value = value
+    }
 
-    fun testConnection() {
-        CoroutineScope(Dispatchers.IO).launch {
-            if (!testing.value) {
-                _endpointError.emit(false)
-                if (apiEndpoint.value.isValidUrl()) {
-                    _apiEndpoint.value = apiEndpoint.value.trim()
-                    _apiKey.value = apiKey.value.trim()
-                    val r = client.test(apiEndpoint.value, apiKey.value)
-                    _testing.emit(false)
-                    _result.emit(r)
-                } else {
-                    _testing.emit(false)
-                    _endpointError.emit(true)
-                }
+    suspend fun testConnection() {
+        println("Testing connection")
+        if (!testing.value) {
+            println("can test")
+            _endpointError.emit(false)
+            if (apiEndpoint.value.isValidUrl()) {
+                println("has values ${apiEndpoint.value} \n ${apiKey.value}")
+                _apiEndpoint.value = apiEndpoint.value.trim()
+                _apiKey.value = apiKey.value.trim()
+                val r = client.test(apiEndpoint.value, apiKey.value)
+                _testing.emit(false)
+                _result.emit(r)
+            } else {
+                println("invalid api key")
+                _testing.emit(false)
+                _endpointError.emit(true)
             }
         }
+        _saveButtonEnabled.emit(apiEndpoint.value.isNotEmpty() && apiKey.value.isNotEmpty() && result.value == true)
     }
 
     fun reset() {
@@ -123,10 +124,9 @@ class AddInstanceScreenViewModel : ViewModel(), KoinComponent {
             url = apiEndpoint.value,
             apiKey = apiKey.value,
             slowInstance = isSlowInstance.value,
-            customTimeout = customTimeout.value,
+            customTimeout = if (isSlowInstance.value) customTimeout.value else null,
             cacheOnDisk = cacheOnDisk.value
         )
         instanceRepository.newInstance(newInstance)
-//        instanceDao.insert(newInstance)
     }
 }

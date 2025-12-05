@@ -1,9 +1,13 @@
 package com.dnfapps.arrmatey.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "instances")
+@Entity(
+    tableName = "instances",
+    indices = [Index(value = ["url"], unique = true)]
+)
 data class Instance(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val type: InstanceType,
@@ -36,5 +40,9 @@ enum class InstanceType(
         website = "https://radarr.video/",
         iconKey = "radarr",
         defaultPort = 7878
-    )
+    );
+
+    companion object {
+        fun allValue() = entries.toList()
+    }
 }

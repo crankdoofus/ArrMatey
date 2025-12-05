@@ -18,8 +18,8 @@
     <!-- Labels -->
     <string name="label">Label</string>
     <string name="host">Host</string>
-    <string name="host_description">The URL used of the %1$s web interface.\nMUST be prefixed with &quot;http://&quot; or &quot;https://&quot;.</string>
-    <string name="host_placeholder">eg. http://10.0.0.1:%1$d</string>
+    <string name="host_description">The URL used of the %1$s web interface. MUST be prefixed with &quot;http://&quot; or &quot;https://&quot;.</string>
+    <string name="host_placeholder">eg. http://10.0.0.1:</string>
     <string name="api_key">API Key</string>
     <string name="api_key_placeholder">0a1b2c3d4e...</string>
     <string name="test">Test</string>
@@ -51,8 +51,9 @@
     <string name="continuing_only">Continuing Only</string>
     <string name="ended_only">Ended Only</string>
     <string name="slow_instance">Slow instance</string>
-    <string name="custom_timeout_seconds">Custom timeout (seconds)</string>
+    <string name="custom_timeout_seconds">Custom timeout (s)</string>
     <string name="cache_on_disk">Cache library on disk</string>
+    <string name="cache_on_disk_description">Cache the contents of this library on device for offline access.</string>
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>

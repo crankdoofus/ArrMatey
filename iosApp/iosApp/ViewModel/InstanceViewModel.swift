@@ -9,11 +9,11 @@ import SwiftUI
 import Shared
 
 class InstanceViewModel: ObservableObject {
-    let instanceType: InstanceType
+//    let instanceType: InstanceType
     
-    init(instanceType: InstanceType) {
-        self.instanceType = instanceType
-    }
+//    init(instanceType: InstanceType) {
+//        self.instanceType = instanceType
+//    }
     
     private let instanceRepository = InstanceRepository()
     
@@ -26,12 +26,13 @@ class InstanceViewModel: ObservableObject {
     @MainActor
     func refresh() async {
         for await instances in instanceRepository.allInstances {
+            print("got instances \(instances.count)")
             self.instances = instances
         }
     }
     
     @MainActor
-    func getFirstInstance() async {
+    func getFirstInstance(instanceType: InstanceType) async {
         if let instance = await instanceRepository.getFirstInstance(instanceType: instanceType).first(where: { _ in true }) {
             self.firstInstance = instance
         }

@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.screens
+package com.dnfapps.arrmatey.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +16,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,35 +23,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import arrmatey.shared.generated.resources.Res
-import arrmatey.shared.generated.resources.api_key
-import arrmatey.shared.generated.resources.api_key_placeholder
-import arrmatey.shared.generated.resources.cache_on_disk
-import arrmatey.shared.generated.resources.custom_timeout_seconds
-import arrmatey.shared.generated.resources.failure
-import arrmatey.shared.generated.resources.host
-import arrmatey.shared.generated.resources.host_description
-import arrmatey.shared.generated.resources.host_placeholder
-import arrmatey.shared.generated.resources.label
-import arrmatey.shared.generated.resources.slow_instance
-import arrmatey.shared.generated.resources.success
-import arrmatey.shared.generated.resources.test
+import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.compose.components.AMOutlinedTextField
-import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceScreenViewModel
-import com.dnfapps.arrmatey.compose.utils.requiredStringResource
 import com.dnfapps.arrmatey.model.InstanceType
-import org.jetbrains.compose.resources.stringResource
+import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArrConfigurationScreen(
     instanceType: InstanceType
 ) {
-    val viewModel = viewModel<AddInstanceScreenViewModel>()
+    val viewModel = viewModel<AddInstanceViewModel>()
 
     val apiEndpoint by viewModel.apiEndpoint.collectAsStateWithLifecycle()
     val apiKey by viewModel.apiKey.collectAsStateWithLifecycle()
-    var instanceLabel by remember { viewModel.instanceLabel }
+    val instanceLabel by viewModel.instanceLabel.collectAsStateWithLifecycle()
 
     val endpointError by viewModel.endpointError.collectAsStateWithLifecycle()
     val isTesting by viewModel.testing.collectAsStateWithLifecycle()
@@ -69,38 +53,38 @@ fun ArrConfigurationScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         AMOutlinedTextField(
-            label = stringResource(Res.string.label),
+            label = stringResource(R.string.label),
             value = instanceLabel,
-            onValueChange = { instanceLabel = it },
+            onValueChange = { viewModel.setInstanceLabel(it) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = instanceType.toString(),
             singleLine = true
         )
 
         AMOutlinedTextField(
-            label = stringResource(Res.string.host),
+            label = stringResource(R.string.host),
             required = true,
             value = apiEndpoint,
             onValueChange = {
                 viewModel.setApiEndpoint(it)
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = stringResource(Res.string.host_placeholder, instanceType.defaultPort),
-            description = stringResource(Res.string.host_description, instanceType.toString()),
+            placeholder = stringResource(R.string.host_placeholder) + "${instanceType.defaultPort}",
+            description = stringResource(R.string.host_description, instanceType.toString()),
             singleLine = true,
             isError = endpointError,
             errorMessage = if (endpointError) "InvalidHost" else null
         )
 
         AMOutlinedTextField(
-            label = stringResource(Res.string.api_key),
+            label = stringResource(R.string.api_key),
             required = true,
             value = apiKey,
             onValueChange = {
                 viewModel.setApiKey(it)
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = stringResource(Res.string.api_key_placeholder),
+            placeholder = stringResource(R.string.api_key_placeholder),
             singleLine = true
         )
 
@@ -114,14 +98,14 @@ fun ArrConfigurationScreen(
                 },
                 enabled = !isTesting && apiEndpoint.isNotBlank() && apiKey.isNotBlank()
             ) {
-                if (isTesting) CircularProgressIndicator() else Text(text = stringResource(Res.string.test))
+                if (isTesting) CircularProgressIndicator() else Text(text = stringResource(R.string.test))
             }
 
             testResult?.let { result ->
                 if (result) {
-                    Text(text = "✅ ${stringResource(Res.string.success)}", color = Color.Green)
+                    Text(text = "✅ ${stringResource(R.string.success)}", color = Color.Green)
                 } else {
-                    Text(text = "❌ ${stringResource(Res.string.failure)}", color = MaterialTheme.colorScheme.error)
+                    Text(text = "❌ ${stringResource(R.string.failure)}", color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -137,7 +121,7 @@ fun ArrConfigurationScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(Res.string.slow_instance)
+                text = stringResource(R.string.slow_instance)
             )
             Switch(
                 checked = isSlowInstance,
@@ -150,7 +134,7 @@ fun ArrConfigurationScreen(
                 viewModel.setCustomTimeout(it.toLongOrNull())
             },
             modifier = Modifier.fillMaxWidth(),
-            label = stringResource(Res.string.custom_timeout_seconds),
+            label = stringResource(R.string.custom_timeout_seconds),
             enabled = isSlowInstance,
             placeholder = "300",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -167,7 +151,7 @@ fun ArrConfigurationScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(Res.string.cache_on_disk)
+                text = stringResource(R.string.cache_on_disk)
             )
             Switch(
                 checked = cacheOnDisk,

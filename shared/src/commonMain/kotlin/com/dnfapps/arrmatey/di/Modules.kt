@@ -7,6 +7,7 @@ import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
 import com.dnfapps.arrmatey.api.arr.viewmodel.createInstanceRepository
 import com.dnfapps.arrmatey.api.client.createInstanceClient
+import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceRepository
 import com.dnfapps.arrmatey.database.ArrMateyDatabase
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.database.getRoomDatabase
@@ -25,7 +26,6 @@ val networkModule = module {
     factory<RadarrClient> { (instance: Instance) -> RadarrClient(instance) }
 
     single { NetworkConnectivityObserverFactory().create() }
-
     single { NetworkConnectivityRepository() }
 }
 
@@ -37,6 +37,7 @@ val databaseModule = module {
     single { get<ArrMateyDatabase>().getMoviesDao() }
 
     single { InstanceRepository() }
+    single { AddInstanceRepository() }
 
     factory<BaseArrRepository<out ArrMedia<*,*,*,*,*>>> {
         (instance: Instance) -> createInstanceRepository(instance)

@@ -12,7 +12,7 @@ import Shared
 struct ArrTab: View {
     let type: InstanceType
     
-    @ObservedObject var instanceViewModel: InstanceViewModel
+    @ObservedObject var instanceViewModel: InstanceViewModel = InstanceViewModel()
     @State private var arrViewModel: ArrViewModel? = nil
     @State private var uiState: Any = LibraryUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
@@ -25,12 +25,11 @@ struct ArrTab: View {
     
     init(type: InstanceType) {
         self.type = type
-        self.instanceViewModel = InstanceViewModel(instanceType: type)
     }
     
     var body: some View {
         contentForState()
-            .navigationTitle(instanceViewModel.firstInstance?.label ?? "")
+            .navigationTitle(instanceViewModel.firstInstance?.label ?? instanceViewModel.firstInstance?.type.name ?? "")
             .task {
                 await setupViewModel()
             }
@@ -38,7 +37,9 @@ struct ArrTab: View {
                 observationTask?.cancel()
             }
             .toolbar {
-                toolbarOptions
+                if uiState is LibraryUiStateSuccess<AnyObject> {
+                    toolbarOptions
+                }
             }
     }
     
@@ -46,15 +47,9 @@ struct ArrTab: View {
         guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>,
               let items = success?.items as? [GenericArrMedia] else { return [] }
         
-        print("has items \(items.count)")
-        
         guard let sorted = SortByKt.applySorting(items, type: type, sortBy: sortBy, order: sortOrder) as? [GenericArrMedia] else { return [] }
         
-        print("sorted to \(sorted.count)")
-        
         guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: filterBy) as? [GenericArrMedia] else { return [] }
-        
-        print("filtered to \(filtered.count)")
         
         return filtered
     }
@@ -96,7 +91,7 @@ struct ArrTab: View {
     
     @MainActor
     private func setupViewModel() async {
-        await instanceViewModel.getFirstInstance()
+        await instanceViewModel.getFirstInstance(instanceType: type)
         
         guard let firstInstance = instanceViewModel.firstInstance else { return }
         

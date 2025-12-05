@@ -28,9 +28,10 @@
     [host]
         en = Host
     [host_description]
-        en = The URL used of the %@ web interface.\nMUST be prefixed with "http://" or "https://".
+        en = The URL used of the %@ web interface. MUST be prefixed with "http://" or "https://".
+        iosKey = host_description %@
     [host_placeholder]
-        en = eg. http://10.0.0.1:%lld
+        en = eg. http://10.0.0.1:
     [api_key]
         en = API Key
     [api_key_placeholder]
@@ -94,9 +95,11 @@
     [slow_instance]
         en = Slow instance
     [custom_timeout_seconds]
-        en = Custom timeout (seconds)
+        en = Custom timeout (s)
     [cache_on_disk]
         en = Cache library on disk
+    [cache_on_disk_description]
+        en = Cache the contents of this library on device for offline access.
 
 [[Errors]]
     [instance_connect_error]

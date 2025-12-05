@@ -31,12 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.compose.screens.ArrConfigurationScreen
-import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceScreenViewModel
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.NavigationViewModel
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstanceInfoCard
+import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,18 +44,11 @@ fun AddInstanceScreen() {
     val scope = rememberCoroutineScope()
 
     val navigationViewModel = viewModel<NavigationViewModel>()
-    val addInstanceViewModel = viewModel<AddInstanceScreenViewModel>()
+    val addInstanceViewModel = viewModel<AddInstanceViewModel>()
 
     var selectedInstanceType by remember { mutableStateOf(InstanceType.Sonarr) }
     val showInfoCard by addInstanceViewModel.showInfoCard.collectAsStateWithLifecycle()
-
-    val isTesting by addInstanceViewModel.testing.collectAsStateWithLifecycle()
-    val testResult by addInstanceViewModel.result.collectAsStateWithLifecycle()
-    val saveButtonEnabled by remember {
-        derivedStateOf {
-            !isTesting && testResult == true
-        }
-    }
+    val saveButtonEnabled by addInstanceViewModel.saveButtonEnabled.collectAsStateWithLifecycle()
 
     LaunchedEffect(selectedInstanceType) {
         addInstanceViewModel.reset()
@@ -101,6 +93,12 @@ fun AddInstanceScreen() {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            AnimatedVisibility(
+                visible = showInfoCard
+            ) {
+                InstanceInfoCard(selectedInstanceType)
+            }
+
             DropdownPicker(
                 modifier = Modifier.fillMaxWidth(),
                 options = InstanceType.entries,
@@ -108,12 +106,6 @@ fun AddInstanceScreen() {
                 onOptionSelected = { selectedInstanceType = it },
                 label = { Text(stringResource(R.string.instance_type)) }
             )
-
-            AnimatedVisibility(
-                visible = showInfoCard
-            ) {
-                InstanceInfoCard(selectedInstanceType)
-            }
 
             when (selectedInstanceType) {
                 InstanceType.Sonarr -> ArrConfigurationScreen(InstanceType.Sonarr)// { saveButtonEnabled = it == true }
