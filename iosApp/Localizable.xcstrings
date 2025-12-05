@@ -529,6 +529,17 @@
         }
       }
     },
+    "instance_connect_error_ios": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to connect to instance"
+          }
+        }
+      }
+    },
     "showing_cached_library": {
       "extractionState": "manual",
       "localizations": {

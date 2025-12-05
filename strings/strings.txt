@@ -106,6 +106,8 @@
 [[Errors]]
     [instance_connect_error]
         en = Failed to connect to instance at %@
+    [instance_connect_error_ios]
+        en = Failed to connect to instance
     [showing_cached_library]
         en = Showing cached library
     [no_network]

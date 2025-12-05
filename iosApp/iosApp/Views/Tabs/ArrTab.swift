@@ -13,7 +13,9 @@ import ToastViewSwift
 struct ArrTab: View {
     let type: InstanceType
     
+    @ObservedObject var networkViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModel()
     @ObservedObject var instanceViewModel: InstanceViewModel = InstanceViewModel()
+    
     @State private var arrViewModel: ArrViewModel? = nil
     @State private var uiState: Any = LibraryUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
@@ -23,6 +25,10 @@ struct ArrTab: View {
     @State private var filterBy: Shared.FilterBy = .all
     
     @State private var stableItemsKey: String = UUID().uuidString
+    
+    private var firstInstance: Instance? {
+        instanceViewModel.firstInstance
+    }
     
     init(type: InstanceType) {
         self.type = type
@@ -38,6 +44,35 @@ struct ArrTab: View {
                 observationTask?.cancel()
             }
             .toolbar {
+                if !networkViewModel.isConnected {
+                    ToolbarItem(placement: .navigation) {
+                        Image(systemName: "wifi.slash")
+                            .imageScale(.medium)
+                            .foregroundColor(.red)
+                            .onTapGesture {
+                                let errTitle = String(localized: LocalizedStringResource("no_network"))
+                                let toast = Toast.text(errTitle)
+                                toast.show()
+                            }
+                    }
+                }
+                
+                if let error = uiState as? LibraryUiStateError<AnyObject> {
+                    if error.type == .network {
+                        ToolbarItem(placement: .navigation) {
+                            Image(systemName: "externaldrive.badge.xmark")
+                                .imageScale(.medium)
+                                .foregroundColor(.red)
+                                .onTapGesture {
+                                    let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
+                                    let errSubtitle = "\(firstInstance?.label ?? firstInstance?.type.name ?? "") - \(firstInstance?.url ?? "")"
+                                    let toast = Toast.text(errTitle, subtitle: errSubtitle)
+                                    toast.show()
+                                }
+                        }
+                    }
+                }
+                
                 if uiState is LibraryUiStateSuccess<AnyObject> {
                     toolbarOptions
                 }
@@ -164,4 +199,5 @@ struct ArrTab: View {
                 .menuIndicator(.hidden)
         }
     }
+    
 }

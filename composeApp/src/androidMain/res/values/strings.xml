@@ -58,6 +58,7 @@
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>
+    <string name="instance_connect_error_ios">Failed to connect to instance</string>
     <string name="showing_cached_library">Showing cached library</string>
     <string name="no_network">No network connectivity</string>
 
