@@ -88,6 +88,8 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
+            implementation(libs.androidx.datastore)
+            implementation(libs.androidx.datastore.preferences)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

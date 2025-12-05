@@ -1,5 +1,7 @@
 package com.dnfapps.arrmatey.di
 
+import com.dnfapps.arrmatey.DataStoreFactory
+import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.api.arr.BaseArrClient
 import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.SonarrClient
@@ -44,6 +46,11 @@ val databaseModule = module {
     }
 }
 
+val appModule = module {
+    single { DataStoreFactory().provideDataStore() }
+    single { PreferencesStore() }
+}
+
 expect fun platformModules(): List<Module>
 
-fun appModules() = listOf(networkModule, databaseModule) + platformModules()
+fun appModules() = listOf(networkModule, databaseModule, appModule) + platformModules()

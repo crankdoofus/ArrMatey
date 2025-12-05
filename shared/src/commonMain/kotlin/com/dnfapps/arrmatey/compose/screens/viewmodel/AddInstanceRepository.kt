@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.compose.screens.viewmodel
 
+import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.api.arr.BaseArrClient
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.model.Instance
@@ -14,13 +15,12 @@ class AddInstanceRepository: KoinComponent {
 
     private val client: BaseArrClient by inject()
     private val instanceRepository: InstanceRepository by inject()
+    private val preferencesStore: PreferencesStore by inject()
 
     private val _saveButtonEnabled = MutableStateFlow(false)
     val saveButtonEnabled: StateFlow<Boolean> = _saveButtonEnabled
 
-    // todo - get and store this in preferences per instance
-    private val _showInfoCard = MutableStateFlow(true)
-    val showInfoCard: StateFlow<Boolean> = _showInfoCard
+    val infoCardMap = preferencesStore.showInfoCards
 
     private val _endpointError = MutableStateFlow(false)
     val endpointError: StateFlow<Boolean> = _endpointError
@@ -114,7 +114,7 @@ class AddInstanceRepository: KoinComponent {
     }
 
     fun dismissInfoCard(instanceType: InstanceType) {
-        _showInfoCard.value = false
+        preferencesStore.dismissInfoCard(instanceType)
     }
 
     suspend fun saveInstance(instanceType: InstanceType) {

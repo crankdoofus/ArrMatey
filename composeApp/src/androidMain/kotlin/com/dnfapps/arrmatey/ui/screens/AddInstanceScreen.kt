@@ -47,8 +47,9 @@ fun AddInstanceScreen() {
     val addInstanceViewModel = viewModel<AddInstanceViewModel>()
 
     var selectedInstanceType by remember { mutableStateOf(InstanceType.Sonarr) }
-    val showInfoCard by addInstanceViewModel.showInfoCard.collectAsStateWithLifecycle()
     val saveButtonEnabled by addInstanceViewModel.saveButtonEnabled.collectAsStateWithLifecycle()
+    val infoCardMap by addInstanceViewModel.infoCardMap.collectAsStateWithLifecycle()
+    val showInfoCard = infoCardMap[selectedInstanceType] ?: true
 
     LaunchedEffect(selectedInstanceType) {
         addInstanceViewModel.reset()

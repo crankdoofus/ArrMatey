@@ -15,7 +15,7 @@ class AddInstanceViewModel: ObservableObject {
         @Published var apiEndpoint: String = ""
         @Published var apiKey: String = ""
         @Published var saveButtonEnabled: Bool = false
-        @Published var showInfoCard: Bool = true
+        @Published var infoCardMap: [InstanceType:KotlinBoolean] = [:]
         @Published var endpointError: Bool = false
         @Published var testing: Bool = false
         @Published var result: Bool? = nil
@@ -49,8 +49,8 @@ class AddInstanceViewModel: ObservableObject {
             }
             
             Task {
-                for await value in repository.showInfoCard {
-                    showInfoCard = value.boolValue
+                for await value in repository.infoCardMap {
+                    infoCardMap = value
                 }
             }
             

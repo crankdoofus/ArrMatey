@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceRepository
 import com.dnfapps.arrmatey.model.InstanceType
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -13,7 +15,12 @@ class AddInstanceViewModel: ViewModel(), KoinComponent {
     private val repository: AddInstanceRepository by inject()
 
     val saveButtonEnabled = repository.saveButtonEnabled
-    val showInfoCard = repository.showInfoCard
+    val infoCardMap = repository.infoCardMap
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
     val endpointError = repository.endpointError
     val testing = repository.testing
     val result = repository.result

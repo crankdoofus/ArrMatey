@@ -33,10 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiError
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
@@ -51,11 +51,12 @@ import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.model.InstanceType
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModelFactory
+import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
+import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -67,9 +68,10 @@ fun ArrTab(type: InstanceType) {
     val instanceViewModel = viewModel<InstanceViewModel>()
     val instance by instanceViewModel.getFirstInstance(type).collectAsState(null)
 
-    var selectedSortOption by remember { mutableStateOf(SortBy.Title) }
-    var selectedSortOrder by remember { mutableStateOf(SortOrder.Asc) }
-    var selectedFilter by remember { mutableStateOf(FilterBy.All) }
+    val preferenceStore: PreferencesStore = koinInject()
+    val selectedSortOrder by preferenceStore.sortOrder.collectAsState(SortOrder.Asc)
+    val selectedSortOption by preferenceStore.sortBy.collectAsState(SortBy.Title)
+    val selectedFilter by preferenceStore.filterBy.collectAsState(FilterBy.All)
 
     val snackbarHostState = remember { SnackbarHostState() }
     var hasServerConnetivityError by remember { mutableStateOf(false) }
@@ -128,15 +130,17 @@ fun ArrTab(type: InstanceType) {
                         FilterMenuButton(
                             instanceType = type,
                             selectedFilter = selectedFilter,
-                            onFilterChange = { selectedFilter = it }
+                            onFilterChange = {
+                                preferenceStore.saveFilterBy(it)
+                            }
                         )
                         SortMenuButton(
                             instanceType = type,
                             onSortChanged = {
-                                selectedSortOption = it
+                                preferenceStore.saveSortBy(it)
                             },
                             onOrderChanged = {
-                                selectedSortOrder = it
+                                preferenceStore.saveSortOrder(it)
                             },
                             sortBy = selectedSortOption,
                             sortOrder = selectedSortOrder

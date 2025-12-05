@@ -15,14 +15,11 @@ struct ArrTab: View {
     
     @ObservedObject var networkViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModel()
     @ObservedObject var instanceViewModel: InstanceViewModel = InstanceViewModel()
+    @ObservedObject var preferences: PreferencesViewModel = PreferencesViewModel()
     
     @State private var arrViewModel: ArrViewModel? = nil
     @State private var uiState: Any = LibraryUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
-    
-    @State private var sortBy: Shared.SortBy = .title
-    @State private var sortOrder: Shared.SortOrder = .asc
-    @State private var filterBy: Shared.FilterBy = .all
     
     @State private var stableItemsKey: String = UUID().uuidString
     
@@ -36,7 +33,7 @@ struct ArrTab: View {
     
     var body: some View {
         contentForState()
-            .navigationTitle(instanceViewModel.firstInstance?.label ?? instanceViewModel.firstInstance?.type.name ?? "")
+            .navigationTitle(firstInstance?.label ?? firstInstance?.type.name ?? "")
             .task {
                 await setupViewModel()
             }
@@ -86,9 +83,9 @@ struct ArrTab: View {
         guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>,
               let items = success?.items as? [GenericArrMedia] else { return [] }
         
-        guard let sorted = SortByKt.applySorting(items, type: type, sortBy: sortBy, order: sortOrder) as? [GenericArrMedia] else { return [] }
+        guard let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as? [GenericArrMedia] else { return [] }
         
-        guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: filterBy) as? [GenericArrMedia] else { return [] }
+        guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as? [GenericArrMedia] else { return [] }
         
         return filtered
     }
@@ -97,9 +94,9 @@ struct ArrTab: View {
         guard case let error = uiState as? LibraryUiStateError<AnyObject>,
               let items = error?.cachedItems as? [GenericArrMedia] else { return [] }
         
-        guard let sorted = SortByKt.applySorting(items, type: type, sortBy: sortBy, order: sortOrder) as? [GenericArrMedia] else { return [] }
+        guard let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as? [GenericArrMedia] else { return [] }
         
-        guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: filterBy) as? [GenericArrMedia] else { return [] }
+        guard let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as? [GenericArrMedia] else { return [] }
         
         return filtered
     }
@@ -163,7 +160,7 @@ struct ArrTab: View {
     private func setupViewModel() async {
         await instanceViewModel.getFirstInstance(instanceType: type)
         
-        guard let firstInstance = instanceViewModel.firstInstance else { return }
+        guard let firstInstance = self.firstInstance else { return }
         
         self.arrViewModel = ArrViewModel(instance: firstInstance)
         
@@ -190,12 +187,21 @@ struct ArrTab: View {
     @ToolbarContentBuilder
     var toolbarOptions: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            SortByPickerMenu(type: type, sortedBy: self.$sortBy, sortOrder: self.$sortOrder)
+            SortByPickerMenu(type: type, sortedBy: $preferences.sortBy, sortOrder: $preferences.sortOrder)
+                .onChange(of: preferences.sortBy) { _, newValue in
+                    preferences.saveSortBy(newValue)
+                }
+                .onChange(of: preferences.sortOrder) { _, newValue in
+                    preferences.saveSortOrder(newValue)
+                }
                 .menuIndicator(.hidden)
         }
         
         ToolbarItem(placement: .primaryAction) {
-            FilterByPickerMenu(type: type, filteredBy: self.$filterBy)
+            FilterByPickerMenu(type: type, filteredBy: $preferences.filterBy)
+                .onChange(of: preferences.filterBy) { _, newValue in
+                    preferences.saveFilterBy(newValue)
+                }
                 .menuIndicator(.hidden)
         }
     }

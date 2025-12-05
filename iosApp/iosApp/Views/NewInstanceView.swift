@@ -20,9 +20,13 @@ struct NewInstanceView: View {
         String(localized: LocalizedStringResource("host_placeholder")) + String(instanceType.defaultPort)
     }
     
+    var showInfoCard: Bool {
+        viewModel.infoCardMap[instanceType]?.boolValue ?? true
+    }
+    
     var body: some View {
         Form {
-            if viewModel.showInfoCard {
+            if showInfoCard {
                 VStack(spacing: 8) {
                     HStack {
                         SVGImageView(filename: instanceType.iconKey)
