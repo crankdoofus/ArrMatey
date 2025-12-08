@@ -10,11 +10,12 @@ import SwiftUI
 class SettingsNavigation: ObservableObject {
     @Published var path = NavigationPath()
     
-    func goToNewInstance() {
-        path.append(SettingsRoute.newInstance)
+    func go(to route: SettingsRoute) {
+        path.append(route)
     }
 }
 
 enum SettingsRoute : Hashable {
     case newInstance
+    case dev
 }

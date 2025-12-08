@@ -1,3 +1,5 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package com.dnfapps.arrmatey
 
 import androidx.datastore.core.DataStore
@@ -83,15 +85,17 @@ class PreferencesStore(): KoinComponent {
 
     val showInfoCards: Flow<Map<InstanceType, Boolean>> = dataStore.data
         .map { preferences ->
-            InstanceType.entries.mapNotNull { type ->
-                type to (preferences[keyForInstanceType(type)] ?: true)
-            }.toMap()
+            InstanceType.entries.associateWith { type -> (preferences[keyForInstanceType(type)] ?: true) }
         }
 
     fun dismissInfoCard(type: InstanceType) {
+        setInfoCardVisibility(type, false)
+    }
+
+    fun setInfoCardVisibility(type: InstanceType, value: Boolean) {
         scope.launch {
             dataStore.edit { preferences ->
-                preferences[keyForInstanceType(type)] = false
+                preferences[keyForInstanceType(type)] = value
             }
         }
     }

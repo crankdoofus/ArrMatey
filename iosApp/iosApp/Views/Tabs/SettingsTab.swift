@@ -27,16 +27,23 @@ struct SettingsTab: View {
                         }
                     }
                     Button(LocalizedStringResource("add_instance")) {
-                        settingsNavigation.goToNewInstance()
+                        settingsNavigation.go(to: .newInstance)
                     }
                 } header: {
                     Text(LocalizedStringResource("instances"))
+                }
+                if isDebug() {
+                    Button("Dev settings") {
+                        settingsNavigation.go(to: .dev)
+                    }
                 }
             }
             .navigationDestination(for: SettingsRoute.self) { value in
                 switch value {
                 case .newInstance:
                     NewInstanceView()
+                case .dev:
+                    DevSettingsScreen()
                 }
             }
             .navigationTitle(LocalizedStringResource("settings"))

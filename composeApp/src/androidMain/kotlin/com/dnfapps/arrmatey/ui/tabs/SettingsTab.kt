@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,8 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.entensions.getDrawableId
-import com.dnfapps.arrmatey.navigation.NavigationViewModel
+import com.dnfapps.arrmatey.isDebug
 import com.dnfapps.arrmatey.navigation.SettingsScreen
+import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +43,7 @@ import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 fun SettingsTab() {
     val context = LocalContext.current
 
-    val viewModel = viewModel<NavigationViewModel>()
+    val settingsNav = viewModel<SettingsNavigation>()
     val instanceViewModel = viewModel<InstanceViewModel>()
 
     val allInstances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
@@ -94,7 +94,7 @@ fun SettingsTab() {
                         shape = RoundedCornerShape(bottomEnd = radius, bottomStart = radius),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            viewModel.navigateToSettingsScreen(SettingsScreen.AddInstance)
+                            settingsNav.navigateTo(SettingsScreen.AddInstance)
                         }
                     ) {
                         Row(
@@ -113,13 +113,17 @@ fun SettingsTab() {
                     }
                 }
 
-//                Button(
-//                    onClick = {
-//                        viewModel.navigateToSettingsScreen(SettingsScreen.AddInstance)
-//                    }
-//                ) {
-//                    Text(text = stringResource(R.string.add_instance))
-//                }
+                if (isDebug()) {
+                    Card(
+                        shape = RoundedCornerShape(radius),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        onClick = {
+                            settingsNav.navigateTo(SettingsScreen.Dev)
+                        }
+                    ) {
+                        Text(text = "Development Settings", modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp))
+                    }
+                }
             }
         }
     }

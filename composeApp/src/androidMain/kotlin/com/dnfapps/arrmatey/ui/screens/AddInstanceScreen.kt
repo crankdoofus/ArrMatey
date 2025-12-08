@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.model.InstanceType
-import com.dnfapps.arrmatey.navigation.NavigationViewModel
+import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstanceInfoCard
 import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
@@ -43,7 +42,7 @@ import kotlinx.coroutines.launch
 fun AddInstanceScreen() {
     val scope = rememberCoroutineScope()
 
-    val navigationViewModel = viewModel<NavigationViewModel>()
+    val settingsNav = viewModel<SettingsNavigation>()
     val addInstanceViewModel = viewModel<AddInstanceViewModel>()
 
     var selectedInstanceType by remember { mutableStateOf(InstanceType.Sonarr) }
@@ -61,7 +60,7 @@ fun AddInstanceScreen() {
                 title = { Text(text = stringResource(R.string.add_instance)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navigationViewModel.settingsTabBackStack.removeLastOrNull() }
+                        onClick = { settingsNav.popBackStack() }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -74,7 +73,7 @@ fun AddInstanceScreen() {
                         onClick = {
                             scope.launch {
                                 addInstanceViewModel.saveInstance(selectedInstanceType)
-                                navigationViewModel.settingsTabBackStack.removeLastOrNull()
+                                settingsNav.popBackStack()
                             }
                         },
                         enabled = saveButtonEnabled,

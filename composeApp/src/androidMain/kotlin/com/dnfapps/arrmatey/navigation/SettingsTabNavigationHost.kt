@@ -1,26 +1,24 @@
 package com.dnfapps.arrmatey.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.dnfapps.arrmatey.ui.screens.AddInstanceScreen
+import com.dnfapps.arrmatey.ui.screens.DevSettingsScreen
 import com.dnfapps.arrmatey.ui.tabs.SettingsTab
 
 @Composable
 fun SettingsTabNavHost() {
-    val navigationViewModel = viewModel<NavigationViewModel>()
-    val backStack = remember { navigationViewModel.settingsTabBackStack }
+    val navigationViewModel = viewModel<SettingsNavigation>()
 
     NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = { key ->
-            when (key) {
-                SettingsScreen.Landing -> NavEntry(key) { SettingsTab() }
-                SettingsScreen.AddInstance -> NavEntry(key) { AddInstanceScreen() }
-            }
+        backStack = navigationViewModel.backStack,
+        onBack = { navigationViewModel.popBackStack() },
+        entryProvider = entryProvider {
+            entry<SettingsScreen.Landing> { SettingsTab() }
+            entry<SettingsScreen.AddInstance> { AddInstanceScreen() }
+            entry<SettingsScreen.Dev> { DevSettingsScreen() }
         }
     )
 }
