@@ -17,7 +17,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [Instance::class, ArrSeries::class, ArrMovie::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(ArrMateyDatabaseConstructor::class)
@@ -38,5 +38,6 @@ fun getRoomDatabase(
     return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .fallbackToDestructiveMigration(true)
         .build()
 }

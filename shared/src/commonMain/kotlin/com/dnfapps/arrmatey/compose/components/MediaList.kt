@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import arrmatey.shared.generated.resources.Res
 import arrmatey.shared.generated.resources.season
+import arrmatey.shared.generated.resources.unknown
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
@@ -54,6 +55,7 @@ import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
 import com.dnfapps.arrmatey.utils.format
 import com.skydoves.cloudy.cloudy
 import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 
 private val defaultHeight = 100.dp
 
@@ -156,13 +158,13 @@ private fun ColumnScope.SeriesDetails(item: ArrSeries) {
     val network = item.network
 
     val firstLine = listOfNotNull(network, seasonCountStr, fileSizeString).joinToString(" • ")
-    Text(firstLine, color = Color.White)
+    Text(firstLine, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     val statusStr = when (item.status) {
-        SeriesStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - Unknown"
+        SeriesStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - ${stringResource(Res.string.unknown)}"
         else -> item.status.name
     }
-    Text(statusStr, color = Color.White)
+    Text(statusStr, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     Spacer(modifier = Modifier.weight(1f))
     Row(
@@ -185,15 +187,15 @@ private fun ColumnScope.SeriesDetails(item: ArrSeries) {
 @Composable
 private fun ColumnScope.MovieDetails(item: ArrMovie) {
     item.releaseDate?.format()?.let {
-        Text(it, color = Color.White)
+        Text(it, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
     }
 
     val firstLine = listOfNotNull(item.runtimeString, item.studio).joinToString(" • ")
-    Text(firstLine, color = Color.White)
+    Text(firstLine, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     val statusLabel = item.status.name.takeIf { item.fileSize == 0L }
     val secondLine = listOfNotNull(statusLabel, item.fileSize.bytesAsFileSizeString(), item.movieFile?.quality?.quality?.name).joinToString(" • ")
-    Text(secondLine, color = Color.White)
+    Text(secondLine, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     Spacer(modifier = Modifier.weight(1f))
     LinearProgressIndicator(

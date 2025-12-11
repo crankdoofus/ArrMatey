@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List

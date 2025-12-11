@@ -8,8 +8,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import arrmatey.shared.generated.resources.Res
 import arrmatey.shared.generated.resources.digital_release
+import arrmatey.shared.generated.resources.genres
 import arrmatey.shared.generated.resources.in_cinemas
 import arrmatey.shared.generated.resources.minimum_availability
+import arrmatey.shared.generated.resources.path
 import arrmatey.shared.generated.resources.physical_release
 import arrmatey.shared.generated.resources.root_folder
 import arrmatey.shared.generated.resources.unknown
@@ -147,35 +149,43 @@ data class ArrMovie(
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            val newInfo = listOfNotNull(
-                Info(
-                    label = getString(Res.string.minimum_availability),
-                    value = minimumAvailability.name
-                ),
-                Info(
-                    label = getString(Res.string.root_folder),
-                    value = rootFolderPath ?: getString(Res.string.unknown)
-                ),
-                inCinemas?.format()?.let {
+            try {
+                val newInfo = listOfNotNull(
                     Info(
-                        label = getString(Res.string.in_cinemas),
-                        value = it
-                    )
-                },
-                digitalRelease?.format()?.let {
+                        label = getString(Res.string.minimum_availability),
+                        value = minimumAvailability.name
+                    ),
                     Info(
-                        label = getString(Res.string.digital_release),
-                        value = it
-                    )
-                },
-                physicalRelease?.format()?.let {
+                        label = getString(Res.string.root_folder),
+                        value = rootFolderPath ?: getString(Res.string.unknown)
+                    ),
                     Info(
-                        label = getString(Res.string.physical_release),
-                        value = it
-                    )
-                }
-            )
-            _infoItems.emit(newInfo)
+                        label = getString(Res.string.path),
+                        value = path ?: getString(Res.string.unknown)
+                    ),
+                    inCinemas?.format("MMM d, yyyy")?.let {
+                        Info(
+                            label = getString(Res.string.in_cinemas),
+                            value = it
+                        )
+                    },
+                    physicalRelease?.format("MMM d, yyyy")?.let {
+                        Info(
+                            label = getString(Res.string.physical_release),
+                            value = it
+                        )
+                    },
+                    digitalRelease?.format("MMM d, yyyy")?.let {
+                        Info(
+                            label = getString(Res.string.digital_release),
+                            value = it
+                        )
+                    }
+                )
+                _infoItems.emit(newInfo)
+            } catch (e: Exception) {
+                println(e.message)
+            }
         }
     }
 

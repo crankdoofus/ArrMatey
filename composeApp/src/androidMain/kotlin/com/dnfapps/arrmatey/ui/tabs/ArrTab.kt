@@ -42,11 +42,11 @@ import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.viewmodel.UiErrorType
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
-import com.dnfapps.arrmatey.compose.components.FilterMenuButton
+import com.dnfapps.arrmatey.ui.components.FilterMenuButton
 import com.dnfapps.arrmatey.compose.components.MediaList
 import com.dnfapps.arrmatey.compose.components.PosterGrid
-import com.dnfapps.arrmatey.compose.components.SortMenuButton
-import com.dnfapps.arrmatey.compose.components.ViewTypeMenuButton
+import com.dnfapps.arrmatey.ui.components.SortMenuButton
+import com.dnfapps.arrmatey.ui.components.ViewTypeMenuButton
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
@@ -139,6 +139,7 @@ fun ArrTab(type: InstanceType) {
                 },
                 actions = {
                     instance?.let {
+
                         ViewTypeMenuButton(
                             viewType = selectedViewType,
                             onViewTypeChanged = { preferenceStore.saveViewType(type, it) }

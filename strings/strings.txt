@@ -151,6 +151,10 @@
         en = Season Folders
     [minimum_availability]
         en = Minimum Availability
+    [genres]
+        en = Genres
+    [path]
+        en = Path
 
 
 [[Errors]]

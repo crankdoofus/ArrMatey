@@ -7,9 +7,11 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import arrmatey.shared.generated.resources.Res
+import arrmatey.shared.generated.resources.genres
 import arrmatey.shared.generated.resources.monitored
 import arrmatey.shared.generated.resources.new_seasons
 import arrmatey.shared.generated.resources.no
+import arrmatey.shared.generated.resources.path
 import arrmatey.shared.generated.resources.root_folder
 import arrmatey.shared.generated.resources.season_folders
 import arrmatey.shared.generated.resources.series_type
@@ -137,29 +139,37 @@ data class ArrSeries(
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            val newInfo = listOf(
-                Info(
-                    label = getString(Res.string.series_type),
-                    value = seriesType.name
-                ),
-                Info(
-                    label = getString(Res.string.root_folder),
-                    value = rootFolderPath ?: getString(Res.string.unknown)
-                ),
-                Info(
-                    label = getString(Res.string.new_seasons),
-                    value = if (monitorNewItems == SeriesMonitorNewItems.All) {
-                        getString(Res.string.monitored)
-                    } else {
-                        getString(Res.string.unmonitored)
-                    }
-                ),
-                Info(
-                    label = getString(Res.string.season_folders),
-                    value = if (seasonFolder) getString(Res.string.yes) else getString(Res.string.no)
+            try {
+                val newInfo = listOf(
+                    Info(
+                        label = getString(Res.string.series_type),
+                        value = seriesType.name
+                    ),
+                    Info(
+                        label = getString(Res.string.root_folder),
+                        value = rootFolderPath ?: getString(Res.string.unknown)
+                    ),
+                    Info(
+                        label = getString(Res.string.path),
+                        value = path ?: getString(Res.string.unknown)
+                    ),
+                    Info(
+                        label = getString(Res.string.new_seasons),
+                        value = if (monitorNewItems == SeriesMonitorNewItems.All) {
+                            getString(Res.string.monitored)
+                        } else {
+                            getString(Res.string.unmonitored)
+                        }
+                    ),
+                    Info(
+                        label = getString(Res.string.season_folders),
+                        value = if (seasonFolder) getString(Res.string.yes) else getString(Res.string.no)
+                    )
                 )
-            )
-            _infoItems.emit(newInfo)
+                _infoItems.emit(newInfo)
+            } catch (e: Exception) {
+                println(e.message)
+            }
         }
     }
 

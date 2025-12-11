@@ -33,22 +33,21 @@ import org.jetbrains.compose.resources.StringResource
 enum class SortBy(
     val iosIcon: String,
     val androidIcon: ImageVector,
-    val textKey: String,
-    val string: StringResource
+    val textKey: String
 ) {
-    Title("textformat", Icons.Default.SortByAlpha, "title", Res.string.title),
-    Year("calendar", Icons.Default.CalendarMonth, "year", Res.string.year),
-    Added("clock.fill", Icons.Filled.Schedule, "added", Res.string.added),
-    Rating("star.fill", Icons.Filled.Star, "rating", Res.string.rating),
-    FileSize("opticaldiscdrive.fill", Hard_drive, "file_size", Res.string.file_size),
+    Title("textformat", Icons.Default.SortByAlpha, "title"),
+    Year("calendar", Icons.Default.CalendarMonth, "year"),
+    Added("clock.fill", Icons.Filled.Schedule, "added"),
+    Rating("star.fill", Icons.Filled.Star, "rating"),
+    FileSize("opticaldiscdrive.fill", Hard_drive, "file_size"),
 
     // Movies
-    Grabbed("arrow.down.circle.fill", Icons.Default.ArrowCircleDown, "grabbed", Res.string.grabbed),
-    DigitalRelease("play.tv", Icons.Default.Tv, "digital_release", Res.string.digital_release),
+    Grabbed("arrow.down.circle.fill", Icons.Default.ArrowCircleDown, "grabbed"),
+    DigitalRelease("play.tv", Icons.Default.Tv, "digital_release"),
 
     // TV
-    NextAiring("clock", Icons.Default.Schedule, "next_airing", Res.string.next_airing),
-    PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, "previous_airing", Res.string.previous_airing);
+    NextAiring("clock", Icons.Default.Schedule, "next_airing"),
+    PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, "previous_airing");
 
     companion object {
 
@@ -70,11 +69,10 @@ enum class SortBy(
 enum class SortOrder(
     val iosIcon: String,
     val iosText: String,
-    val androidIcon: ImageVector,
-    val androidText: StringResource
+    val androidIcon: ImageVector
 ) {
-    Asc("arrow.up", "sort_ascending", Icons.Default.ArrowUpward, Res.string.sort_ascending),
-    Desc("arrow.down", "sort_descending", Icons.Default.ArrowDownward, Res.string.sort_descending)
+    Asc("arrow.up", "sort_ascending", Icons.Default.ArrowUpward),
+    Desc("arrow.down", "sort_descending", Icons.Default.ArrowDownward)
 }
 
 private fun List<AnyArrMedia>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {

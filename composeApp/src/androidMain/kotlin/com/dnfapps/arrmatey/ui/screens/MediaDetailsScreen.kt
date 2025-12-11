@@ -32,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -200,12 +201,6 @@ fun MediaDetailsScreen(
                                     modifier = Modifier.padding(horizontal = 12.dp),
                                     verticalArrangement = Arrangement.spacedBy(24.dp)
                                 ) {
-                                    Text(
-                                        text = item.genres.joinToString(" • "),
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-
                                     UpcomingDateView(item)
 
                                     ItemDescriptionCard(item)
@@ -235,21 +230,32 @@ fun DetailsHeader(item: AnyArrMedia) {
             item = item,
             modifier = Modifier.height(220.dp)
         )
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             Text(
                 text = item.title,
-                fontSize = 42.sp,
+                fontSize = 38.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 6.dp),
-                lineHeight = 42.sp
+                lineHeight = 42.sp,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = listOf(item.year, item.runtimeString, item.certification).joinToString(" • "),
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
             Text(
                 text = listOf(item.releasedBy, item.statusString).joinToString(" • "),
-                fontSize = 18.sp
+                fontSize = 14.sp,
+                lineHeight = 16.sp
+            )
+            Text(
+                text = item.genres.joinToString(" • "),
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.secondary,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 16.sp
             )
         }
     }
@@ -274,7 +280,13 @@ private fun ItemDescriptionCard(item: AnyArrMedia) {
                 Text(
                     text = overview,
                     maxLines = if (expanded) Int.MAX_VALUE else 10,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 14.sp,
+                    onTextLayout = { result ->
+                        if (!result.didOverflowHeight) {
+                            expanded = true
+                        }
+                    }
                 )
             }
         }
@@ -642,14 +654,24 @@ private fun InfoArea(item: AnyArrMedia) {
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
             ) {
                 val infoItems by item.infoItems.collectAsStateWithLifecycle(emptyList())
+                if (infoItems.isEmpty()) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
                 infoItems.forEachIndexed { index, info ->
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = info.label)
-                        Text(text = info.value, color = MaterialTheme.colorScheme.primary)
+                        Text(text = info.label, fontSize = 14.sp)
+                        Text(
+                            text = info.value,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End,
+                            fontSize = 14.sp
+                        )
                     }
                     if (index < infoItems.size - 1) {
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

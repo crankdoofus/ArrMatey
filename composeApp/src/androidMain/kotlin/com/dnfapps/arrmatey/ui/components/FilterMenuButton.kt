@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -16,8 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.dnfapps.arrmatey.compose.utils.FilterBy
+import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.model.InstanceType
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FilterMenuButton(
@@ -57,7 +57,7 @@ fun FilterMenuButton(
                     },
                     text = {
                         Text(
-                            text = stringResource(option.androidText),
+                            text = getString(option.iosText),
                             color = if (selectedFilter == option) MaterialTheme.colorScheme.primary else Color.Unspecified
                         )
                     }

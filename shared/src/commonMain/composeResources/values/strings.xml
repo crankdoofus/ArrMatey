@@ -81,6 +81,8 @@
     <string name="new_seasons">New Seasons</string>
     <string name="season_folders">Season Folders</string>
     <string name="minimum_availability">Minimum Availability</string>
+    <string name="genres">Genres</string>
+    <string name="path">Path</string>
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>

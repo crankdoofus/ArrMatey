@@ -18,21 +18,20 @@ import com.dnfapps.arrmatey.model.InstanceType
 import org.jetbrains.compose.resources.StringResource
 
 enum class FilterBy(
-    val iosText: String,
-    val androidText: StringResource
+    val iosText: String
 ) {
-    All("all", Res.string.all),
-    Monitored("monitored", Res.string.monitored),
-    Unmonitored("unmonitored", Res.string.unmonitored),
-    Missing("missing", Res.string.missing),
+    All("all"),
+    Monitored("monitored"),
+    Unmonitored("unmonitored"),
+    Missing("missing"),
 
     // Movies
-    Wanted("wanted", Res.string.wanted),
-    Downloaded("downloaded", Res.string.downloaded),
+    Wanted("wanted"),
+    Downloaded("downloaded"),
 
     // Series
-    ContinuingOnly("continuing_only", Res.string.continuing_only),
-    EndedOnly("ended_only", Res.string.ended_only);
+    ContinuingOnly("continuing_only"),
+    EndedOnly("ended_only");
 
     companion object {
         fun typeEntries(type: InstanceType) =
