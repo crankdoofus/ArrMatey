@@ -41,5 +41,10 @@ struct SettingsScreen: View {
             }
         }
         .navigationTitle(LocalizedStringResource("settings"))
+        .onAppear {
+            Task {
+                await instanceViewModel.refresh()
+            }
+        }
     }
 }
