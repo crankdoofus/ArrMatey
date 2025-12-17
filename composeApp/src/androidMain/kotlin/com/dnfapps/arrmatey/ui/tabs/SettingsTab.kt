@@ -57,7 +57,7 @@ fun SettingsTab() {
     ) {
         Box(modifier = Modifier.padding(it)) {
             Column(
-                modifier = Modifier.padding(all = 12.dp),
+                modifier = Modifier.padding(all = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(text = stringResource(R.string.instances), fontSize = 16.sp)
@@ -68,7 +68,7 @@ fun SettingsTab() {
                             shape = RoundedCornerShape(topStart = topR, topEnd = topR),
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                Toast.makeText(context, "TODO - ${instance.label ?: instance.type.name}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "TODO - ${instance.label}", Toast.LENGTH_SHORT).show()
                             }
                         ) {
                             Row(
@@ -84,7 +84,7 @@ fun SettingsTab() {
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(1.dp)
                                 ) {
-                                    Text(text = instance.label ?: instance.type.name, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                                    Text(text = instance.label, fontSize = 18.sp, fontWeight = FontWeight.Medium)
                                     Text(text = instance.url, fontSize = 16.sp)
                                 }
                             }

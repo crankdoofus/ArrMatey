@@ -71,22 +71,19 @@ class AddInstanceRepository: KoinComponent {
 
     fun setInstanceLabel(value: String) {
         _instanceLabel.value = value
+        if (value.isEmpty()) _saveButtonEnabled.value = false
     }
 
     suspend fun testConnection() {
-        println("Testing connection")
         if (!testing.value) {
-            println("can test")
             _endpointError.emit(false)
             if (apiEndpoint.value.isValidUrl()) {
-                println("has values ${apiEndpoint.value} \n ${apiKey.value}")
                 _apiEndpoint.value = apiEndpoint.value.trim()
                 _apiKey.value = apiKey.value.trim()
                 val r = client.test(apiEndpoint.value, apiKey.value)
                 _testing.emit(false)
                 _result.emit(r)
             } else {
-                println("invalid api key")
                 _testing.emit(false)
                 _endpointError.emit(true)
             }
@@ -113,7 +110,7 @@ class AddInstanceRepository: KoinComponent {
     suspend fun saveInstance(instanceType: InstanceType) {
         val newInstance = Instance(
             type = instanceType,
-            label = instanceLabel.value.takeUnless { it.isEmpty() },
+            label = instanceLabel.value,
             url = apiEndpoint.value,
             apiKey = apiKey.value,
             slowInstance = isSlowInstance.value,

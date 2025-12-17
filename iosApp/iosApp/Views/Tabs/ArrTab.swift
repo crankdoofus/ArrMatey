@@ -13,10 +13,10 @@ import ToastViewSwift
 struct ArrTab: View {
     let type: InstanceType
     
-    @EnvironmentObject var navigation: NavigationManager
+    @EnvironmentObject private var navigation: NavigationManager
+    @EnvironmentObject private var instanceViewModel: InstanceViewModel
     
     @ObservedObject var networkViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModel()
-    @ObservedObject var instanceViewModel: InstanceViewModel = InstanceViewModel()
     @ObservedObject var preferences: PreferencesViewModel = PreferencesViewModel()
     
     @State private var arrViewModel: ArrViewModel? = nil
@@ -29,8 +29,10 @@ struct ArrTab: View {
         preferences.viewTypeMap[type] ?? .grid
     }
     
-    private var firstInstance: Instance? {
-        instanceViewModel.firstInstance
+    private var instance: Instance? {
+        instanceViewModel.instances.first {
+            $0.type == type && $0.selected
+        }
     }
     
     init(type: InstanceType) {
@@ -39,9 +41,14 @@ struct ArrTab: View {
     
     var body: some View {
         contentForState()
-            .navigationTitle(firstInstance?.label ?? firstInstance?.type.name ?? "")
+            .navigationTitle(instance?.label ?? "")
             .task {
                 await setupViewModel()
+            }
+            .onChange(of: instance) { _, _ in
+                Task {
+                    await setupViewModel()
+                }
             }
             .onDisappear {
                 observationTask?.cancel()
@@ -68,7 +75,7 @@ struct ArrTab: View {
                                 .foregroundColor(.red)
                                 .onTapGesture {
                                     let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
-                                    let errSubtitle = "\(firstInstance?.label ?? firstInstance?.type.name ?? "") - \(firstInstance?.url ?? "")"
+                                    let errSubtitle = "\(instance?.label ?? instance?.type.name ?? "") - \(instance?.url ?? "")"
                                     let toast = Toast.text(errTitle, subtitle: errSubtitle)
                                     toast.show()
                                 }
@@ -101,58 +108,61 @@ struct ArrTab: View {
     
     @ViewBuilder
     private func contentForState() -> some View {
-        switch uiState {
-        case is LibraryUiStateInitial:
-            ZStack {
-                Text("initial state")
-            }
-        case is LibraryUiStateLoading:
-            ZStack {
-                ProgressView()
-                    .progressViewStyle(.circular)
-            }
-        case _ as LibraryUiStateSuccess<AnyObject>:
-            if sortedAndFilteredItems.isEmpty {
-                Text("No items")
-            } else {
-                mediaView(items: sortedAndFilteredItems) { media in
-                    navigation.go(to: .details(Int(media.id)), of: type)
+        if instance == nil {
+            Text("no instances")
+        } else {
+            switch uiState {
+            case is LibraryUiStateInitial:
+                ZStack {
+                    Text("initial state")
                 }
-                .id(stableItemsKey)
-                .onChange(of: itemIdentifiers) { _, _ in
-                    stableItemsKey = UUID().uuidString
+            case is LibraryUiStateLoading:
+                ZStack {
+                    ProgressView()
+                        .progressViewStyle(.circular)
                 }
-                .ignoresSafeArea(edges: .bottom)
-            }
-        case let error as LibraryUiStateError<AnyObject>:
-            ZStack {
+            case _ as LibraryUiStateSuccess<AnyObject>:
+                if sortedAndFilteredItems.isEmpty {
+                    Text("No items")
+                } else {
+                    mediaView(items: sortedAndFilteredItems) { media in
+                        navigation.go(to: .details(Int(media.id)), of: type)
+                    }
+                    .id(stableItemsKey)
+                    .onChange(of: itemIdentifiers) { _, _ in
+                        stableItemsKey = UUID().uuidString
+                    }
+                    .ignoresSafeArea(edges: .bottom)
+                }
+            case let error as LibraryUiStateError<AnyObject>:
+                ZStack {
+                    VStack {
+                        Text("An error occurred")
+                            .font(.headline)
+                        Text(error.error.message)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .onAppear {
+                    print("GOT ERROR \(error.error.message)")
+                    let toast = Toast.text(error.error.message)
+                    toast.show()
+                }
+            default:
                 VStack {
-                    Text("An error occurred")
-                        .font(.headline)
-                    Text(error.error.message)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    Text("default")
                 }
-            }
-            .onAppear {
-                print("GOT ERROR \(error.error.message)")
-                let toast = Toast.text(error.error.message)
-                toast.show()
-            }
-        default:
-            VStack {
-                Text("default")
             }
         }
     }
     
     @MainActor
     private func setupViewModel() async {
-        await instanceViewModel.getFirstInstance(instanceType: type)
+        arrViewModel = nil
         
-        guard let firstInstance = self.firstInstance else { return }
-        
-        self.arrViewModel = createArrViewModel(for: firstInstance)
+        guard let instance = self.instance else { return }
+        self.arrViewModel = createArrViewModel(for: instance)
         
         observationTask?.cancel()
         observationTask = Task {
@@ -176,6 +186,11 @@ struct ArrTab: View {
     
     @ToolbarContentBuilder
     var toolbarOptions: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            InstancePickerMenu(type: type)
+                .menuIndicator(.hidden)
+        }
+        
         let newType = switch viewType {
         case .grid: ViewType.list
         case .list: ViewType.grid
@@ -184,7 +199,7 @@ struct ArrTab: View {
         case .grid: "rectangle.grid.2x2"
         case .list: "rectangle.grid.1x2"
         }
-        ToolbarItem(placement: .primaryAction) {
+        ToolbarItem(placement: .navigation) {
             Image(systemName: image)
                 .imageScale(.medium)
                 .onTapGesture {

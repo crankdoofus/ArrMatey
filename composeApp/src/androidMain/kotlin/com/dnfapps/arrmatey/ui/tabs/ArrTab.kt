@@ -40,13 +40,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
-import com.dnfapps.arrmatey.api.arr.viewmodel.UiErrorType
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
-import com.dnfapps.arrmatey.ui.components.FilterMenuButton
+import com.dnfapps.arrmatey.api.arr.viewmodel.UiErrorType
 import com.dnfapps.arrmatey.compose.components.MediaList
 import com.dnfapps.arrmatey.compose.components.PosterGrid
-import com.dnfapps.arrmatey.ui.components.SortMenuButton
-import com.dnfapps.arrmatey.ui.components.ViewTypeMenuButton
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
@@ -57,11 +54,15 @@ import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.RootNavigation
 import com.dnfapps.arrmatey.navigation.RootScreen
+import com.dnfapps.arrmatey.ui.components.FilterMenuButton
+import com.dnfapps.arrmatey.ui.components.InstancePicker
+import com.dnfapps.arrmatey.ui.components.SortMenuButton
+import com.dnfapps.arrmatey.ui.components.ViewTypeMenuButton
 import com.dnfapps.arrmatey.ui.theme.ViewType
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModelFactory
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
+import com.dnfapps.arrmatey.ui.viewmodel.rememberInstanceFor
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -75,8 +76,7 @@ fun ArrTab(type: InstanceType) {
     val appNavigation = viewModel<RootNavigation>()
 
     val networkViewModel = viewModel<NetworkConnectivityViewModel>()
-    val instanceViewModel = viewModel<InstanceViewModel>()
-    val instance by instanceViewModel.getFirstInstance(type).collectAsState(null)
+    val instance = rememberInstanceFor(type)
 
     val preferenceStore: PreferencesStore = koinInject()
     val selectedSortOrder by preferenceStore.sortOrder.collectAsState(SortOrder.Asc)
@@ -106,7 +106,8 @@ fun ArrTab(type: InstanceType) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = instance?.label ?: type.name)
+                        InstancePicker(type)
+
                         if (hasServerConnetivityError) {
                             Icon(
                                 imageVector = Icons.Default.CloudOff,
@@ -136,7 +137,6 @@ fun ArrTab(type: InstanceType) {
                 },
                 actions = {
                     instance?.let {
-
                         ViewTypeMenuButton(
                             viewType = selectedViewType,
                             onViewTypeChanged = { preferenceStore.saveViewType(type, it) }
@@ -174,8 +174,8 @@ fun ArrTab(type: InstanceType) {
                     key = instance.id.toString(),
                     factory = ArrViewModelFactory(instance)
                 )
-                val uiState by arrViewModel.uiState.collectAsStateWithLifecycle()
 
+                val uiState by arrViewModel.uiState.collectAsStateWithLifecycle()
                 when (val state = uiState) {
                     is LibraryUiState.Initial,
                     is LibraryUiState.Loading -> {
@@ -258,7 +258,8 @@ fun MediaView(
         ViewType.Grid -> PosterGrid(
             items = items,
             onItemClick = onItemClick,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         )
     }
 }

@@ -9,9 +9,9 @@ import SwiftUI
 import Shared
 
 struct SettingsScreen: View {
-    @StateObject var instanceViewModel = InstanceViewModel()
     
     @EnvironmentObject private var navigationManager: NavigationManager
+    @EnvironmentObject private var instanceViewModel: InstanceViewModel
     
     var body: some View {
         Form {
@@ -21,7 +21,7 @@ struct SettingsScreen: View {
                         SVGImageView(filename: instance.type.iconKey)
                             .frame(width: 32, height: 32)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(instance.label ?? instance.type.name)
+                            Text(instance.label)
                                 .font(.system(size: 18, weight: .medium))
                             Text(instance.url)
                                 .font(.system(size: 16))
@@ -41,10 +41,5 @@ struct SettingsScreen: View {
             }
         }
         .navigationTitle(LocalizedStringResource("settings"))
-        .onAppear {
-            Task {
-                await instanceViewModel.refresh()
-            }
-        }
     }
 }

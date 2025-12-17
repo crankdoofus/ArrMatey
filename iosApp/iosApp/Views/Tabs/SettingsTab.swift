@@ -7,9 +7,8 @@ import SwiftUI
 import Shared
 
 struct SettingsTab: View {
-    @StateObject var instanceViewModel = InstanceViewModel()
-    
-    @EnvironmentObject var navigationManager: NavigationManager
+
+    @EnvironmentObject private var navigationManager: NavigationManager
     
     var body: some View {
         NavigationStack(path: $navigationManager.settingsPath) {
@@ -22,9 +21,6 @@ struct SettingsTab: View {
                         DevSettingsScreen()
                     }
                 }
-        }
-        .task {
-            await instanceViewModel.refresh()
         }
     }
 }

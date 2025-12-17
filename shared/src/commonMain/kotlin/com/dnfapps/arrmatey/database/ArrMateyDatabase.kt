@@ -13,7 +13,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [Instance::class],
-    version = 3
+    version = 1
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(ArrMateyDatabaseConstructor::class)

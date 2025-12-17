@@ -156,6 +156,12 @@ struct NewInstanceView: View {
                 .disabled(!viewModel.saveButtonEnabled)
             }
         }
+        .onAppear {
+            viewModel.setInstanceLabel(instanceType.name)
+        }
+        .onChange(of: instanceType) { _, _ in
+            viewModel.setInstanceLabel(instanceType.name)
+        }
     }
     
     private var customTimeoutTextBinding: Binding<String> {

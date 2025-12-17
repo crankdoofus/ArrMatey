@@ -6,17 +6,21 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "instances",
-    indices = [Index(value = ["url"], unique = true)]
+    indices = [
+        Index(value = ["url"], unique = true),
+        Index(value = ["label"], unique = true)
+    ]
 )
 data class Instance(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val type: InstanceType,
-    var label: String?,
+    var label: String,
     var url: String,
     var apiKey: String,
     var enabled: Boolean = true,
     var slowInstance: Boolean = false,
-    var customTimeout: Long? = null
+    var customTimeout: Long? = null,
+    var selected: Boolean = false
 )
 
 enum class InstanceType(

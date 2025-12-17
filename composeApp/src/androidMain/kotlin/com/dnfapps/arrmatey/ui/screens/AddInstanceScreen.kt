@@ -52,6 +52,7 @@ fun AddInstanceScreen() {
 
     LaunchedEffect(selectedInstanceType) {
         addInstanceViewModel.reset()
+        addInstanceViewModel.setInstanceLabel(selectedInstanceType.name)
     }
 
     Scaffold(

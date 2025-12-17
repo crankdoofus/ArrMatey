@@ -33,10 +33,6 @@ fun <T> DropdownPicker(
 ) {
     var isDropDownExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(isDropDownExpanded) {
-        Log.d("DropdownPicker", "isDropDownExpanded: $isDropDownExpanded")
-    }
-
     ExposedDropdownMenuBox(
         modifier = modifier,
         expanded = isDropDownExpanded,

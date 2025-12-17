@@ -12,14 +12,16 @@ struct MediaDetailsScreen: View {
     let id: Int
     let type: InstanceType
     
-    @ObservedObject private var instanceViewModel = InstanceViewModel()
+    @EnvironmentObject private var instanceViewModel: InstanceViewModel
     
     @State private var arrViewModel: ArrViewModel? = nil
     @State private var detailUiState: Any = DetailsUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
     
-    private var firstInstance: Instance? {
-        instanceViewModel.firstInstance
+    private var instance: Instance? {
+        instanceViewModel.instances.first {
+            $0.type == type && $0.selected
+        }
     }
     
     private var isMonitored: Bool {
@@ -153,7 +155,7 @@ struct MediaDetailsScreen: View {
     private func filesArea(for item: AnyArrMedia) -> some View {
         if let series = item as? ArrSeries, let vm = arrViewModel as? SonarrViewModel {
             SeriesFilesView(series: series, viewModel: vm)
-        } else if let movie = item as? ArrMovie, let vm = arrViewModel as? RadarrViewModel {
+        } else if let movie = item as? ArrMovie {
             MovieFilesView(movie: movie)
         } else {
             EmptyView()
@@ -162,11 +164,11 @@ struct MediaDetailsScreen: View {
     
     @MainActor
     private func setupViewModel() async {
-        await instanceViewModel.getFirstInstance(instanceType: type)
+        guard self.arrViewModel == nil else { return }
         
-        guard let firstInstance = self.firstInstance else { return }
+        guard let instance = self.instance else { return }
         
-        self.arrViewModel = createArrViewModel(for: firstInstance)
+        self.arrViewModel = createArrViewModel(for: instance)
         
         observationTask?.cancel()
         observationTask = Task {

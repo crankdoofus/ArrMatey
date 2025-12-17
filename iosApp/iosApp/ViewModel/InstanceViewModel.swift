@@ -8,32 +8,38 @@
 import SwiftUI
 import Shared
 
+@MainActor
 class InstanceViewModel: ObservableObject {
-//    let instanceType: InstanceType
-    
-//    init(instanceType: InstanceType) {
-//        self.instanceType = instanceType
-//    }
-    
     private let instanceRepository = InstanceRepository()
     
     @Published
     private(set) var instances: [Instance] = []
     
-    @Published
-    private(set) var firstInstance: Instance? = nil
-    
-    @MainActor
-    func refresh() async {
-        for await instances in instanceRepository.allInstances {
-            self.instances = instances
+    init() {
+        Task {
+            for await value in instanceRepository.allInstances {
+                self.instances = value
+            }
         }
     }
     
-    @MainActor
-    func getFirstInstance(instanceType: InstanceType) async {
-        if let instance = await instanceRepository.getFirstInstance(instanceType: instanceType).first(where: { _ in true }) {
-            self.firstInstance = instance
+    func setSelected(_ instance: Instance) {
+        Task {
+            do {
+                try await instanceRepository.setInstanceActive(instance: instance)
+            } catch {
+                return
+            }
+        }
+    }
+    
+    func createInstance(instance: Instance) {
+        Task {
+            do {
+                try await instanceRepository.doNewInstance(instance: instance)
+            } catch {
+                return
+            }
         }
     }
 }

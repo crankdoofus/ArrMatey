@@ -1,7 +1,12 @@
 package com.dnfapps.arrmatey.ui.viewmodel
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.database.dao.InstanceDao
 import com.dnfapps.arrmatey.model.Instance
@@ -19,16 +24,12 @@ class InstanceViewModel: ViewModel(), KoinComponent {
 
     private val repository: InstanceRepository by inject()
 
-    val allInstances: StateFlow<List<Instance>> = repository.allInstances
+    val allInstances = repository.allInstances
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-
-    fun safeGet(type: InstanceType): Instance {
-        return allInstances.value.first { it.type == type }
-    }
 
     fun newInstance(instance: Instance) {
         viewModelScope.launch {
@@ -36,6 +37,26 @@ class InstanceViewModel: ViewModel(), KoinComponent {
         }
     }
 
-    fun getFirstInstance(type: InstanceType) = repository.getFirstInstance(type)
+    fun setSelected(instance: Instance) {
+        viewModelScope.launch {
+            repository.setInstanceActive(instance)
+        }
+    }
 
+}
+
+@Composable
+fun rememberInstanceFor(type: InstanceType): Instance? {
+    val viewModel = viewModel<InstanceViewModel>()
+    val instances by viewModel.allInstances.collectAsState()
+    return instances.firstOrNull { i ->
+        i.type == type && i.selected
+    }
+}
+
+@Composable
+fun rememberHasMultipleInstances(type: InstanceType): Boolean {
+    val viewModel = viewModel<InstanceViewModel>()
+    val instances by viewModel.allInstances.collectAsState()
+    return instances.count { it.type == type } > 1
 }

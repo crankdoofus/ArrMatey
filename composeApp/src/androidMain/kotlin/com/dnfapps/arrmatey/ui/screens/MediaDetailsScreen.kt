@@ -83,6 +83,7 @@ import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModelFactory
 import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
+import com.dnfapps.arrmatey.ui.viewmodel.rememberInstanceFor
 import com.dnfapps.arrmatey.utils.format
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -94,8 +95,7 @@ fun MediaDetailsScreen(
     type: InstanceType,
     id: Int
 ) {
-    val instanceViewModel = viewModel<InstanceViewModel>()
-    val instance by instanceViewModel.getFirstInstance(type).collectAsState(null)
+    val instance = rememberInstanceFor(type)
 
     val appNavigation = viewModel<RootNavigation>()
 

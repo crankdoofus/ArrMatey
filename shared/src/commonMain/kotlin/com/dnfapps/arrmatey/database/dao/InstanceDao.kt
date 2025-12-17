@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
@@ -22,11 +23,18 @@ interface InstanceDao {
     suspend fun update(instance: Instance)
 
     @Query("SELECT * FROM instances")
-    fun getAllAsFlow(): Flow<List<Instance>>
+    suspend fun getAllInstances(): List<Instance>
 
-    @Query("SELECT * FROM instances WHERE type = 0")
-    fun getAllSonarrInstancesAsFlow(): Flow<List<Instance>>
+    @Query("SELECT * FROM instances")
+    fun observeAllInstances(): Flow<List<Instance>>
 
-    @Query("SELECT * FROM instances WHERE type = :instanceType ORDER BY id ASC LIMIT 1")
-    fun getFirstInstance(instanceType: InstanceType): Flow<Instance?>
+    @Query("""
+        UPDATE instances 
+        SET selected = CASE 
+            WHEN id = :id THEN true
+            ELSE false
+        END
+        WHERE type = :type
+    """)
+    suspend fun setInstanceAsSelected(id: Long, type: InstanceType)
 }
