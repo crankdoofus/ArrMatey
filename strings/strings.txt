@@ -166,6 +166,12 @@
         en = Showing cached library
     [no_network]
         en = No network connectivity
+    [invalid_host]
+        en = Invalid host format
+    [instance_label_exists]
+        en = An instance with this label already exists
+    [instance_url_exists]
+        en = An instance with this host already exists
 
 [[Instances]]
     [sonarr_description]

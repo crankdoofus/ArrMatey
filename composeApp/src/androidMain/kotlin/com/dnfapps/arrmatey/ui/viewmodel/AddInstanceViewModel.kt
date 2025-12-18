@@ -3,6 +3,7 @@ package com.dnfapps.arrmatey.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceRepository
+import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.model.InstanceType
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +30,7 @@ class AddInstanceViewModel: ViewModel(), KoinComponent {
     val isSlowInstance = repository.isSlowInstance
     val customTimeout = repository.customTimeout
     val instanceLabel = repository.instanceLabel
+    val createResult = repository.createResult
 
     fun setApiEndpoint(value: String) = repository.setApiEndpoint(value)
 
@@ -50,9 +52,9 @@ class AddInstanceViewModel: ViewModel(), KoinComponent {
 
     fun dismissInfoCard(instanceType: InstanceType) = repository.dismissInfoCard(instanceType)
 
-    fun saveInstance(instanceType: InstanceType) {
+    fun createInstance(instanceType: InstanceType) {
         viewModelScope.launch {
-            repository.saveInstance(instanceType)
+            repository.createInstance(instanceType)
         }
     }
 

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
@@ -50,9 +51,17 @@ fun AddInstanceScreen() {
     val infoCardMap by addInstanceViewModel.infoCardMap.collectAsStateWithLifecycle()
     val showInfoCard = infoCardMap[selectedInstanceType] ?: true
 
+    val createResult by addInstanceViewModel.createResult.collectAsStateWithLifecycle()
+
     LaunchedEffect(selectedInstanceType) {
         addInstanceViewModel.reset()
         addInstanceViewModel.setInstanceLabel(selectedInstanceType.name)
+    }
+
+    LaunchedEffect(createResult) {
+        if (createResult is InsertResult.Success) {
+            settingsNav.popBackStack()
+        }
     }
 
     Scaffold(
@@ -73,8 +82,15 @@ fun AddInstanceScreen() {
                     Button(
                         onClick = {
                             scope.launch {
-                                addInstanceViewModel.saveInstance(selectedInstanceType)
-                                settingsNav.popBackStack()
+                                addInstanceViewModel.createInstance(selectedInstanceType)
+//                                {
+//                                    if (fieldConflicts.isEmpty()) {
+//                                        settingsNav.popBackStack()
+//                                    }
+//                                }
+
+//                                addInstanceViewModel.saveInstance(selectedInstanceType)
+//                                settingsNav.popBackStack()
                             }
                         },
                         enabled = saveButtonEnabled,
@@ -108,10 +124,12 @@ fun AddInstanceScreen() {
                 label = { Text(stringResource(R.string.instance_type)) }
             )
 
-            when (selectedInstanceType) {
-                InstanceType.Sonarr -> ArrConfigurationScreen(InstanceType.Sonarr)// { saveButtonEnabled = it == true }
-                InstanceType.Radarr -> ArrConfigurationScreen(InstanceType.Radarr)// { saveButtonEnabled = it == true }
-            }
+            ArrConfigurationScreen(selectedInstanceType)
+
+//            when (selectedInstanceType) {
+//                InstanceType.Sonarr -> ArrConfigurationScreen(InstanceType.Sonarr)// { saveButtonEnabled = it == true }
+//                InstanceType.Radarr -> ArrConfigurationScreen(InstanceType.Radarr)// { saveButtonEnabled = it == true }
+//            }
         }
     }
 }

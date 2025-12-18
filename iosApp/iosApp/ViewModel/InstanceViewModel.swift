@@ -33,13 +33,4 @@ class InstanceViewModel: ObservableObject {
         }
     }
     
-    func createInstance(instance: Instance) {
-        Task {
-            do {
-                try await instanceRepository.doNewInstance(instance: instance)
-            } catch {
-                return
-            }
-        }
-    }
 }

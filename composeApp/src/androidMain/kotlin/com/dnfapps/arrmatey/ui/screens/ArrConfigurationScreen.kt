@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -15,19 +14,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.compose.components.AMOutlinedTextField
+import com.dnfapps.arrmatey.database.dao.ConflictField
+import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
-import androidx.compose.ui.res.stringResource
+import com.dnfapps.arrmatey.utils.thenGet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +51,15 @@ fun ArrConfigurationScreen(
     val isSlowInstance by viewModel.isSlowInstance.collectAsStateWithLifecycle()
     val customTimeout by viewModel.customTimeout.collectAsStateWithLifecycle()
 
+    val createResult by viewModel.createResult.collectAsStateWithLifecycle()
+
+    val hasLabelConflict by remember { derivedStateOf {
+        (createResult as? InsertResult.Conflict)?.fields?.contains(ConflictField.InstanceUrl) == true
+    } }
+    val hasUrlConflict by remember { derivedStateOf {
+        (createResult as? InsertResult.Conflict)?.fields?.contains(ConflictField.InstanceUrl) == true
+    } }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -57,7 +70,9 @@ fun ArrConfigurationScreen(
             onValueChange = { viewModel.setInstanceLabel(it) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = instanceType.toString(),
-            singleLine = true
+            singleLine = true,
+            isError = hasLabelConflict,
+            errorMessage = hasLabelConflict thenGet stringResource(R.string.instance_label_exists)
         )
 
         AMOutlinedTextField(
@@ -71,8 +86,12 @@ fun ArrConfigurationScreen(
             placeholder = stringResource(R.string.host_placeholder) + "${instanceType.defaultPort}",
             description = stringResource(R.string.host_description, instanceType.toString()),
             singleLine = true,
-            isError = endpointError,
-            errorMessage = if (endpointError) "InvalidHost" else null
+            isError = endpointError || hasUrlConflict,
+            errorMessage = when {
+                endpointError -> stringResource(R.string.invalid_host)
+                hasUrlConflict -> stringResource(R.string.instance_url_exists)
+                else -> null
+            }
         )
 
         AMOutlinedTextField(
@@ -89,7 +108,9 @@ fun ArrConfigurationScreen(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+            //spacedBy(8.dp)
         ) {
             Button(
                 onClick = {

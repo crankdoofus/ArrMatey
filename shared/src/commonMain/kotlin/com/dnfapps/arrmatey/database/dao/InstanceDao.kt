@@ -3,6 +3,7 @@ package com.dnfapps.arrmatey.database.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -13,8 +14,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface InstanceDao {
 
-    @Insert
-    suspend fun insert(instance: Instance)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(instance: Instance): Long
 
     @Delete
     suspend fun delete(instance: Instance)
@@ -37,4 +38,16 @@ interface InstanceDao {
         WHERE type = :type
     """)
     suspend fun setInstanceAsSelected(id: Long, type: InstanceType)
+
+    @Query("SELECT id FROM instances WHERE url = :url")
+    suspend fun findByUrl(url: String): Long?
+
+    @Query("SELECT id FROM instances WHERE label = :label")
+    suspend fun findByLabel(label: String): Long?
+
+    @Query("SELECT id FROM instances WHERE url = :url AND id != :currentId LIMIT 1")
+    suspend fun findOtherByUrl(url: String, currentId: Long): Long?
+
+    @Query("SELECT id FROM instances WHERE label = :label AND id != :currentId LIMIT 1")
+    suspend fun findOtherByLabel(label: String, currentId: Long): Long?
 }

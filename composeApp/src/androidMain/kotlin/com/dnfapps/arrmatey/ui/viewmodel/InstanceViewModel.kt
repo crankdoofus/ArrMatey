@@ -31,12 +31,6 @@ class InstanceViewModel: ViewModel(), KoinComponent {
             initialValue = emptyList()
         )
 
-    fun newInstance(instance: Instance) {
-        viewModelScope.launch {
-            repository.newInstance(instance)
-        }
-    }
-
     fun setSelected(instance: Instance) {
         viewModelScope.launch {
             repository.setInstanceActive(instance)

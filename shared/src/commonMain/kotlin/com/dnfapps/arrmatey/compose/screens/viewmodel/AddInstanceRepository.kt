@@ -4,6 +4,8 @@ import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.api.arr.BaseArrClient
 import com.dnfapps.arrmatey.api.arr.GenericClient
 import com.dnfapps.arrmatey.database.InstanceRepository
+import com.dnfapps.arrmatey.database.dao.ConflictField
+import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.utils.isValidUrl
@@ -17,6 +19,11 @@ class AddInstanceRepository: KoinComponent {
     private val client: GenericClient by inject()
     private val instanceRepository: InstanceRepository by inject()
     private val preferencesStore: PreferencesStore by inject()
+
+//    private val _fieldConflicts = MutableStateFlow<List<ConflictField>>(emptyList())
+//    val fieldConflicts: StateFlow<List<ConflictField>> = _fieldConflicts
+    private val _createResult = MutableStateFlow<InsertResult?>(null)
+    val createResult: StateFlow<InsertResult?> = _createResult
 
     private val _saveButtonEnabled = MutableStateFlow(false)
     val saveButtonEnabled: StateFlow<Boolean> = _saveButtonEnabled
@@ -107,7 +114,7 @@ class AddInstanceRepository: KoinComponent {
         preferencesStore.dismissInfoCard(instanceType)
     }
 
-    suspend fun saveInstance(instanceType: InstanceType) {
+    suspend fun createInstance(instanceType: InstanceType) {
         val newInstance = Instance(
             type = instanceType,
             label = instanceLabel.value,
@@ -116,6 +123,7 @@ class AddInstanceRepository: KoinComponent {
             slowInstance = isSlowInstance.value,
             customTimeout = if (isSlowInstance.value) customTimeout.value else null
         )
-        instanceRepository.newInstance(newInstance)
+        val result = instanceRepository.createInstance(newInstance)
+        _createResult.emit(result)
     }
 }

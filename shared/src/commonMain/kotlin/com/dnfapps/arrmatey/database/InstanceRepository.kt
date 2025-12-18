@@ -1,5 +1,7 @@
 package com.dnfapps.arrmatey.database
 
+import com.dnfapps.arrmatey.database.dao.ConflictField
+import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.database.dao.InstanceDao
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
@@ -22,13 +24,36 @@ class InstanceRepository: KoinComponent {
             initialValue = emptyList()
         )
 
-    suspend fun newInstance(instance: Instance) {
+    private suspend fun newInstance(instance: Instance): Long {
         val shouldBeSelected = allInstances.value
                 .none { i ->
                     i.type == instance.type && i.selected
                 }
         instance.selected = shouldBeSelected
-        instanceDao.insert(instance)
+        return instanceDao.insert(instance)
+    }
+
+    suspend fun createInstance(instance: Instance): InsertResult {
+        return try {
+            val urlConflict = instanceDao.findByUrl(instance.url) != null
+            val labelConflict = instanceDao.findByLabel(instance.label) != null
+
+            val conflictFields = buildList {
+                if (urlConflict) add(ConflictField.InstanceUrl)
+                if (labelConflict) add(ConflictField.InstanceLabel)
+            }
+
+            if (conflictFields.isNotEmpty()) {
+                InsertResult.Conflict(fields = conflictFields)
+            } else {
+                val id = newInstance(instance)//instanceDao.insert(instance)
+                if (id > 0L) InsertResult.Success(id)
+                else InsertResult.Error("Failed to save")
+            }
+
+        } catch (e: Exception) {
+            InsertResult.Error(e.message ?: "")
+        }
     }
 
     suspend fun setInstanceActive(instance: Instance) {

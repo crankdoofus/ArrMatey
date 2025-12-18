@@ -22,6 +22,9 @@ class AddInstanceViewModel: ObservableObject {
     @Published var isSlowInstance: Bool = false
     @Published var customTimeout: Int64? = nil
     @Published var instanceLabel: String = ""
+    @Published var createResult: InsertResult? = nil
+    @Published var wasCreatedSuccessfully: Bool = false
+    @Published var hasCreationError: Bool = false
     
     init() {
         observeFlows()
@@ -87,6 +90,13 @@ class AddInstanceViewModel: ObservableObject {
                 instanceLabel = value
             }
         }
+        Task {
+            for await value in repository.createResult {
+                createResult = value
+                wasCreatedSuccessfully = createResult is InsertResultSuccess
+                hasCreationError = createResult is InsertResultError || createResult is InsertResultConflict
+            }
+        }
     }
     
     func setApiEndpoint(_ value: String) {
@@ -125,7 +135,7 @@ class AddInstanceViewModel: ObservableObject {
     
     func saveInstance(instanceType: InstanceType) {
         Task {
-            try await repository.saveInstance(instanceType: instanceType)
+            try await repository.createInstance(instanceType: instanceType)
         }
     }
 }

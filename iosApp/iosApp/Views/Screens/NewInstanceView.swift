@@ -24,6 +24,20 @@ struct NewInstanceView: View {
         viewModel.infoCardMap[instanceType]?.boolValue ?? true
     }
     
+    var hasError: Bool {
+        viewModel.createResult is InsertResultError || viewModel.createResult is InsertResultConflict
+    }
+    
+    var hasLabelConflict: Bool {
+        guard let result = viewModel.createResult as? InsertResultConflict else { return false }
+        return result.fields.contains(.instanceLabel)
+    }
+    
+    var hasUrlConflict: Bool {
+        guard let result = viewModel.createResult as? InsertResultConflict else { return false }
+        return result.fields.contains(.instanceUrl)
+    }
+    
     var body: some View {
         Form {
             if showInfoCard {
@@ -150,7 +164,6 @@ struct NewInstanceView: View {
                 Button(LocalizedStringResource("save")) {
                     Task {
                         viewModel.saveInstance(instanceType: instanceType)
-                        dismiss()
                     }
                 }
                 .disabled(!viewModel.saveButtonEnabled)
@@ -161,6 +174,27 @@ struct NewInstanceView: View {
         }
         .onChange(of: instanceType) { _, _ in
             viewModel.setInstanceLabel(instanceType.name)
+        }
+        .onChange(of: viewModel.wasCreatedSuccessfully) { _, newValue in
+            if newValue {
+                dismiss()
+            }
+        }
+        .alert("Error", isPresented: $viewModel.hasCreationError) {
+            Button("ok") { viewModel.hasCreationError = false }
+        } message: {
+            Group {
+                if let error = viewModel.createResult as? InsertResultError {
+                    Text(error.message)
+                } else {
+                    if hasLabelConflict {
+                        Text(String(localized: LocalizedStringResource("instance_label_exists")))
+                    }
+                    if hasUrlConflict {
+                        Text(String(localized: LocalizedStringResource("instance_url_exists")))
+                    }
+                }
+            }
         }
     }
     

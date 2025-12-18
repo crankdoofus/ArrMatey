@@ -89,6 +89,9 @@
     <string name="instance_connect_error_ios">Failed to connect to instance</string>
     <string name="showing_cached_library">Showing cached library</string>
     <string name="no_network">No network connectivity</string>
+    <string name="invalid_host">Invalid host format</string>
+    <string name="instance_label_exists">An instance with this label already exists</string>
+    <string name="instance_url_exists">An instance with this host already exists</string>
 
     <!-- Instances -->
     <string name="sonarr_description">Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.</string>
