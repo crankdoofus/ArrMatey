@@ -23,6 +23,9 @@ struct ArrTab: View {
     @State private var uiState: Any = LibraryUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
     
+    @State private var searchQuery: String = ""
+    @State private var searchPresented: Bool = false
+    
     @State private var stableItemsKey: String = UUID().uuidString
     
     private var viewType: ViewType {
@@ -99,7 +102,8 @@ struct ArrTab: View {
         let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as [AnyArrMedia]
         let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as [AnyArrMedia]
         
-        return filtered
+        if searchQuery.isEmpty { return filtered }
+        return filtered.filter { $0.title.localizedCaseInsensitiveContains(searchQuery) }
     }
     
     private var itemIdentifiers: [Int32] {
@@ -140,6 +144,7 @@ struct ArrTab: View {
                         stableItemsKey = UUID().uuidString
                     }
                     .ignoresSafeArea(edges: .bottom)
+                    .searchable(text: $searchQuery, isPresented: $searchPresented, placement: .navigationBarDrawer)
                 }
             case _ as LibraryUiStateError<AnyObject>:
                 ZStack {
@@ -227,8 +232,14 @@ struct ArrTab: View {
                 }
                 .menuIndicator(.hidden)
         }
+        
+        ToolbarItem(placement: .bottomBar) {
+            Image(systemName: "magnifyingglass")
+                .imageScale(.medium)
+        }
     }
-     @ViewBuilder
+    
+    @ViewBuilder
     private func mediaView(
         items: [AnyArrMedia],
         onItemClicked: @escaping (AnyArrMedia) -> Void
