@@ -87,7 +87,7 @@ fun <T: AnyArrMedia> PosterItem(
     var imageLoadError by remember { mutableStateOf(false) }
     var imageLoaded by remember { mutableStateOf(false) }
 
-    val url = item.images.firstOrNull { it.coverType == CoverType.Poster }?.remoteUrl
+    val url = item.getPoster()?.remoteUrl
     val model = ImageRequest.Builder(LocalPlatformContext.current)
         .data(url)
         .diskCacheKey(url)

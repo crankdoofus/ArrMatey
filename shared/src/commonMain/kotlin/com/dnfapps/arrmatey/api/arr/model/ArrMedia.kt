@@ -41,6 +41,9 @@ interface AnyArrMedia {
     val fileSize: Long
     val runtimeString: String
     val infoItems: Flow<List<Info>>
+
+    fun getPoster(): ArrImage?
+    fun getBanner(): ArrImage?
 }
 
 @Serializable
@@ -94,4 +97,10 @@ sealed class ArrMedia<AT, AO, R, STAT: ArrStatistics, S>: AnyArrMedia {
     @Transient
     protected val _infoItems = MutableStateFlow<List<Info>>(emptyList())
     abstract override val infoItems: Flow<List<Info>>
+
+    override fun getPoster(): ArrImage? = images.firstOrNull { it.coverType == CoverType.Poster }
+
+    override fun getBanner(): ArrImage? = images.firstOrNull { it.coverType == CoverType.FanArt }
+        ?: images.firstOrNull { it.coverType == CoverType.Banner }
+        ?: images.firstOrNull { it.coverType == CoverType.Poster }
 }

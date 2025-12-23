@@ -105,7 +105,7 @@ fun <T: AnyArrMedia> MediaItem(
                     cardHeight = it.size.height.pxToDp() + 24.dp
                 },
             ) {
-                val posterUrl = item.images.firstOrNull { it.coverType == CoverType.Poster }?.remoteUrl
+                val posterUrl = item.getPoster()?.remoteUrl
                 val model = ImageRequest.Builder(LocalPlatformContext.current)
                     .data(posterUrl)
                     .diskCacheKey(posterUrl)
@@ -213,8 +213,7 @@ fun BannerView(
     modifier: Modifier = Modifier,
     overlay: @Composable () -> Unit = {}
 ) {
-    val banner = item.images.firstOrNull { it.coverType == CoverType.Banner }?.remoteUrl
-        ?: item.images.firstOrNull { it.coverType == CoverType.Poster }?.remoteUrl
+    val banner = item.getBanner()?.remoteUrl
     banner?.let { bannerUrl ->
         val bannerModel = ImageRequest.Builder(LocalPlatformContext.current)
             .data(bannerUrl)
@@ -228,7 +227,7 @@ fun BannerView(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = modifier
-                .cloudy(radius = 40)
+                .cloudy(radius = 10)
         )
         overlay()
     }
