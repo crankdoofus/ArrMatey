@@ -3,17 +3,22 @@ package com.dnfapps.arrmatey.ui.screens
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,6 +77,7 @@ import com.dnfapps.arrmatey.api.arr.model.Season
 import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
 import com.dnfapps.arrmatey.api.arr.viewmodel.DetailsUiState
 import com.dnfapps.arrmatey.api.arr.viewmodel.EpisodeUiState
+import com.dnfapps.arrmatey.compose.components.DetailHeaderBanner
 import com.dnfapps.arrmatey.compose.components.PosterItem
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.copy
@@ -79,6 +86,8 @@ import com.dnfapps.arrmatey.extensions.isToday
 import com.dnfapps.arrmatey.extensions.isTodayOrAfter
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
+import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
+import com.dnfapps.arrmatey.ui.helpers.statusBarHeight
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
@@ -96,52 +105,16 @@ fun MediaDetailsScreen(
     id: Int,
     navigation: ArrTabNavigation = koinInject<ArrTabNavigation>(parameters = { parametersOf(type) })
 ) {
-    var isMonitored by remember { mutableStateOf(false) }
-
     val arrViewModel = LocalArrViewModel.current
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navigation.popBackStack() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                title = {},
-                actions = {
-                    IconButton(
-                        onClick = {
-                            arrViewModel?.setMonitorStatus(id, !isMonitored)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = if (isMonitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                            contentDescription = null
-                        )
-                    }
-                    if (false) {
-                        IconButton(
-                            onClick = {}
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    var isMonitored by remember { mutableStateOf(false) }
+
+    val scrollState = rememberScrollState()
+
+    Scaffold { paddingValues ->
         Box(
             modifier = Modifier
-                .padding(paddingValues.copy(bottom = 0.dp))
+                .padding(paddingValues.copy(bottom = 0.dp, top = 0.dp))
                 .fillMaxSize()
         ) {
             arrViewModel?.let { arrViewModel ->
@@ -182,15 +155,13 @@ fun MediaDetailsScreen(
                             onRefresh = { isRefreshing = true }
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .verticalScroll(rememberScrollState()),
-                                verticalArrangement = Arrangement.spacedBy(24.dp)
+                                modifier = Modifier.verticalScroll(scrollState),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 DetailsHeader(item)
 
                                 Column(
-                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    modifier = Modifier.padding(horizontal = 24.dp),
                                     verticalArrangement = Arrangement.spacedBy(24.dp)
                                 ) {
                                     UpcomingDateView(item)
@@ -208,47 +179,86 @@ fun MediaDetailsScreen(
                     }
                 }
             }
+
+            OverlayTopAppBar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                navigationIcon = {
+                    IconButton(
+                        onClick = { navigation.popBackStack() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            arrViewModel?.setMonitorStatus(id, !isMonitored)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isMonitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
 fun DetailsHeader(item: AnyArrMedia) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        PosterItem(
-            item = item,
-            modifier = Modifier.height(220.dp)
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        DetailHeaderBanner(item)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 170.dp)
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text(
-                text = item.title,
-                fontSize = 38.sp,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 42.sp,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+            PosterItem(
+                item = item,
+                modifier = Modifier.height(220.dp)
             )
-            Text(
-                text = listOf(item.year, item.runtimeString, item.certification).joinToString(" • "),
-                fontSize = 16.sp
-            )
-            Text(
-                text = listOf(item.releasedBy, item.statusString).joinToString(" • "),
-                fontSize = 14.sp,
-                lineHeight = 16.sp
-            )
-            Text(
-                text = item.genres.joinToString(" • "),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.secondary,
-                overflow = TextOverflow.Ellipsis,
-                lineHeight = 16.sp
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = item.title,
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 42.sp,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = listOf(
+                        item.year,
+                        item.runtimeString,
+                        item.certification
+                    ).joinToString(" • "),
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = listOf(item.releasedBy, item.statusString).joinToString(" • "),
+                    fontSize = 14.sp,
+                    lineHeight = 16.sp
+                )
+                Text(
+                    text = item.genres.joinToString(" • "),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.secondary,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp
+                )
+            }
         }
     }
 }

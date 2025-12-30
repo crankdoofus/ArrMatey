@@ -1,8 +1,11 @@
 package com.dnfapps.arrmatey.compose.components
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import platform.UIKit.UIColor
 
 fun <T: AnyArrMedia> PosterItemViewController(
     item: T,
@@ -13,6 +16,11 @@ fun <T: AnyArrMedia> PosterItemViewController(
         item = item,
         onItemClick = onItemClick,
         enabled = enabled,
-        elevation = 0.dp
+        elevation = 0.dp,
+        radius = 0.dp,
+        modifier = Modifier
+            .fillMaxSize()
     )
+}.apply {
+    view.backgroundColor = UIColor.clearColor
 }

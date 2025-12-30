@@ -3,14 +3,39 @@ package com.dnfapps.arrmatey.api.arr.model
 import androidx.compose.ui.graphics.Color
 import androidx.room.Ignore
 import com.dnfapps.arrmatey.extensions.formatAsRuntime
+import com.dnfapps.arrmatey.model.InstanceType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.time.Instant
 
-interface AnyArrMedia {
+@Serializable
+sealed interface AnyArrMedia: KoinComponent {
+    companion object: KoinComponent {
+        val json: Json by inject()
+        fun fromJson(value: String): AnyArrMedia {
+            return json.decodeFromString(AnyArrMediaSerializer, value)
+        }
+    }
     val id: Int?
     val title: String
     val originalLanguage: Language
@@ -103,4 +128,65 @@ sealed class ArrMedia<AT, AO, R, STAT: ArrStatistics, S>: AnyArrMedia {
     @Transient
     protected val _infoItems = MutableStateFlow<List<Info>>(emptyList())
     abstract override val infoItems: Flow<List<Info>>
+}
+
+fun AnyArrMedia.toJson(): String {
+    val element: JsonElement = when (this) {
+        is ArrSeries -> AnyArrMedia.json.encodeToJsonElement(ArrSeriesSerializer, this)
+        is ArrMovie  -> AnyArrMedia.json.encodeToJsonElement(ArrMovieSerializer, this)
+    }
+
+    return AnyArrMedia.json.encodeToString(element)
+}
+
+object ArrSeriesSerializer :
+    JsonTransformingSerializer<ArrSeries>(ArrSeries.serializer()) {
+    override fun transformSerialize(element: JsonElement): JsonElement {
+        val obj = element.jsonObject
+        return buildJsonObject {
+            obj.forEach { (k, v) -> put(k, v) }
+            put("mediaType", InstanceType.Sonarr.name)
+        }
+    }
+}
+
+object ArrMovieSerializer :
+    JsonTransformingSerializer<ArrMovie>(ArrMovie.serializer()) {
+    override fun transformSerialize(element: JsonElement): JsonElement {
+        val obj = element.jsonObject
+        return buildJsonObject {
+            obj.forEach { (k, v) -> put(k, v) }
+            put("mediaType", InstanceType.Radarr.name)
+        }
+    }
+}
+
+
+object AnyArrMediaSerializer: KSerializer<AnyArrMedia> {
+    override val descriptor: SerialDescriptor
+        get() = buildClassSerialDescriptor("AnyArrmedia")
+
+    override fun deserialize(decoder: Decoder): AnyArrMedia {
+        require(decoder is JsonDecoder)
+        val element = decoder.decodeJsonElement()
+        val obj = element.jsonObject
+
+        val mediaType = obj["mediaType"]?.jsonPrimitive?.content ?: error("mediaType is missing")
+
+        return when (mediaType) {
+            InstanceType.Sonarr.name -> decoder.json.decodeFromJsonElement(ArrSeries.serializer(), element)
+            InstanceType.Radarr.name -> decoder.json.decodeFromJsonElement(ArrMovie.serializer(), element)
+            else -> error("Unknown mediaType: $mediaType")
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: AnyArrMedia) {
+        require(encoder is JsonEncoder)
+        val json = encoder.json
+        val element: JsonElement = when (value) {
+            is ArrSeries -> json.encodeToJsonElement(ArrSeriesSerializer, value)
+            is ArrMovie  -> json.encodeToJsonElement(ArrMovieSerializer, value)
+        }
+        encoder.encodeJsonElement(element)
+    }
 }

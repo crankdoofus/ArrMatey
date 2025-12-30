@@ -17,11 +17,12 @@ import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
 import com.dnfapps.arrmatey.utils.NetworkConnectivityRepository
 import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val networkModule = module {
-    factory<HttpClient> { (instance: Instance?) -> createInstanceClient(instance) }
+    factory<HttpClient> { (instance: Instance?) -> createInstanceClient(instance, get()) }
 
     single { GenericClient() }
     factory<SonarrClient> { (instance: Instance) -> SonarrClient(instance) }
@@ -29,6 +30,14 @@ val networkModule = module {
 
     single { NetworkConnectivityObserverFactory().create() }
     single { NetworkConnectivityRepository() }
+
+    single {
+        Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
+    }
 }
 
 val databaseModule = module {

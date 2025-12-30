@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -26,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +55,10 @@ import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
+import com.dnfapps.arrmatey.ui.helpers.statusBarHeight
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
+import com.skydoves.cloudy.cloudy
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.time.ExperimentalTime
@@ -66,9 +72,32 @@ fun MediaPreviewScreen(
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
+    val scrollState = rememberScrollState()
+
+    Scaffold { paddingValues ->
+        Box(modifier = Modifier
+            .padding(paddingValues.copy(bottom = 0.dp, top = 0.dp))
+            .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                DetailsHeader(item)
+
+                Column(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    UpcomingDateView(item)
+
+                    ItemDescriptionCard(item)
+                }
+            }
+
+            OverlayTopAppBar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.TopCenter),
                 navigationIcon = {
                     IconButton(
                         onClick = { navigation.popBackStack() }
@@ -79,7 +108,6 @@ fun MediaPreviewScreen(
                         )
                     }
                 },
-                title = {},
                 actions = {
                     IconButton(
                         onClick = { showBottomSheet = true }
@@ -91,29 +119,6 @@ fun MediaPreviewScreen(
                     }
                 }
             )
-        }
-    ) { paddingValues ->
-        Box(modifier = Modifier
-            .padding(paddingValues.copy(bottom = 0.dp))
-            .fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                DetailsHeader(item)
-
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
-                ) {
-                    UpcomingDateView(item)
-
-                    ItemDescriptionCard(item)
-                }
-            }
 
             if (showBottomSheet) {
                 AddMediaSheet(

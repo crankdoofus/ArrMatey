@@ -15,14 +15,13 @@ import com.dnfapps.arrmatey.api.arr.model.SeriesAlternateTitle
 import com.dnfapps.arrmatey.api.arr.model.SeriesRatings
 import com.dnfapps.arrmatey.api.arr.model.SeriesStatistics
 import kotlinx.serialization.json.Json
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.time.Instant
 
-class Converters {
+class Converters: KoinComponent {
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+    private val json: Json by inject()
 
     @TypeConverter
     fun storeLanguage(language: Language): String {

@@ -29,9 +29,13 @@ class InstanceViewModel: ObservableObject {
             }
         }
     }
-    
+
     deinit {
         observationTask?.cancel()
+    }
+    
+    func selectedInstance(for type: InstanceType) -> Instance? {
+        instances.first { $0.selected && $0.type == type }
     }
     
     func setSelected(_ instance: Instance) {

@@ -14,11 +14,13 @@ struct PosterItemView<T: AnyArrMedia>: UIViewControllerRepresentable {
     var enabled: Bool = true
 
     func makeUIViewController(context: Context) -> UIViewController {
-        PosterItemViewController(
+        let controller = PosterItemViewController(
             item: self.item,
             onItemClick: self.onItemClick,
             enabled: self.enabled
         )
+        controller.view.backgroundColor = .clear
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {

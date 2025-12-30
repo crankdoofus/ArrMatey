@@ -29,6 +29,8 @@ class NavigationManager: ObservableObject {
 
 enum MediaRoute: Hashable {
     case details(Int)
+    case search(String)
+    case preview(String)
 }
 
 enum SettingsRoute : Hashable {

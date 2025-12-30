@@ -34,7 +34,7 @@ struct SeriesFilesView: View {
         contentForState()
             .task {
                 await setupViewModel()
-                await viewModel.getEpsiodes(seriesId: series.id)
+                await viewModel.getEpsiodes(seriesId: series.id as! Int32)
             }
     }
     

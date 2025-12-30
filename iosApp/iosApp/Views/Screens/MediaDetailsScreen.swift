@@ -12,16 +12,17 @@ struct MediaDetailsScreen: View {
     let id: Int
     let type: InstanceType
     
-    @EnvironmentObject private var instanceViewModel: InstanceViewModel
+    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
     
-    @State private var arrViewModel: ArrViewModel? = nil
     @State private var detailUiState: Any = DetailsUiStateInitial()
     @State private var observationTask: Task<Void, Never>? = nil
     
     private var instance: Instance? {
-        instanceViewModel.instances.first {
-            $0.type == type && $0.selected
-        }
+        arrTabViewModel.currentInstance
+    }
+    
+    private var arrViewModel: ArrViewModel? {
+        arrTabViewModel.arrViewModel
     }
     
     private var isMonitored: Bool {
@@ -56,36 +57,6 @@ struct MediaDetailsScreen: View {
     }
     
     @ViewBuilder
-    private func header(item: AnyArrMedia) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            PosterItemView(
-                item: item,
-                onItemClick: nil
-            )
-            .frame(width: 150, height: 220)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.title)
-                    .font(.system(size: 36, weight: .bold))
-                    .lineLimit(3)
-                    .truncationMode(.tail)
-                
-                Text([String(item.year), item.runtimeString, item.certification ?? "NA"].joined(separator: " • "))
-                    .font(.system(size: 16))
-
-                Text([item.releasedBy ?? "", item.statusString].joined(separator: " • "))
-                    .font(.system(size: 14))
-                
-                Text(item.genres.joined(separator: " • "))
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-
-            }
-            .frame(alignment: .top)
-        }
-    }
-    
-    @ViewBuilder
     private func contentForState() -> some View {
         switch detailUiState {
         case is DetailsUiStateInitial:
@@ -101,7 +72,7 @@ struct MediaDetailsScreen: View {
             if let item = state.item {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12){
-                        header(item: item)
+                        MediaDetailsHeader(item: item)
                         
                         VStack(alignment: .leading, spacing: 12) {
                             if let airingString = makeAiringString(for: item) {
@@ -116,11 +87,11 @@ struct MediaDetailsScreen: View {
                             
                             MediaInfoArea(item: item)
                         }
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 24)
                     }
-                    .padding(.horizontal, 12)
                     .frame(alignment: .top)
                 }
+                .ignoresSafeArea(edges: .top)
             }
         case let error as DetailsUiStateError<AnyArrMedia>:
             VStack{}
@@ -164,12 +135,6 @@ struct MediaDetailsScreen: View {
     
     @MainActor
     private func setupViewModel() async {
-        guard self.arrViewModel == nil else { return }
-        
-        guard let instance = self.instance else { return }
-        
-        self.arrViewModel = createArrViewModel(for: instance)
-        
         observationTask?.cancel()
         observationTask = Task {
             await observeUiState()
@@ -185,8 +150,6 @@ struct MediaDetailsScreen: View {
             for try await state in flow {
                 self.detailUiState = state
             }
-        } catch {
-            print("Error observing state: \(error)")
         }
     }
 }

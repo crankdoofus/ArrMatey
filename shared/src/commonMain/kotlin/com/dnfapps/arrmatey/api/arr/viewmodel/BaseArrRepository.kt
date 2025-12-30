@@ -56,8 +56,8 @@ abstract class BaseArrRepository<T: AnyArrMedia>(
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            refreshInstance()
             refreshLibrary()
+            refreshInstance()
         }
     }
 
