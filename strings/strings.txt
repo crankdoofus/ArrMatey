@@ -87,8 +87,14 @@
         en = Website
     [sort]
         en = Sort
+    [sort_order]
+        en = Sort Order
+    [sort_by]
+        en = Sort By
     [filter]
         en = Filter
+    [filter_by]
+        en = Filter By
     [title]
         en = Title
     [year]

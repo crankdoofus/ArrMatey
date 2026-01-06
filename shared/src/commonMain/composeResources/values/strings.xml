@@ -47,7 +47,10 @@
     <string name="github">GitHub</string>
     <string name="website">Website</string>
     <string name="sort">Sort</string>
+    <string name="sort_order">Sort Order</string>
+    <string name="sort_by">Sort By</string>
     <string name="filter">Filter</string>
+    <string name="filter_by">Filter By</string>
     <string name="title">Title</string>
     <string name="year">Year</string>
     <string name="added">Added</string>

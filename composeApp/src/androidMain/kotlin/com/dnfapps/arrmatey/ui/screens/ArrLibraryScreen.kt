@@ -1,6 +1,12 @@
 package com.dnfapps.arrmatey.ui.screens
 
 import android.annotation.SuppressLint
+import android.widget.ImageView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,19 +18,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SignalWifiOff
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -43,6 +56,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -63,10 +78,12 @@ import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.applyFiltering
 import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.entensions.copy
+import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
+import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.FilterMenuButton
 import com.dnfapps.arrmatey.ui.components.InstancePicker
 import com.dnfapps.arrmatey.ui.components.SortMenuButton
@@ -78,6 +95,7 @@ import com.dnfapps.arrmatey.ui.theme.ViewType
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.w3c.dom.Text
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -103,6 +121,8 @@ fun ArrLibraryTab(
     var hasServerConnetivityError by remember { mutableStateOf(false) }
     val hasNetworkConnection by networkViewModel.isConnected.collectAsStateWithLifecycle()
 
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var showSearchBar by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
@@ -116,18 +136,18 @@ fun ArrLibraryTab(
             }
         },
         floatingActionButton = {
-            instance?.let {
-                FloatingActionButton(
-                    onClick = {
-                        navigation.navigateTo(ArrScreen.Search())
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null
-                    )
-                }
-            }
+//            instance?.let {
+//                FloatingActionButton(
+//                    onClick = {
+//                        navigation.navigateTo(ArrScreen.Search())
+//                    }
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Add,
+//                        contentDescription = null
+//                    )
+//                }
+//            }
         },
         topBar = {
             TopAppBar(
@@ -167,28 +187,55 @@ fun ArrLibraryTab(
                 },
                 actions = {
                     instance?.let {
-                        ViewTypeMenuButton(
-                            viewType = selectedViewType,
-                            onViewTypeChanged = { preferenceStore.saveViewType(type, it) }
-                        )
-                        FilterMenuButton(
-                            instanceType = type,
-                            selectedFilter = selectedFilter,
-                            onFilterChange = {
-                                preferenceStore.saveFilterBy(it)
+                        IconButton(
+                            onClick = { showSearchBar = !showSearchBar }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                navigation.navigateTo(ArrScreen.Search())
                             }
-                        )
-                        SortMenuButton(
-                            instanceType = type,
-                            onSortChanged = {
-                                preferenceStore.saveSortBy(it)
-                            },
-                            onOrderChanged = {
-                                preferenceStore.saveSortOrder(it)
-                            },
-                            sortBy = selectedSortOption,
-                            sortOrder = selectedSortOrder
-                        )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null
+                            )
+                        }
+                        IconButton(
+                            onClick = { showFilterSheet = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = stringResource(R.string.filter)
+                            )
+                        }
+
+//                        ViewTypeMenuButton(
+//                            viewType = selectedViewType,
+//                            onViewTypeChanged = { preferenceStore.saveViewType(type, it) }
+//                        )
+//                        FilterMenuButton(
+//                            instanceType = type,
+//                            selectedFilter = selectedFilter,
+//                            onFilterChange = {
+//                                preferenceStore.saveFilterBy(it)
+//                            }
+//                        )
+//                        SortMenuButton(
+//                            instanceType = type,
+//                            onSortChanged = {
+//                                preferenceStore.saveSortBy(it)
+//                            },
+//                            onOrderChanged = {
+//                                preferenceStore.saveSortOrder(it)
+//                            },
+//                            sortBy = selectedSortOption,
+//                            sortOrder = selectedSortOrder
+//                        )
                     }
                 }
             )
@@ -240,22 +287,31 @@ fun ArrLibraryTab(
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    OutlinedTextField(
-                                        value = searchQuery,
-                                        onValueChange = { searchQuery = it },
-                                        modifier = Modifier
-                                            .padding(horizontal = 18.dp, vertical = 12.dp)
-                                            .fillMaxWidth(),
-                                        trailingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = null,
-                                                modifier = Modifier.clickable { searchQuery = "" }
-                                            )
-                                        },
-                                        placeholder = { Text(stringResource(R.string.search)) },
-                                        shape = RoundedCornerShape(10.dp)
-                                    )
+                                    AnimatedVisibility(
+                                        visible = showSearchBar,
+                                        enter = expandVertically(),
+                                        exit = shrinkVertically()
+                                    ) {
+                                        OutlinedTextField(
+                                            value = searchQuery,
+                                            onValueChange = { searchQuery = it },
+                                            modifier = Modifier
+                                                .padding(horizontal = 18.dp, vertical = 12.dp)
+                                                .fillMaxWidth(),
+                                            trailingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.clickable {
+                                                        searchQuery = ""
+                                                        showSearchBar = false
+                                                    }
+                                                )
+                                            },
+                                            placeholder = { Text(stringResource(R.string.search)) },
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                    }
 
                                     MediaView(
                                         items = items,
@@ -310,6 +366,21 @@ fun ArrLibraryTab(
                 NoInstanceView(
                     type = type,
                     modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            if (showFilterSheet) {
+                FilterSheet(
+                    type = type,
+                    onDismiss = { showFilterSheet = false },
+                    selectedViewType = selectedViewType,
+                    onViewTypeChanged = { preferenceStore.saveViewType(type, it) },
+                    selectedFilter = selectedFilter,
+                    onFilterChanged = { preferenceStore.saveFilterBy(it) },
+                    selectedSortOrder = selectedSortOrder,
+                    onSortOrderChanged = { preferenceStore.saveSortOrder(it) },
+                    selectedSortBy = selectedSortOption,
+                    onSortByChanged = { preferenceStore.saveSortBy(it) }
                 )
             }
         }
@@ -414,4 +485,126 @@ fun MediaView(
                 .fillMaxSize()
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilterSheet(
+    type: InstanceType,
+    onDismiss: () -> Unit,
+    selectedViewType: ViewType,
+    onViewTypeChanged: (ViewType) -> Unit,
+    selectedFilter: FilterBy,
+    onFilterChanged: (FilterBy) -> Unit,
+    selectedSortOrder: SortOrder,
+    onSortOrderChanged: (SortOrder) -> Unit,
+    selectedSortBy: SortBy,
+    onSortByChanged: (SortBy) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            ViewTypePicker(
+                viewType = selectedViewType,
+                onViewTypeChanged = onViewTypeChanged
+            )
+
+            DropdownPicker(
+                options = FilterBy.typeEntries(type),
+                selectedOption = selectedFilter,
+                onOptionSelected = onFilterChanged,
+                label = { Text(stringResource(R.string.filter_by)) },
+                getOptionLabel = { getString(it.iosText) }
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                DropdownPicker(
+                    options = SortBy.typeEntries(type),
+                    selectedOption = selectedSortBy,
+                    onOptionSelected = onSortByChanged,
+                    label = { Text(stringResource(R.string.sort_by)) },
+                    getOptionLabel = { getString(it.textKey) },
+                    getOptionIcon = { it.androidIcon },
+                    modifier = Modifier.weight(1f)
+                )
+                DropdownPicker(
+                    options = SortOrder.entries,
+                    selectedOption = selectedSortOrder,
+                    onOptionSelected = onSortOrderChanged,
+                    label = { Text(stringResource(R.string.sort_order)) },
+                    getOptionLabel = { getString(it.iosText) },
+                    getOptionIcon = { it.androidIcon },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ViewTypePicker(
+    viewType: ViewType,
+    onViewTypeChanged: (ViewType) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        ViewTypeButton(
+            selected = viewType == ViewType.Grid,
+            modifier = Modifier.weight(1f),
+            onClick = { onViewTypeChanged(ViewType.Grid) },
+            icon = Icons.Default.GridView,
+            label = "Grid"
+        )
+        ViewTypeButton(
+            selected = viewType == ViewType.List,
+            modifier = Modifier.weight(1f),
+            onClick = { onViewTypeChanged(ViewType.List) },
+            icon = Icons.AutoMirrored.Default.List,
+            label = "List"
+        )
+    }
+}
+
+@Composable
+fun ViewTypeButton(
+    selected: Boolean,
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
+    val defaultButtonColors = ButtonDefaults.buttonColors()
+    val borderStroke = BorderStroke(1.dp, defaultButtonColors.containerColor)
+
+    val colors = if (selected) defaultButtonColors else {
+        ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+    }
+
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        border = borderStroke,
+        colors = colors
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null
+        )
+        Text(text = label)
+    }
+
 }
