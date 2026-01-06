@@ -48,7 +48,7 @@ data class MovieRelease(
 
     val movieTitles: List<String> = emptyList(),
     val language: List<String> = emptyList(),
-    val mappedMovieId: Int,
+    val mappedMovieId: Int? = null,
     val movieRequested: Boolean,
     val edition: String,
     val magetUrl: String? = null,

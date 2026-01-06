@@ -135,20 +135,6 @@ fun ArrLibraryTab(
                 )
             }
         },
-        floatingActionButton = {
-//            instance?.let {
-//                FloatingActionButton(
-//                    onClick = {
-//                        navigation.navigateTo(ArrScreen.Search())
-//                    }
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Add,
-//                        contentDescription = null
-//                    )
-//                }
-//            }
-        },
         topBar = {
             TopAppBar(
                 title = {
@@ -213,29 +199,6 @@ fun ArrLibraryTab(
                                 contentDescription = stringResource(R.string.filter)
                             )
                         }
-
-//                        ViewTypeMenuButton(
-//                            viewType = selectedViewType,
-//                            onViewTypeChanged = { preferenceStore.saveViewType(type, it) }
-//                        )
-//                        FilterMenuButton(
-//                            instanceType = type,
-//                            selectedFilter = selectedFilter,
-//                            onFilterChange = {
-//                                preferenceStore.saveFilterBy(it)
-//                            }
-//                        )
-//                        SortMenuButton(
-//                            instanceType = type,
-//                            onSortChanged = {
-//                                preferenceStore.saveSortBy(it)
-//                            },
-//                            onOrderChanged = {
-//                                preferenceStore.saveSortOrder(it)
-//                            },
-//                            sortBy = selectedSortOption,
-//                            sortOrder = selectedSortOrder
-//                        )
                     }
                 }
             )

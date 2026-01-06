@@ -98,7 +98,7 @@ fun InteractiveSearchScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, id) {
         val params = ReleaseParams.Movie(id)
         arrViewModel.getReleases(params)
     }
@@ -211,6 +211,9 @@ fun InteractiveSearchScreen(
                             Spacer(modifier = Modifier.height(0.dp))
                         }
                     }
+                }
+                is LibraryUiState.Error -> {
+                    Text(state.error.message)
                 }
                 else -> {}
             }
