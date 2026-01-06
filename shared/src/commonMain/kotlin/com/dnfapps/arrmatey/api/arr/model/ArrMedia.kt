@@ -1,7 +1,6 @@
 package com.dnfapps.arrmatey.api.arr.model
 
 import androidx.compose.ui.graphics.Color
-import androidx.room.Ignore
 import com.dnfapps.arrmatey.extensions.formatAsRuntime
 import com.dnfapps.arrmatey.model.InstanceType
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +19,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put

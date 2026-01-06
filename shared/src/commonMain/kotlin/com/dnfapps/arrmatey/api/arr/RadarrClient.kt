@@ -3,6 +3,8 @@ package com.dnfapps.arrmatey.api.arr
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ExtraFile
 import com.dnfapps.arrmatey.api.arr.model.MonitoredResponse
+import com.dnfapps.arrmatey.api.arr.model.MovieRelease
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.client.NetworkResult
 import com.dnfapps.arrmatey.api.client.safeGet
 import com.dnfapps.arrmatey.api.client.safePost
@@ -15,7 +17,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
-class RadarrClient(instance: Instance): BaseArrClient<ArrMovie>(instance) {
+class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, ReleaseParams.Movie>(instance) {
 
     override suspend fun getLibrary(): NetworkResult<List<ArrMovie>> {
         val resp = httpClient.safeGet<List<ArrMovie>>("api/v3/movie")
@@ -60,6 +62,12 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie>(instance) {
             contentType(ContentType.Application.Json)
             setBody(item)
         }
+        return resp
+    }
+
+    override suspend fun getReleases(params: ReleaseParams.Movie): NetworkResult<List<MovieRelease>> {
+        val movieId = params.movieId
+        val resp = httpClient.safeGet<List<MovieRelease>>("api/v3/release?movieId=$movieId")
         return resp
     }
 

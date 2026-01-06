@@ -54,6 +54,10 @@
         en = Retry
     [search]
         en = Search
+    [grab]
+        en = Grab
+    [cancel]
+        en = Cancel
 
 [[Labels]]
     [label]
@@ -186,6 +190,20 @@
         en = Quality profile
     [monitor]
         en = Monitor
+    [download_queue_success]
+        en = Download queued successfully!
+    [grab_release_title]
+        en = Grab Release
+    [grab_release_message]
+        en = The release for this file could not be determined and may not be imported automatically. Do you want to download it anyway?
+    [search_queued]
+        en = Search queued
+    [search_error]
+        en = Search error
+    [interactive]
+        en = Interactive
+    [automatic]
+        en = Automatic
 
 [[Errors]]
     [instance_connect_error]
@@ -202,6 +220,8 @@
         en = An instance with this label already exists
     [instance_url_exists]
         en = An instance with this host already exists
+    [download_queue_error]
+        en = Error queuing download
 
 [[Instances]]
     [sonarr_description]

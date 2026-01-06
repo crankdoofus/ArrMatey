@@ -6,6 +6,8 @@ import com.dnfapps.arrmatey.api.arr.GenericClient
 import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.SonarrClient
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
 import com.dnfapps.arrmatey.api.arr.viewmodel.createInstanceRepository
 import com.dnfapps.arrmatey.api.client.createInstanceClient
@@ -48,7 +50,7 @@ val databaseModule = module {
     single { InstanceRepository() }
     factory { AddInstanceRepository() }
 
-    factory<BaseArrRepository<out AnyArrMedia>> {
+    factory<BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams>> {
         (instance: Instance) -> createInstanceRepository(instance)
     }
 }

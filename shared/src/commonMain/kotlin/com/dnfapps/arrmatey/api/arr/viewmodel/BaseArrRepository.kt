@@ -5,7 +5,9 @@ import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
+import com.dnfapps.arrmatey.api.arr.model.IArrRelease
 import com.dnfapps.arrmatey.api.arr.model.QualityProfile
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.model.RootFolder
 import com.dnfapps.arrmatey.api.arr.model.Tag
 import com.dnfapps.arrmatey.api.client.NetworkResult
@@ -19,20 +21,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.io.files.Path
 import org.koin.core.component.KoinComponent
 
-fun createInstanceRepository(instance: Instance): BaseArrRepository<out AnyArrMedia> {
+fun createInstanceRepository(instance: Instance): BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams> {
     return when (instance.type) {
         InstanceType.Sonarr -> SonarrRepository(instance)
         InstanceType.Radarr -> RadarrRepository(instance)
     }
 }
 
-abstract class BaseArrRepository<T: AnyArrMedia>(
+abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
     protected val instance: Instance
-): KoinComponent, IArrRepository<T> {
+): KoinComponent, IArrRepository<T, R, P> {
 
-    abstract val client: IArrClient<T>
+    abstract val client: IArrClient<T, R, P>
 
     protected val _uiState = MutableStateFlow<LibraryUiState<T>>(LibraryUiState.Initial)
     override val uiState: StateFlow<LibraryUiState<T>> = _uiState.asStateFlow()
@@ -60,6 +63,12 @@ abstract class BaseArrRepository<T: AnyArrMedia>(
 
     protected val _automaticSearchResult = MutableStateFlow<Boolean?>(null)
     override val automaticSearchResult: StateFlow<Boolean?> = _automaticSearchResult
+
+    protected val _releasesUiState = MutableStateFlow<LibraryUiState<R>>(LibraryUiState.Initial)
+    override val releasesUiState: StateFlow<LibraryUiState<R>> = _releasesUiState
+
+    protected val _downloadReleaseState = MutableStateFlow<DownloadState>(DownloadState.Initial)
+    override val downloadReleaseState: StateFlow<DownloadState> = _downloadReleaseState
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -221,7 +230,6 @@ abstract class BaseArrRepository<T: AnyArrMedia>(
         when (result) {
             is NetworkResult.Success -> {
                 _addItemUiState.value = DetailsUiState.Success(result.data)
-//                refreshLibrary()
             }
             else -> _addItemUiState.value = DetailsUiState.Error(
                 error = ErrorEvent("An unexpected error occurred"),
@@ -248,6 +256,35 @@ abstract class BaseArrRepository<T: AnyArrMedia>(
         when(payload) {
             is CommandPayload.RadarrSearch,
                 is CommandPayload.SonarrSearch -> _automaticSearchIds.value = emptyList()
+        }
+    }
+
+    override suspend fun getReleases(params: P) {
+        _releasesUiState.emit(LibraryUiState.Loading)
+
+        val resp = client.getReleases(params)
+        when(resp) {
+            is NetworkResult.Success -> {
+                _releasesUiState.value = LibraryUiState.Success(resp.data)
+            }
+            is NetworkResult.NetworkError -> {
+                _releasesUiState.value = LibraryUiState.Error(
+                    error = ErrorEvent(resp.message ?: "Network error occurred"),
+                    type = UiErrorType.Network
+                )
+            }
+            is NetworkResult.HttpError -> {
+                _releasesUiState.value = LibraryUiState.Error(
+                    error = ErrorEvent(resp.message ?: "Server error occurred"),
+                    type = UiErrorType.Http
+                )
+            }
+            is NetworkResult.UnexpectedError -> {
+                _releasesUiState.value = LibraryUiState.Error(
+                    error = ErrorEvent(resp.cause.message ?: "An unexpected error occurred"),
+                    type = UiErrorType.Unexpected
+                )
+            }
         }
     }
 

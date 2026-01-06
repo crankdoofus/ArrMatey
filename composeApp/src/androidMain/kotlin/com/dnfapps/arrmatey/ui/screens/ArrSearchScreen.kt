@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,18 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,28 +31,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
-import com.dnfapps.arrmatey.compose.components.MediaList
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.entensions.copy
-import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.SortMenuButton
+import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class,
     ExperimentalMaterial3ExpressiveApi::class
@@ -68,7 +57,7 @@ import org.koin.core.parameter.parametersOf
 fun ArrSearchScreen(
     initialQuery: String,
     type: InstanceType,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation>(parameters = { parametersOf(type) })
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
 
@@ -166,21 +155,17 @@ fun ArrSearchScreen(
                                     if (sortOrder == SortOrder.Desc) sorted.reversed() else sorted
                                 }
 
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    PosterGrid(
-                                        items = sortedItems,
-                                        onItemClick = { item ->
-                                            val destination = if (item.id == null) {
-                                                ArrScreen.Preview(item, type)
-                                            } else {
-                                                ArrScreen.Details(type, item.id!!)
-                                            }
-                                            navigation.navigateTo(destination)
+                                PosterGrid(
+                                    items = sortedItems,
+                                    onItemClick = { item ->
+                                        val destination = if (item.id == null) {
+                                            ArrScreen.Preview(item)
+                                        } else {
+                                            ArrScreen.Details(item.id!!)
                                         }
-                                    )
-                                }
+                                        navigation.navigateTo(destination)
+                                    }
+                                )
                             }
 
                             is LibraryUiState.Error -> {

@@ -3,7 +3,10 @@ package com.dnfapps.arrmatey.api.arr
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
 import com.dnfapps.arrmatey.api.arr.model.CommandResponse
+import com.dnfapps.arrmatey.api.arr.model.DownloadReleasePayload
+import com.dnfapps.arrmatey.api.arr.model.IArrRelease
 import com.dnfapps.arrmatey.api.arr.model.QualityProfile
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.model.RootFolder
 import com.dnfapps.arrmatey.api.arr.model.Tag
 import com.dnfapps.arrmatey.api.client.NetworkResult
@@ -18,9 +21,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
-abstract class BaseArrClient<T: AnyArrMedia>(
+abstract class BaseArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
     instance: Instance
-): KoinComponent, IArrClient<T> {
+): KoinComponent, IArrClient<T, R, P> {
     protected val httpClient: HttpClient by inject { parametersOf(instance) }
 
     override suspend fun getQualityProfiles(): NetworkResult<List<QualityProfile>> {
@@ -40,6 +43,14 @@ abstract class BaseArrClient<T: AnyArrMedia>(
 
     override suspend fun command(payload: CommandPayload): NetworkResult<CommandResponse> {
         val resp = httpClient.safePost<CommandResponse>("api/v3/command") {
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return resp
+    }
+
+    suspend fun downloadRelease(payload: DownloadReleasePayload): NetworkResult<Any> {
+        val resp = httpClient.safePost<Any>("api/v3/release") {
             contentType(ContentType.Application.Json)
             setBody(payload)
         }

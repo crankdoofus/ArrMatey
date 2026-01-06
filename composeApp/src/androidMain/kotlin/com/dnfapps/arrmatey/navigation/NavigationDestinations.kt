@@ -11,9 +11,10 @@ sealed interface HomeTab : NavKey {
 
 sealed interface ArrScreen : NavKey {
     data object Library: ArrScreen
-    data class Details(val type: InstanceType, val id: Int): ArrScreen
-    data class Preview<T>(val item: T, val type: InstanceType): ArrScreen
+    data class Details(val id: Int): ArrScreen
+    data class Preview<T>(val item: T): ArrScreen
     data class Search(val query: String = ""): ArrScreen
+    data class InteractiveSearch(val id: Int): ArrScreen
 }
 
 sealed interface SettingsScreen : NavKey {

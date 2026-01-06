@@ -71,20 +71,20 @@ import com.dnfapps.arrmatey.ui.components.FilterMenuButton
 import com.dnfapps.arrmatey.ui.components.InstancePicker
 import com.dnfapps.arrmatey.ui.components.SortMenuButton
 import com.dnfapps.arrmatey.ui.components.ViewTypeMenuButton
+import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.tabs.LocalInstance
 import com.dnfapps.arrmatey.ui.theme.ViewType
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ArrLibraryTab(
     type: InstanceType,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation>(parameters = { parametersOf(type) })
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -262,10 +262,7 @@ fun ArrLibraryTab(
                                         onItemClick = {
                                             it.id?.let { id ->
                                                 navigation.navigateTo(
-                                                    ArrScreen.Details(
-                                                        type = type,
-                                                        id = id
-                                                    )
+                                                    ArrScreen.Details(id = id)
                                                 )
                                             }
                                         },

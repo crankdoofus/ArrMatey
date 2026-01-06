@@ -4,36 +4,28 @@ import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandCircleDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,13 +39,11 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,7 +51,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -93,15 +82,15 @@ import com.dnfapps.arrmatey.extensions.formatAsRuntime
 import com.dnfapps.arrmatey.extensions.isToday
 import com.dnfapps.arrmatey.extensions.isTodayOrAfter
 import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
-import com.dnfapps.arrmatey.ui.helpers.statusBarHeight
+import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.RadarrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 import com.dnfapps.arrmatey.utils.format
-import com.skydoves.cloudy.cloudy
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
@@ -111,9 +100,8 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MediaDetailsScreen(
-    type: InstanceType,
     id: Int,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation>(parameters = { parametersOf(type) })
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
 
@@ -337,7 +325,10 @@ fun FilesArea(item: AnyArrMedia, vm: ArrViewModel) {
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun MovieFileView(movie: ArrMovie) {
+fun MovieFileView(
+    movie: ArrMovie,
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
+) {
     val arrViewModel = LocalArrViewModel.current
     if (arrViewModel == null || arrViewModel !is RadarrViewModel) return
 
@@ -357,10 +348,13 @@ fun MovieFileView(movie: ArrMovie) {
         }
     }
 
+    val searchQueuedMessage = stringResource(R.string.search_queued)
+    val searchErrorMessage = stringResource(R.string.search_error)
+
     LaunchedEffect(searchResult) {
         when (searchResult) {
-            true -> Toast.makeText(context, "Search queued", Toast.LENGTH_SHORT).show()
-            false -> Toast.makeText(context, "Search error", Toast.LENGTH_SHORT).show()
+            true -> Toast.makeText(context, searchQueuedMessage, Toast.LENGTH_SHORT).show()
+            false -> Toast.makeText(context, searchErrorMessage, Toast.LENGTH_SHORT).show()
             else -> {}
         }
     }
@@ -373,18 +367,21 @@ fun MovieFileView(movie: ArrMovie) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 6.dp)
-                .padding(horizontal = 24.dp)
+                .padding(bottom = 12.dp)
         ) {
             Button(
                 modifier = Modifier.weight(1f),
-                onClick = {}
+                onClick = {
+                    val interactiveDestination = ArrScreen.InteractiveSearch(movie.id!!)
+                    navigation.navigateTo(interactiveDestination)
+                },
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Interactive"
+                    contentDescription = stringResource(R.string.interactive)
                 )
-                Text(text = "Interactive")
+                Text(text = stringResource(R.string.interactive))
             }
 
             Button(
@@ -394,16 +391,17 @@ fun MovieFileView(movie: ArrMovie) {
                         arrViewModel.performSearch(listOf(id))
                     }
                 },
-                enabled = !searchIds.contains(movie.id)
+                enabled = !searchIds.contains(movie.id),
+                shape = RoundedCornerShape(10.dp)
             ) {
                 if (searchIds.contains(movie.id)) {
                     CircularProgressIndicator(modifier = Modifier.size(25.dp))
                 } else {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Automatic"
+                        contentDescription = stringResource(R.string.automatic)
                     )
-                    Text(text = "Automatic")
+                    Text(text = stringResource(R.string.automatic))
                 }
             }
         }
@@ -444,7 +442,7 @@ fun MovieFileView(movie: ArrMovie) {
                         text = listOf(
                             file.languages.first().name,
                             file.size.bytesAsFileSizeString(),
-                            file.quality.quality.name
+                            file.quality.qualityLabel
                         ).joinToString(" • "),
                         fontSize = 14.sp
                     )

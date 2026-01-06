@@ -3,6 +3,8 @@ package com.dnfapps.arrmatey.api.arr
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.Episode
 import com.dnfapps.arrmatey.api.arr.model.MonitoredResponse
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
+import com.dnfapps.arrmatey.api.arr.model.SeriesRelease
 import com.dnfapps.arrmatey.api.client.NetworkResult
 import com.dnfapps.arrmatey.api.client.safeGet
 import com.dnfapps.arrmatey.api.client.safePost
@@ -15,7 +17,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
-class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries>(instance) {
+class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease, ReleaseParams.Series>(instance) {
 
     override suspend fun getLibrary(): NetworkResult<List<ArrSeries>> {
         val resp = httpClient.safeGet<List<ArrSeries>>("api/v3/series")
@@ -46,6 +48,10 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries>(instance) {
             setBody(item)
         }
         return resp
+    }
+
+    override suspend fun getReleases(params: ReleaseParams.Series): NetworkResult<List<SeriesRelease>> {
+        TODO("Not yet implemented")
     }
 
     suspend fun updateEpisode(item: Episode): NetworkResult<Episode> {

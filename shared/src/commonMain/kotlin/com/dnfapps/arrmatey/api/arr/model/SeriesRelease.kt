@@ -1,0 +1,48 @@
+package com.dnfapps.arrmatey.api.arr.model
+
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import kotlin.time.Instant
+
+@Serializable
+data class SeriesRelease(
+    override val id: Int? = null,
+    override val guid: String,
+    override val quality: QualityInfo,
+    override val customFormats: List<CustomFormat>,
+    override val customFormatScore: Float,
+    override val qualityWeight: Float,
+    override val age: Float,
+    override val ageHours: Float,
+    override val ageMinutes: Float,
+    override val size: Long,
+    override val indexerId: Int,
+    override val indexer: String,
+    override val releaseGroup: String? = null,
+    override val subGroup: String? = null,
+    override val releaseHash: String,
+    override val title: String,
+    override val sceneSource: Boolean,
+    override val approved: Boolean,
+    override val temporarilyRejected: Boolean,
+    override val rejected: Boolean,
+    override val tmdbId: Int,
+    override val imdbId: Int,
+    override val rejections: List<String>,
+    @Contextual override val publishDate: Instant,
+    override val commentUrl: String,
+    override val downloadUrl: String,
+    override val infoUrl: String,
+    override val downloadAllowed: Boolean,
+    override val releaseWeight: Float,
+    override val infoHash: String,
+    override val seeders: Int,
+    override val leechers: Int,
+    override val protocol: ReleaseProtocol,
+    override val indexerFlags: List<String> = emptyList(),
+    override val downloadClientId: Int? = null,
+    override val downloadClient: String? = null,
+    override val shouldOverride: Boolean = false,
+    override val languages: List<Language> = emptyList(),
+    override val magnetUrl: String? = null,
+): IArrRelease

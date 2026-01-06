@@ -1,6 +1,5 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,16 +19,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,9 +56,8 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
-import com.dnfapps.arrmatey.ui.helpers.statusBarHeight
+import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import com.skydoves.cloudy.cloudy
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.time.ExperimentalTime
@@ -71,8 +66,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun MediaPreviewScreen(
     item: AnyArrMedia,
-    type: InstanceType,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation>(parameters = { parametersOf(type) })
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -153,12 +147,10 @@ fun AddMediaSheet(
 fun AddSeriesForm(
     item: ArrSeries,
     onDismiss: () -> Unit,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation> { parametersOf(InstanceType.Sonarr) }
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
     if (arrViewModel == null) return
-
-    val context = LocalContext.current
 
     val uiState by arrViewModel.addItemUiState.collectAsStateWithLifecycle()
 
@@ -167,7 +159,7 @@ fun AddSeriesForm(
             is DetailsUiState.Success<out AnyArrMedia> -> {
                 onDismiss()
                 state.item.id?.let { id ->
-                    val newScreen = ArrScreen.Details(InstanceType.Sonarr, id)
+                    val newScreen = ArrScreen.Details(id)
                     navigation.replaceCurrent(newScreen)
                 }
             }
@@ -284,7 +276,7 @@ fun AddSeriesForm(
 fun AddMovieForm(
     item: ArrMovie,
     onDismiss: () -> Unit,
-    navigation: ArrTabNavigation = koinInject<ArrTabNavigation> { parametersOf(InstanceType.Radarr) }
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
     if (arrViewModel == null) return
@@ -296,7 +288,7 @@ fun AddMovieForm(
             is DetailsUiState.Success<out AnyArrMedia> -> {
                 onDismiss()
                 state.item.id?.let { id ->
-                    val newScreen = ArrScreen.Details(InstanceType.Radarr, id)
+                    val newScreen = ArrScreen.Details(id)
                     navigation.replaceCurrent(newScreen)
                 }
             }

@@ -3,6 +3,8 @@ package com.dnfapps.arrmatey.api.arr.viewmodel
 import com.dnfapps.arrmatey.api.arr.SonarrClient
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.Episode
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
+import com.dnfapps.arrmatey.api.arr.model.SeriesRelease
 import com.dnfapps.arrmatey.api.client.NetworkResult
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
@@ -11,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
-class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries>(instance) {
+class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries, SeriesRelease, ReleaseParams.Series>(instance) {
 
     override val client: SonarrClient by inject { parametersOf(instance) }
 
@@ -82,6 +84,10 @@ class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries>(instanc
                 }
             }
         }
+    }
+
+    override suspend fun downloadRelease(release: SeriesRelease, force: Boolean) {
+        TODO("Not yet implemented")
     }
 
 }

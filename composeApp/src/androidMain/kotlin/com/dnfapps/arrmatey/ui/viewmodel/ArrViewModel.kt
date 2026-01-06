@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
+import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
@@ -16,7 +18,7 @@ import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
 abstract class ArrViewModel(protected val instance: Instance): ViewModel(), KoinComponent {
-    protected val repository: BaseArrRepository<AnyArrMedia> by inject {
+    protected val repository: BaseArrRepository<AnyArrMedia, IArrRelease, ReleaseParams> by inject {
         parametersOf(
             instance
         )
@@ -26,6 +28,8 @@ abstract class ArrViewModel(protected val instance: Instance): ViewModel(), Koin
     val detailsUiState = repository.detailUiState
     val lookupUiState = repository.lookupUiState
     val addItemUiState = repository.addItemUiState
+    val releaseUiState = repository.releasesUiState
+    val downloadReleaseState = repository.downloadReleaseState
 
     val automaticSearchIds = repository.automaticSearchIds
     val automaticSearchResult = repository.automaticSearchResult
@@ -62,6 +66,18 @@ abstract class ArrViewModel(protected val instance: Instance): ViewModel(), Koin
         viewModelScope.launch {
             val payload = searchPayload(ids)
             repository.command(payload)
+        }
+    }
+
+    fun getReleases(params: ReleaseParams) {
+        viewModelScope.launch {
+            repository.getReleases(params)
+        }
+    }
+
+    fun downloadRelease(release: IArrRelease, force: Boolean = false) {
+        viewModelScope.launch {
+            repository.downloadRelease(release, force)
         }
     }
 
