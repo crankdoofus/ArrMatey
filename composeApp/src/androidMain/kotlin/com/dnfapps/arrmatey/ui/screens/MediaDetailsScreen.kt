@@ -649,7 +649,9 @@ private fun EpisodeRow(episode: Episode, navigation: ArrTabNavigation = LocalArr
             }
             Text(
                 text = titleString,
-                lineHeight = 16.sp
+                lineHeight = 16.sp,
+                overflow = TextOverflow.MiddleEllipsis,
+                maxLines = 1
             )
 
             val statusString =

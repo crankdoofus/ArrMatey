@@ -29,6 +29,7 @@ struct EpisodeRow: View {
                     Text(episode.title ?? "")
                         .font(.system(size: 16))
                         .fontWeight(.medium)
+                        .lineLimit(1)
                     
                     if let finaleType = episode.finaleType {
                         Text(" • \(finaleType.label)")
@@ -42,10 +43,12 @@ struct EpisodeRow: View {
                     if let statusString = statusString {
                         Text(statusString)
                             .font(.system(size: 14))
+                            .italic(episode.airDate?.isTodayOrAfter() == true)
                     } else {
                         Text(String(localized: LocalizedStringResource("missing")))
                             .font(.system(size: 14))
                             .foregroundColor(.red)
+                            .italic()
                     }
                     
                     let airDateText = " • \(episode.formatAirDateUtc() ?? "")"
