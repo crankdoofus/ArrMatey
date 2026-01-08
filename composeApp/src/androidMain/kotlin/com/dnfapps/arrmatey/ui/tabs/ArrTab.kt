@@ -7,11 +7,12 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
+import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
-import com.dnfapps.arrmatey.ui.screens.ArrLibraryTab
+import com.dnfapps.arrmatey.ui.screens.ArrLibraryScreen
 import com.dnfapps.arrmatey.ui.screens.ArrSearchScreen
 import com.dnfapps.arrmatey.ui.screens.InteractiveSearchScreen
 import com.dnfapps.arrmatey.ui.screens.MediaDetailsScreen
@@ -41,7 +42,7 @@ fun ArrTab(type: InstanceType) {
                     onBack = { navigation.popBackStack() },
                     entryProvider = entryProvider {
                         entry<ArrScreen.Library> {
-                            ArrLibraryTab(type)
+                            ArrLibraryScreen(type)
                         }
                         entry<ArrScreen.Details> { details ->
                             MediaDetailsScreen(details.id)
@@ -54,7 +55,7 @@ fun ArrTab(type: InstanceType) {
                         }
                         entry<ArrScreen.MovieReleases> { params ->
                             val releaseParams = ReleaseParams.Movie(params.movieId)
-                            InteractiveSearchScreen(releaseParams)
+                            InteractiveSearchScreen(releaseParams, canFilter = false)
                         }
                         entry<ArrScreen.SeriesRelease> { params ->
                             val releaseParams = ReleaseParams.Series(
@@ -62,7 +63,13 @@ fun ArrTab(type: InstanceType) {
                                 params.seasonNumber,
                                 params.episodeId
                             )
-                            InteractiveSearchScreen(releaseParams)
+                            InteractiveSearchScreen(
+                                releaseParams = releaseParams,
+                                canFilter = true,
+                                defaultFilter = if (params.episodeId != null) {
+                                    ReleaseFilterBy.SingleEpisode
+                                } else ReleaseFilterBy.SeasonPack
+                            )
                         }
                     }
                 )

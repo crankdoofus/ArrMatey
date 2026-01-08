@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -30,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,10 +61,20 @@ import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.DownloadState
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
 import com.dnfapps.arrmatey.compose.components.ProgressBox
+import com.dnfapps.arrmatey.compose.utils.FilterBy
+import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
+import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
+import com.dnfapps.arrmatey.compose.utils.SortBy
+import com.dnfapps.arrmatey.compose.utils.SortOrder
+import com.dnfapps.arrmatey.compose.utils.applyFiltering
+import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.copy
+import com.dnfapps.arrmatey.entensions.getString
+import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.extensions.formatAgeMinutes
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
+import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 
@@ -69,6 +82,8 @@ import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 @Composable
 fun InteractiveSearchScreen(
     releaseParams: ReleaseParams,
+    canFilter: Boolean,
+    defaultFilter: ReleaseFilterBy = ReleaseFilterBy.Any,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
@@ -85,6 +100,11 @@ fun InteractiveSearchScreen(
 
     val downloadQueueSuccessMessage = stringResource(R.string.download_queue_success)
     val downloadQueueErrorMessage = stringResource(R.string.download_queue_error)
+
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var sortBy by remember { mutableStateOf(ReleaseSortBy.Weight) }
+    var sortOrder by remember { mutableStateOf(SortOrder.Asc) }
+    var filterBy by remember { mutableStateOf(defaultFilter) }
 
     LaunchedEffect(downloadState) {
         when(downloadState) {
@@ -123,19 +143,18 @@ fun InteractiveSearchScreen(
                             if (!showSearch) searchQuery = ""
                         }
                     ) {
-                        Crossfade(showSearch) { isShown ->
-                            if (isShown) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.cancel)
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = stringResource(R.string.search)
-                                )
-                            }
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = stringResource(R.string.search)
+                        )
+                    }
+                    IconButton(
+                        onClick = { showFilterSheet = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = stringResource(R.string.filter)
+                        )
                     }
                 }
             )
@@ -155,11 +174,16 @@ fun InteractiveSearchScreen(
                     )
                 }
                 is LibraryUiState.Success -> {
-                    val filteredItems = remember(searchQuery) {
-                        if (searchQuery.isEmpty()) state.items
-                        else state.items.filter {
-                            it.title.contains(searchQuery, ignoreCase = true)
-                        }
+                    val filteredItems = remember(searchQuery, sortOrder, sortBy, filterBy) {
+                        state.items
+                            .applyFiltering(filterBy)
+                            .applySorting(sortBy, sortOrder)
+                            .let { lst ->
+                                if (searchQuery.isEmpty()) lst
+                                else lst.filter {
+                                    it.title.contains(searchQuery, ignoreCase = true)
+                                }
+                            }
                     }
 
                     LazyColumn(
@@ -184,7 +208,10 @@ fun InteractiveSearchScreen(
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = null,
-                                            modifier = Modifier.clickable { searchQuery = "" }
+                                            modifier = Modifier.clickable {
+                                                searchQuery = ""
+                                                showSearch = false
+                                            }
                                         )
                                     },
                                     placeholder = { Text(stringResource(R.string.search)) },
@@ -255,6 +282,19 @@ fun InteractiveSearchScreen(
                 )
             }
         }
+
+        if (showFilterSheet) {
+            FilterSheet(
+                canFilter = canFilter,
+                onDismiss = { showFilterSheet = false },
+                selectedSortBy = sortBy,
+                onSortByChanged = { sortBy = it },
+                selectedSortOrder = sortOrder,
+                onSortOrderChanged = { sortOrder = it },
+                selectedFilter = filterBy,
+                onFilterChanged = { filterBy = it }
+            )
+        }
     }
 }
 
@@ -311,6 +351,63 @@ fun <T: IArrRelease> ReleaseItem(
                 Text(
                     text = thirdLine,
                     maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilterSheet(
+    canFilter: Boolean,
+    onDismiss: () -> Unit,
+    selectedFilter: ReleaseFilterBy,
+    onFilterChanged: (ReleaseFilterBy) -> Unit,
+    selectedSortOrder: SortOrder,
+    onSortOrderChanged: (SortOrder) -> Unit,
+    selectedSortBy: ReleaseSortBy,
+    onSortByChanged: (ReleaseSortBy) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            if (canFilter) {
+                DropdownPicker(
+                    options = ReleaseFilterBy.entries,
+                    selectedOption = selectedFilter,
+                    onOptionSelected = onFilterChanged,
+                    label = { Text(stringResource(R.string.filter_by)) },
+                    getOptionLabel = { stringResource(it.stringResource()) }
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                DropdownPicker(
+                    options = ReleaseSortBy.entries,
+                    selectedOption = selectedSortBy,
+                    onOptionSelected = onSortByChanged,
+                    label = { Text(stringResource(R.string.sort_by)) },
+                    getOptionLabel = { stringResource(it.stringResource()) },
+                    modifier = Modifier.weight(1f)
+                )
+                DropdownPicker(
+                    options = SortOrder.entries,
+                    selectedOption = selectedSortOrder,
+                    onOptionSelected = onSortOrderChanged,
+                    label = { Text(stringResource(R.string.sort_order)) },
+                    getOptionLabel = { getString(it.iosText) },
+                    getOptionIcon = { it.androidIcon },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }

@@ -210,6 +210,22 @@
         en = Interactive
     [automatic]
         en = Automatic
+    [age]
+        en = Age
+    [weight]
+        en = Weight
+    [quality]
+        en = Quality
+    [seeders]
+        en = Seeder
+    [custom_score]
+        en = Custom Score
+    [any]
+        en = Any
+    [season_pack]
+        en = Season Pack
+    [single_episode]
+        en = Single Episode
 
 [[Errors]]
     [instance_connect_error]

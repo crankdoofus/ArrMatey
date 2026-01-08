@@ -110,6 +110,14 @@
     <string name="search_error">Search error</string>
     <string name="interactive">Interactive</string>
     <string name="automatic">Automatic</string>
+    <string name="age">Age</string>
+    <string name="weight">Weight</string>
+    <string name="quality">Quality</string>
+    <string name="seeders">Seeder</string>
+    <string name="custom_score">Custom Score</string>
+    <string name="any">Any</string>
+    <string name="season_pack">Season Pack</string>
+    <string name="single_episode">Single Episode</string>
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>

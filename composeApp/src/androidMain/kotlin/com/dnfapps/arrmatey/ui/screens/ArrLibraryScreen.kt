@@ -1,9 +1,7 @@
 package com.dnfapps.arrmatey.ui.screens
 
 import android.annotation.SuppressLint
-import android.widget.ImageView
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
@@ -32,7 +30,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
@@ -84,10 +81,7 @@ import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
-import com.dnfapps.arrmatey.ui.components.FilterMenuButton
 import com.dnfapps.arrmatey.ui.components.InstancePicker
-import com.dnfapps.arrmatey.ui.components.SortMenuButton
-import com.dnfapps.arrmatey.ui.components.ViewTypeMenuButton
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.tabs.LocalInstance
@@ -95,12 +89,11 @@ import com.dnfapps.arrmatey.ui.theme.ViewType
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.w3c.dom.Text
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ArrLibraryTab(
+fun ArrLibraryScreen(
     type: InstanceType,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
