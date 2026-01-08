@@ -129,8 +129,8 @@ struct MediaDetailsScreen: View {
     private func filesArea(for item: AnyArrMedia) -> some View {
         if let series = item as? ArrSeries, let vm = arrViewModel as? SonarrViewModel {
             SeriesFilesView(series: series, viewModel: vm)
-        } else if let movie = item as? ArrMovie {
-            MovieFilesView(movie: movie)
+        } else if let movie = item as? ArrMovie, let vm = arrViewModel as? RadarrViewModel {
+            MovieFilesView(movie: movie, viewModel: vm)
         } else {
             EmptyView()
         }

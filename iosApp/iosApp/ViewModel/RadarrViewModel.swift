@@ -20,4 +20,16 @@ class RadarrViewModel: ArrViewModel {
         self.instance = instance
         self.repository = RadarrRepository(instance: instance)
     }
+    
+    func getMovieExtraFileMap() -> SkieSwiftStateFlow<[KotlinInt:[ExtraFile]]> {
+        return radarrRespository.movieExtraFileMap
+    }
+    
+    func getMovieExtraFile(id: Int32) async {
+        do {
+            try await radarrRespository.getMovieExtraFile(id: id)
+        } catch {
+            return
+        }
+    }
 }
