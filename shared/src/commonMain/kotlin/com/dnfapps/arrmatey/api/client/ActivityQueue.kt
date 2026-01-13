@@ -7,12 +7,8 @@ import com.dnfapps.arrmatey.api.arr.model.QueueItem
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
 import com.dnfapps.arrmatey.api.arr.viewmodel.IArrRepository
-import com.dnfapps.arrmatey.api.arr.viewmodel.RadarrRepository
-import com.dnfapps.arrmatey.api.arr.viewmodel.SonarrRepository
-import com.dnfapps.arrmatey.api.arr.viewmodel.createInstanceRepository
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.model.Instance
-import com.dnfapps.arrmatey.model.InstanceType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -52,7 +48,7 @@ object ActivityQueue: KoinComponent {
         startTimer()
 
         scope.launch {
-            instanceRepository.allInstances.collect { allInstances ->
+            instanceRepository.allInstancesFlow.collect { allInstances ->
                 if (allInstances.size == instances.size) return@collect
                 instances.clear()
                 instances.putAll(
@@ -84,7 +80,7 @@ object ActivityQueue: KoinComponent {
         _isLoading.value = true
 
         val newItems = mutableMapOf<Long, List<QueueItem>>()
-        instances.map { (instance, repository) ->
+        instances.forEach { (instance, repository) ->
             val pageResult = repository.fetchActivityTasksSync(instanceId = instance.id)
             when (pageResult) {
                 is NetworkResult.Success -> newItems[instance.id] = pageResult.data.records

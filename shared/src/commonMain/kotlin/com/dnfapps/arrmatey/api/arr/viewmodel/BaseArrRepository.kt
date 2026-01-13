@@ -292,8 +292,8 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         }
     }
 
-    override suspend fun fetchActivityTasksSync(instanceId: Long, pageSize: Int): NetworkResult<QueuePage> {
-        val resp = client.fetchActivityTasks(instanceId, pageSize)
+    override suspend fun fetchActivityTasksSync(instanceId: Long, page: Int, pageSize: Int): NetworkResult<QueuePage> {
+        val resp = client.fetchActivityTasks(instanceId, page, pageSize)
         return resp
     }
 

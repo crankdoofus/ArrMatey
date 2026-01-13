@@ -19,8 +19,8 @@ protocol ArrViewModel {
     func qualityProfiles() -> SkieSwiftStateFlow<[QualityProfile]>
     
     func refreshLibrary() async
-    func getDetails(id: Int32) async
-    func setMonitorStatus(id: Int32, isMonitored: Bool) async
+    func getDetails(id: Int64) async
+    func setMonitorStatus(id: Int64, isMonitored: Bool) async
     func performLookup(_ query: String) async
     func addItem(item: AnyArrMedia) async
     
@@ -65,7 +65,7 @@ extension ArrViewModel {
         }
     }
     
-    func getDetails(id: Int32) async {
+    func getDetails(id: Int64) async {
         do {
             try await repository.getDetails(id: id)
         } catch {
@@ -73,7 +73,7 @@ extension ArrViewModel {
         }
     }
     
-    func setMonitorStatus(id: Int32, isMonitored: Bool) async {
+    func setMonitorStatus(id: Int64, isMonitored: Bool) async {
         do {
             try await repository.setMonitorStatus(id: id, monitorStatus: isMonitored)
         } catch {

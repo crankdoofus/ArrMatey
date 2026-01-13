@@ -77,6 +77,7 @@ import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
+import com.dnfapps.arrmatey.model.Instance
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
@@ -84,8 +85,8 @@ import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstancePicker
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import com.dnfapps.arrmatey.ui.tabs.LocalInstance
 import com.dnfapps.arrmatey.ui.theme.ViewType
+import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -95,13 +96,14 @@ import org.koin.compose.koinInject
 @Composable
 fun ArrLibraryScreen(
     type: InstanceType,
+    instanceViewModel: InstanceViewModel,
+    instance: Instance?,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val networkViewModel = viewModel<NetworkConnectivityViewModel>()
-    val instance = LocalInstance.current
 
     val preferenceStore: PreferencesStore = koinInject()
     val selectedSortOrder by preferenceStore.sortOrder.collectAsState(SortOrder.Asc)
@@ -117,6 +119,10 @@ fun ArrLibraryScreen(
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSearchBar by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+
+    val allInstances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
+    val typeInstances = allInstances.filter { it.type == type }
+    val hasMultiple = typeInstances.size > 1
 
     Scaffold(
         snackbarHost = {
@@ -135,7 +141,12 @@ fun ArrLibraryScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        InstancePicker(type)
+                        InstancePicker(
+                            currentInstance = instance,
+                            typeInstances = typeInstances,
+                            hasMultipleInstances = hasMultiple,
+                            onInstanceSelected = { instanceViewModel.setSelected(it) }
+                        )
 
                         if (hasServerConnetivityError) {
                             Icon(

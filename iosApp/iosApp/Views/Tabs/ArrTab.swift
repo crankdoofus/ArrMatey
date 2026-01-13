@@ -143,7 +143,7 @@ struct ArrTab: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     mediaView(items: sortedAndFilteredItems) { media in
-                        if let id = media.id as? Int {
+                        if let id = media.id as? Int64 {
                             navigation.go(to: .details(id), of: type)
                         }
                     }

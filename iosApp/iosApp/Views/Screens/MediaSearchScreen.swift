@@ -79,7 +79,7 @@ struct MediaSearchScreen: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             case _ as LibraryUiStateSuccess<AnyObject>:
                 PosterGridView(items: sortedItems, onItemClick: { media in
-                    if let id = media.id as? Int {
+                    if let id = media.id as? Int64 {
                         navigation.go(to: .details(id), of: type)
                     } else {
                         let json = media.toJson()

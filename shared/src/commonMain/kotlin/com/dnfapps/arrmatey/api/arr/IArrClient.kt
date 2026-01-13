@@ -25,6 +25,6 @@ interface IArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams> {
     suspend fun addItemToLibrary(item: T): NetworkResult<T>
     suspend fun command(payload: CommandPayload): NetworkResult<CommandResponse>
     suspend fun getReleases(params: P): NetworkResult<List<R>>
-    suspend fun fetchActivityTasks(instanceId: Long, pageSize: Int): NetworkResult<QueuePage>
+    suspend fun fetchActivityTasks(instanceId: Long, page: Int, pageSize: Int): NetworkResult<QueuePage>
 
 }

@@ -21,50 +21,32 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dnfapps.arrmatey.model.InstanceType
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.rememberHasMultipleInstances
-import com.dnfapps.arrmatey.ui.viewmodel.rememberInstanceFor
+import com.dnfapps.arrmatey.model.Instance
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstancePicker(
-    type: InstanceType,
+    currentInstance: Instance?,
+    typeInstances: List<Instance>,
+    hasMultipleInstances: Boolean,
+    onInstanceSelected: (Instance) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-
-    val instanceViewModel = viewModel<InstanceViewModel>()
-    val instance = rememberInstanceFor(type)
-    val hasMultipleInstances = rememberHasMultipleInstances(type)
-
-    val allInstances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
-    val typeInstances = allInstances.filter { it.type == type }
-
     var textWidth by remember { mutableStateOf(IntSize.Zero) }
 
-    Box(
-        modifier = modifier
-    ) {
+    Box(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
-                .onGloballyPositioned {
-                    textWidth = it.size
-                }
+                .onGloballyPositioned { textWidth = it.size }
                 .clickable(
                     enabled = hasMultipleInstances,
-                    onClick = {
-                        isExpanded = !isExpanded
-                    }
+                    onClick = { isExpanded = !isExpanded }
                 )
         ) {
-            Text(
-                text = instance?.label ?: ""
-            )
+            Text(text = currentInstance?.label ?: "")
             if (hasMultipleInstances) {
                 ExposedDropdownMenuDefaults.TrailingIcon(isExpanded)
             }
@@ -74,17 +56,15 @@ fun InstancePicker(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
             modifier = Modifier.width(
-                with(LocalDensity.current) {
-                    (textWidth.width * 1.5f).toDp()
-                }
+                with(LocalDensity.current) { (textWidth.width * 1.5f).toDp() }
             )
         ) {
-            typeInstances.forEach { instance ->
+            typeInstances.forEach { inst ->
                 DropdownMenuItem(
-                    text = { Text(instance.label) },
+                    text = { Text(inst.label) },
                     onClick = {
                         isExpanded = false
-                        instanceViewModel.setSelected(instance)
+                        onInstanceSelected(inst)
                     }
                 )
             }

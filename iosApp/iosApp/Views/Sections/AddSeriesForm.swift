@@ -65,7 +65,7 @@ struct AddSeriesForm: View {
                 .onChange(of: successItem) { _, newValue in
                     if let item = newValue, let id = item.id {
                         onDismiss()
-                        navigation.replaceCurrent(with: .details(id.intValue), for: .sonarr)
+                        navigation.replaceCurrent(with: .details(id.int64Value), for: .sonarr)
                     }
                 }
                 .task {

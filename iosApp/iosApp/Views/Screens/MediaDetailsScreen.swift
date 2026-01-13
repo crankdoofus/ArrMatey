@@ -9,7 +9,7 @@ import SwiftUI
 import Shared
 
 struct MediaDetailsScreen: View {
-    let id: Int
+    let id: Int64
     let type: InstanceType
     
     @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
@@ -37,7 +37,7 @@ struct MediaDetailsScreen: View {
             .task {
                 await setupViewModel()
                 if let vm = arrViewModel {
-                    await vm.getDetails(id: Int32(id))
+                    await vm.getDetails(id: id)
                 }
             }
             .onDisappear {
@@ -49,7 +49,7 @@ struct MediaDetailsScreen: View {
                         .imageScale(.medium)
                         .onTapGesture {
                             Task {
-                                await arrViewModel?.setMonitorStatus(id: Int32(id), isMonitored: !isMonitored)
+                                await arrViewModel?.setMonitorStatus(id: id, isMonitored: !isMonitored)
                             }
                         }
                 }

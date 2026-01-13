@@ -39,7 +39,7 @@ class NavigationManager: ObservableObject {
 }
 
 enum MediaRoute: Hashable {
-    case details(Int)
+    case details(Int64)
     case search(String)
     case preview(String)
 }

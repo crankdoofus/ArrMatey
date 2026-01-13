@@ -13,7 +13,7 @@ struct MovieFilesView: View {
     let viewModel: RadarrViewModel
     
     @State private var observationTask: Task<Void, Never>? = nil
-    @State private var extraFileMap: [KotlinInt:[ExtraFile]] = [:]
+    @State private var extraFileMap: [KotlinLong:[ExtraFile]] = [:]
     
     private var extraFiles: [ExtraFile]? {
         if let id = movie.id {
@@ -25,7 +25,9 @@ struct MovieFilesView: View {
         content
             .task {
                 await setupViewModel()
-                await viewModel.getMovieExtraFile(id: movie.id as! Int32)
+                if let movieId = movie.id as? Int64 {
+                    await viewModel.getMovieExtraFile(id: movieId)
+                }
             }
     }
     

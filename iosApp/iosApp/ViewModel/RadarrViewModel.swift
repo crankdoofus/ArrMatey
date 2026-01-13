@@ -8,6 +8,7 @@
 import Shared
 
 class RadarrViewModel: ArrViewModel {
+    
     var repository: any IArrRepository
     
     let instance: Instance
@@ -21,11 +22,11 @@ class RadarrViewModel: ArrViewModel {
         self.repository = RadarrRepository(instance: instance)
     }
     
-    func getMovieExtraFileMap() -> SkieSwiftStateFlow<[KotlinInt:[ExtraFile]]> {
+    func getMovieExtraFileMap() -> SkieSwiftStateFlow<[KotlinLong:[ExtraFile]]> {
         return radarrRespository.movieExtraFileMap
     }
     
-    func getMovieExtraFile(id: Int32) async {
+    func getMovieExtraFile(id: Int64) async {
         do {
             try await radarrRespository.getMovieExtraFile(id: id)
         } catch {

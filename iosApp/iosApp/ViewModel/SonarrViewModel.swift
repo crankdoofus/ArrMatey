@@ -25,7 +25,7 @@ class SonarrViewModel: ArrViewModel {
         return sonarrRepository.episodeState
     }
     
-    func getEpsiodes(seriesId: Int32, seasonNumber: Int32? = nil) async {
+    func getEpsiodes(seriesId: Int64, seasonNumber: Int32? = nil) async {
         do {
             try await sonarrRepository.getEpisodes(seriesId: seriesId, seasonNumber: seasonNumber as? KotlinInt)
         } catch {

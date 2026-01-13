@@ -3,6 +3,9 @@ package com.dnfapps.arrmatey.ui.tabs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
@@ -18,8 +21,8 @@ import com.dnfapps.arrmatey.ui.screens.InteractiveSearchScreen
 import com.dnfapps.arrmatey.ui.screens.MediaDetailsScreen
 import com.dnfapps.arrmatey.ui.screens.MediaPreviewScreen
 import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
+import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.rememberArrViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.rememberInstanceFor
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
@@ -29,51 +32,54 @@ val LocalArrTabNavigation = compositionLocalOf<ArrTabNavigation> { object: ArrTa
 
 @Composable
 fun ArrTab(type: InstanceType) {
-    val instance = rememberInstanceFor(type)
+    val viewModel = viewModel<InstanceViewModel>()
+    val allInstances by viewModel.allInstancesFlow.collectAsStateWithLifecycle()
+    val instance = allInstances.firstOrNull { it.type == type && it.selected }
+
     val arrViewModel = rememberArrViewModel(instance)
 
     val navigation = koinInject<ArrTabNavigation> { parametersOf(type) }
 
-    CompositionLocalProvider(LocalInstance provides instance) {
-        CompositionLocalProvider(LocalArrViewModel provides arrViewModel) {
-            CompositionLocalProvider(LocalArrTabNavigation provides navigation) {
-                NavDisplay(
-                    backStack = navigation.backStack,
-                    onBack = { navigation.popBackStack() },
-                    entryProvider = entryProvider {
-                        entry<ArrScreen.Library> {
-                            ArrLibraryScreen(type)
-                        }
-                        entry<ArrScreen.Details> { details ->
-                            MediaDetailsScreen(details.id)
-                        }
-                        entry<ArrScreen.Search> { search ->
-                            ArrSearchScreen(search.query, type)
-                        }
-                        entry<ArrScreen.Preview<AnyArrMedia>> { preview ->
-                            MediaPreviewScreen(preview.item)
-                        }
-                        entry<ArrScreen.MovieReleases> { params ->
-                            val releaseParams = ReleaseParams.Movie(params.movieId)
-                            InteractiveSearchScreen(releaseParams, canFilter = false)
-                        }
-                        entry<ArrScreen.SeriesRelease> { params ->
-                            val releaseParams = ReleaseParams.Series(
-                                params.seriesId,
-                                params.seasonNumber,
-                                params.episodeId
-                            )
-                            InteractiveSearchScreen(
-                                releaseParams = releaseParams,
-                                canFilter = true,
-                                defaultFilter = if (params.episodeId != null) {
-                                    ReleaseFilterBy.SingleEpisode
-                                } else ReleaseFilterBy.SeasonPack
-                            )
-                        }
-                    }
-                )
+    CompositionLocalProvider(
+        LocalInstance provides instance,
+        LocalArrViewModel provides arrViewModel,
+        LocalArrTabNavigation provides navigation
+    ) {
+        NavDisplay(
+            backStack = navigation.backStack,
+            onBack = { navigation.popBackStack() },
+            entryProvider = entryProvider {
+                entry<ArrScreen.Library> {
+                    ArrLibraryScreen(type, viewModel, instance)
+                }
+                entry<ArrScreen.Details> { details ->
+                    MediaDetailsScreen(details.id)
+                }
+                entry<ArrScreen.Search> { search ->
+                    ArrSearchScreen(search.query, type)
+                }
+                entry<ArrScreen.Preview<AnyArrMedia>> { preview ->
+                    MediaPreviewScreen(preview.item)
+                }
+                entry<ArrScreen.MovieReleases> { params ->
+                    val releaseParams = ReleaseParams.Movie(params.movieId)
+                    InteractiveSearchScreen(releaseParams, canFilter = false)
+                }
+                entry<ArrScreen.SeriesRelease> { params ->
+                    val releaseParams = ReleaseParams.Series(
+                        params.seriesId,
+                        params.seasonNumber,
+                        params.episodeId
+                    )
+                    InteractiveSearchScreen(
+                        releaseParams = releaseParams,
+                        canFilter = true,
+                        defaultFilter = if (params.episodeId != null) {
+                            ReleaseFilterBy.SingleEpisode
+                        } else ReleaseFilterBy.SeasonPack
+                    )
+                }
             }
-        }
+        )
     }
 }

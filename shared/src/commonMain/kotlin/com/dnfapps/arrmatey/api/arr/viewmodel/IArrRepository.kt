@@ -22,7 +22,7 @@ interface IArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams> {
     suspend fun getReleases(params: P)
     suspend fun downloadRelease(release: R, force: Boolean = false)
 
-    suspend fun fetchActivityTasksSync(instanceId: Long, pageSize: Int = 100): NetworkResult<QueuePage>
+    suspend fun fetchActivityTasksSync(instanceId: Long, page: Int = 1, pageSize: Int = 100): NetworkResult<QueuePage>
 
     val uiState: StateFlow<LibraryUiState<T>>
     val detailUiState: StateFlow<DetailsUiState<T>>

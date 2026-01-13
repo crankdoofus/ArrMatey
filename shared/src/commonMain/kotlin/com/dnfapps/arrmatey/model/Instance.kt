@@ -21,16 +21,7 @@ data class Instance(
     val slowInstance: Boolean = false,
     val customTimeout: Long? = null,
     val selected: Boolean = false
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return  false
-        other as Instance
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = id.hashCode()
-}
+)
 
 enum class InstanceType(
     val descriptionKey: String,

@@ -20,7 +20,7 @@ class InstanceViewModel: ObservableObject {
     init() {
         observationTask = Task {
             do {
-                for try await value in instanceRepository.allInstances {
+                for try await value in instanceRepository.allInstancesFlow {
                     self.instances = value
                 }
             } catch {

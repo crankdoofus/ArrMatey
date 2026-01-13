@@ -50,8 +50,8 @@ abstract class BaseArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
         return resp
     }
 
-    override suspend fun fetchActivityTasks(instanceId: Long, pageSize: Int): NetworkResult<QueuePage> {
-        val query = "?pageSize=$pageSize&includeMovie=true&includeSeries=true&includeEpisode=true"
+    override suspend fun fetchActivityTasks(instanceId: Long, page: Int, pageSize: Int): NetworkResult<QueuePage> {
+        val query = "?page=$page&pageSize=$pageSize&includeMovie=true&includeSeries=true&includeEpisode=true"
         val resp = httpClient.safeGet<QueuePage>("api/v3/queue$query")
         if (resp is NetworkResult.Success) {
             resp.data.records.forEach { it.instanceId = instanceId }

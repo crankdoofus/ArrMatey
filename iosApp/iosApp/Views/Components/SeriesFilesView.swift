@@ -34,7 +34,9 @@ struct SeriesFilesView: View {
         contentForState()
             .task {
                 await setupViewModel()
-                await viewModel.getEpsiodes(seriesId: series.id as! Int32)
+                if let seriesId = series.id as? Int64 {
+                    await viewModel.getEpsiodes(seriesId: seriesId)
+                }
             }
     }
     

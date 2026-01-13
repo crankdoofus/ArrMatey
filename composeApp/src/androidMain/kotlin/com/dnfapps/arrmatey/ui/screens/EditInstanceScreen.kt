@@ -51,7 +51,7 @@ fun EditInstanceScreen(
     val editInstanceViewModel = viewModel<AddInstanceViewModel>()
     val instanceViewModel = viewModel<InstanceViewModel>()
 
-    val instances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
+    val instances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
     val instance = remember { instances.firstOrNull { it.id == id } }
 
     val editResult by editInstanceViewModel.editResult.collectAsStateWithLifecycle()

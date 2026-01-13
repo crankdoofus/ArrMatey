@@ -46,7 +46,7 @@ fun SettingsScreen(
 ) {
     val instanceViewModel = viewModel<InstanceViewModel>()
 
-    val allInstances by instanceViewModel.allInstances.collectAsStateWithLifecycle()
+    val allInstances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
 
     val radius = 12.dp
 

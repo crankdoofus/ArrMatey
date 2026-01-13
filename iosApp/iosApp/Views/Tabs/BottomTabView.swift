@@ -15,6 +15,7 @@ struct BottomTabView: View {
             case .settings: SettingsTab()
             case .shows: SeriesTab()
             case .movies: MoviesTab()
+            case .activity: EmptyView() // todo
             }
         }
     }

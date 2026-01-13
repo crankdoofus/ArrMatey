@@ -44,16 +44,6 @@ interface InstanceDao {
         selectInstance(id)
     }
 
-//    @Query("""
-//        UPDATE instances
-//        SET selected = CASE
-//            WHEN id = :id THEN true
-//            ELSE false
-//        END
-//        WHERE type = :type
-//    """)
-//    suspend fun setInstanceAsSelected(id: Long, type: InstanceType): Int
-
     @Query("SELECT id FROM instances WHERE url = :url")
     suspend fun findByUrl(url: String): Long?
 
