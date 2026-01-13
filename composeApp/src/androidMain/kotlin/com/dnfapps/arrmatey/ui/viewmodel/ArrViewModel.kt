@@ -44,13 +44,13 @@ abstract class ArrViewModel(protected val instance: Instance): ViewModel(), Koin
         }
     }
 
-    open fun getDetails(id: Int) {
+    open fun getDetails(id: Long) {
         viewModelScope.launch {
             repository.getDetails(id)
         }
     }
 
-    fun setMonitorStatus(id: Int, monitorStatus: Boolean) {
+    fun setMonitorStatus(id: Long, monitorStatus: Boolean) {
         viewModelScope.launch {
             repository.setMonitorStatus(id, monitorStatus)
         }

@@ -31,13 +31,19 @@ data class SonarrQueueItem(
     override val downloadClientHasPostImportCategory: Boolean = false,
     override var taskGroupCount: Int? = null,
 
-    val seriesId: Int? = null,
+    val seriesId: Long? = null,
     val series: ArrSeries? = null,
-    val episodeId: Int? = null,
+    val episodeId: Long? = null,
     val episode: Episode? = null,
     val episodeHasFile: Boolean? = null,
     val seasonNumber: Int? = null
 ): QueueItem {
+    val calcSeriesId: Long?
+        get() = seriesId ?: series?.id
+
+    val calcEpisodeId: Long?
+        get() = episodeId ?: episode?.id
+
     override val taskGroup: String
         get() = super.taskGroup + seasonNumber
 
@@ -56,4 +62,7 @@ data class SonarrQueueItem(
             }
             return series?.title ?: "Unknown"
         }
+
+    override val mediaId: Long?
+        get() = seriesId ?: series?.id ?: episode?.seriesId
 }

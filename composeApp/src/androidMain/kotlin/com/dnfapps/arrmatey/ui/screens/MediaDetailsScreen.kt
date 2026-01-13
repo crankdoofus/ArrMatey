@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,8 +71,10 @@ import com.dnfapps.arrmatey.api.arr.model.CommandPayload
 import com.dnfapps.arrmatey.api.arr.model.Episode
 import com.dnfapps.arrmatey.api.arr.model.Season
 import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
+import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
 import com.dnfapps.arrmatey.api.arr.viewmodel.DetailsUiState
 import com.dnfapps.arrmatey.api.arr.viewmodel.EpisodeUiState
+import com.dnfapps.arrmatey.api.client.ActivityQueue
 import com.dnfapps.arrmatey.compose.components.DetailHeaderBanner
 import com.dnfapps.arrmatey.compose.components.PosterItem
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
@@ -86,6 +89,7 @@ import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.ReleaseDownloadButtons
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
+import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.viewmodel.RadarrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 import com.dnfapps.arrmatey.utils.format
@@ -96,7 +100,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MediaDetailsScreen(
-    id: Int,
+    id: Long,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val arrViewModel = LocalArrViewModel.current
@@ -465,6 +469,9 @@ fun SeasonsArea(series: ArrSeries) {
 
     val episodeState by arrViewModel.episodeState.collectAsStateWithLifecycle()
 
+    val activityQueue by ActivityQueue.items.collectAsStateWithLifecycle()
+    val queueItems by remember { derivedStateOf { activityQueue.flatMap { it.value } } }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -546,7 +553,20 @@ fun SeasonsArea(series: ArrSeries) {
                                 SeasonHeader(series.id, season, seasonEpisodes)
                                 Spacer(modifier = Modifier.height(12.dp))
                                 seasonEpisodes.forEachIndexed { index, episode ->
-                                    EpisodeRow(episode)
+                                    val isActive by remember { derivedStateOf {
+                                        queueItems.any { item ->
+                                            when(item) {
+                                                is SonarrQueueItem -> item.calcEpisodeId == episode.id ||
+                                                        (item.calcSeriesId == episode.seriesId && item.seasonNumber == episode.seasonNumber)
+                                                else -> false
+                                            }
+                                        }
+                                    } }
+                                    val activityProgress by remember { derivedStateOf {
+                                        queueItems.firstOrNull { it is SonarrQueueItem && it.episodeId == episode.id }?.progressLabel
+                                            ?: queueItems.firstOrNull { it is SonarrQueueItem && it.calcSeriesId == episode.seriesId && it.seasonNumber == episode.seasonNumber }?.progressLabel
+                                    } }
+                                    EpisodeRow(episode, isActive, activityProgress)
                                     if (index < seasonEpisodes.size-1) {
                                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                                     }
@@ -567,7 +587,7 @@ fun SeasonsArea(series: ArrSeries) {
 @OptIn(ExperimentalTime::class)
 @Composable
 private fun SeasonHeader(
-    seriesId: Int?,
+    seriesId: Long?,
     season: Season,
     episodes: List<Episode>,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
@@ -617,7 +637,12 @@ private fun SeasonHeader(
 }
 
 @Composable
-private fun EpisodeRow(episode: Episode, navigation: ArrTabNavigation = LocalArrTabNavigation.current) {
+private fun EpisodeRow(
+    episode: Episode,
+    isActive: Boolean,
+    progressLabel: String? = null,
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
+) {
     val arrViewModel = LocalArrViewModel.current
     if (arrViewModel == null || arrViewModel !is SonarrViewModel) return
 
@@ -654,7 +679,7 @@ private fun EpisodeRow(episode: Episode, navigation: ArrTabNavigation = LocalArr
                 maxLines = 1
             )
 
-            val statusString =
+            val statusString = if (isActive) progressLabel else
                 episode.episodeFile?.qualityName
                     ?: episode.airDate?.takeIf { it.isTodayOrAfter() }?.let {
                         stringResource(R.string.unaired)
@@ -665,7 +690,8 @@ private fun EpisodeRow(episode: Episode, navigation: ArrTabNavigation = LocalArr
                 statusString?.let {
                     Text(
                         text = statusString,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        color = if (isActive) SonarrDownloading else Color.Unspecified
                     )
                 } ?:
                     Text(

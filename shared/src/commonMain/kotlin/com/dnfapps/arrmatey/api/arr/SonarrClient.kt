@@ -24,7 +24,7 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
         return resp
     }
 
-    override suspend fun getDetail(id: Int): NetworkResult<ArrSeries> {
+    override suspend fun getDetail(id: Long): NetworkResult<ArrSeries> {
         val resp = httpClient.safeGet<ArrSeries>("api/v3/series/$id")
         return resp
     }
@@ -68,7 +68,7 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
     }
 
     suspend fun getEpisodes(
-        seriesId: Int,
+        seriesId: Long,
         seasonNumber: Int? = null,
         includeEpisodeFile: Boolean = true
     ): NetworkResult<List<Episode>> {
@@ -82,7 +82,7 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
         return resp
     }
 
-    override suspend fun setMonitorStatus(id: Int, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>> {
+    override suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>> {
         val resp = httpClient.safePut<List<MonitoredResponse>>("api/v3/series/editor") {
             contentType(ContentType.Application.Json)
 

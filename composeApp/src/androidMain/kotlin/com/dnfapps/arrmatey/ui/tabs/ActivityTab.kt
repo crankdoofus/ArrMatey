@@ -1,7 +1,7 @@
 package com.dnfapps.arrmatey.ui.tabs
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,25 +9,26 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -53,7 +54,6 @@ import com.dnfapps.arrmatey.api.arr.model.RadarrQueueItem
 import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
 import com.dnfapps.arrmatey.api.client.ActivityQueue
 import com.dnfapps.arrmatey.compose.utils.QueueSortBy
-import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
@@ -62,9 +62,7 @@ import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
-import com.dnfapps.arrmatey.ui.components.QueueSortMenu
 import com.dnfapps.arrmatey.utils.format
-import kotlinx.datetime.format
 import org.koin.compose.koinInject
 import kotlin.time.ExperimentalTime
 
@@ -280,7 +278,8 @@ fun QueueItemInfoSheet(
     item: QueueItem
 ) {
     ModalBottomSheet(
-        onDismissRequest = onDismiss
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -319,16 +318,22 @@ fun QueueItemInfoSheet(
                 item.scoreLabel
             ) + item.customFormats.map { it.name }
             FlowRow(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
-                itemVerticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             ) {
                 chipItems.forEach { chipItem ->
-                    SuggestionChip(
-                        onClick = {},
-                        label = { Text(chipItem) }
-                    )
+                    Box(
+                        modifier = Modifier.border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            shape = RoundedCornerShape(8.dp))
+                    ) {
+                        Text(chipItem,
+                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 6.dp),
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
 
@@ -363,19 +368,28 @@ fun QueueItemInfoSheet(
                 }
             }
 
-            val infoChips = listOfNotNull(item.protocol.name, item.downloadClient, item.indexer) +
-                    item.languageLabels + listOf(item.added.format())
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
-                itemVerticalAlignment = Alignment.CenterVertically
+            val infoItems = mapOf(
+                R.string.protocol to item.protocol.name,
+                R.string.download_client to item.downloadClient,
+                R.string.indexer to item.indexer,
+                R.string.langauges to item.languageLabels.takeUnless { it.isEmpty() }?.joinToString(", "),
+                R.string.added to item.added.format(),
+                R.string.destination to item.outputPath
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.wrapContentWidth()
             ) {
-                infoChips.forEach { info ->
-                    SuggestionChip(
-                        onClick = {},
-                        label = { Text(info) }
-                    )
+                infoItems.forEach { (key, value) ->
+                    value?.let {
+                        item {
+                            Text(text = stringResource(key), fontWeight = FontWeight.SemiBold)
+                        }
+                        item {
+                            Text(text = value, fontSize = 14.sp)
+                        }
+                    }
                 }
             }
 

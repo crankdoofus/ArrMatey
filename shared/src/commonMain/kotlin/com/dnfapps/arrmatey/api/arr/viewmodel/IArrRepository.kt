@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 interface IArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams> {
 
     suspend fun refreshLibrary()
-    suspend fun getDetails(id: Int)
-    suspend fun setMonitorStatus(id: Int, monitorStatus: Boolean)
+    suspend fun getDetails(id: Long)
+    suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean)
     suspend fun lookup(query: String)
     suspend fun addItem(item: T)
     suspend fun command(payload: CommandPayload)
@@ -31,7 +31,7 @@ interface IArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams> {
     val releasesUiState: StateFlow<LibraryUiState<R>>
     val downloadReleaseState: StateFlow<DownloadState>
 
-    val automaticSearchIds: StateFlow<List<Int>>
+    val automaticSearchIds: StateFlow<List<Long>>
     val automaticSearchResult: StateFlow<Boolean?>
 
     val qualityProfiles: StateFlow<List<QualityProfile>>

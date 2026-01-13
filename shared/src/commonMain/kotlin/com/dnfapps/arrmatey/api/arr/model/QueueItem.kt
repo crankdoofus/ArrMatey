@@ -72,7 +72,7 @@ sealed interface QueueItem {
         get() = if (sizeleft > 0f) {
             (((size - sizeleft) / size)*100).toInt().toString() + "%"
         } else {
-            "100%"
+            "0%"
         }
 
     val remainingTimeLabel: String?
@@ -86,7 +86,7 @@ sealed interface QueueItem {
     val scoreLabel: String?
         get() {
             return customFormatScore?.let { score ->
-                val symbol = if (score < 0) "-" else "+"
+                val symbol = if (score < 0) "" else "+"
                  "$symbol$score"
             }
         }
@@ -95,6 +95,7 @@ sealed interface QueueItem {
         get() = languages.takeUnless { it.isEmpty() }?.mapNotNull { it.name } ?: listOf("Unknown")
 
     val titleLabel: String
+    val mediaId: Long?
 }
 
 object QueueItemSerializer : JsonContentPolymorphicSerializer<QueueItem>(QueueItem::class) {

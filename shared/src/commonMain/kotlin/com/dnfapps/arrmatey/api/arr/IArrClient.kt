@@ -15,9 +15,9 @@ import com.dnfapps.arrmatey.api.client.NetworkResult
 interface IArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams> {
 
     suspend fun getLibrary(): NetworkResult<List<T>>
-    suspend fun getDetail(id: Int): NetworkResult<T>
+    suspend fun getDetail(id: Long): NetworkResult<T>
     suspend fun update(item: T): NetworkResult<T>
-    suspend fun setMonitorStatus(id: Int, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>>
+    suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>>
     suspend fun lookup(query: String): NetworkResult<List<T>>
     suspend fun getQualityProfiles(): NetworkResult<List<QualityProfile>>
     suspend fun getRootFolders(): NetworkResult<List<RootFolder>>

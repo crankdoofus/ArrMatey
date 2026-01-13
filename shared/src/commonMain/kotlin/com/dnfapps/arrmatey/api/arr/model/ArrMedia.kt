@@ -34,7 +34,7 @@ sealed interface AnyArrMedia: KoinComponent {
             return json.decodeFromString(AnyArrMediaSerializer, value)
         }
     }
-    val id: Int?
+    val id: Long?
     val title: String
     val originalLanguage: Language
     val year: Int
@@ -80,7 +80,7 @@ class Info(val label: String, val value: String)
 
 @Serializable
 sealed class ArrMedia<AT, AO, R, STAT: ArrStatistics, S>: AnyArrMedia {
-    abstract override val id: Int?
+    abstract override val id: Long?
     abstract override val title: String
     abstract override val originalLanguage: Language
     abstract override val year: Int

@@ -14,13 +14,13 @@ class SonarrViewModel(instance: Instance): ArrViewModel(instance) {
 
     val episodeState = sonarrRepo.episodeState
 
-    fun getEpisodes(seriesId: Int, seasonNumber: Int? = null) {
+    fun getEpisodes(seriesId: Long, seasonNumber: Int? = null) {
         viewModelScope.launch {
             sonarrRepo.getEpisodes(seriesId, seasonNumber)
         }
     }
 
-    override fun getDetails(id: Int) {
+    override fun getDetails(id: Long) {
         super.getDetails(id)
         getEpisodes(id)
     }

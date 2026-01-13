@@ -119,6 +119,11 @@
     <string name="season_pack">Season Pack</string>
     <string name="single_episode">Single Episode</string>
     <string name="activity">Activity</string>
+    <string name="protocol">Protocol</string>
+    <string name="download_client">Download Client</string>
+    <string name="indexer">Indexer</string>
+    <string name="langauges">Languages</string>
+    <string name="destination">Destination</string>
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>

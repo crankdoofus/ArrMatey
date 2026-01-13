@@ -19,13 +19,13 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
 
 abstract class BaseArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
     instance: Instance
 ): KoinComponent, IArrClient<T, R, P> {
-    protected val httpClient: HttpClient by inject { parametersOf(instance) }
+    protected val httpClient: HttpClient = get { parametersOf(instance) }
 
     override suspend fun getQualityProfiles(): NetworkResult<List<QualityProfile>> {
         val resp = httpClient.safeGet<List<QualityProfile>>("api/v3/qualityprofile")

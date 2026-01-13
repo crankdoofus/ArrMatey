@@ -31,7 +31,7 @@ data class RadarrQueueItem(
     override val downloadClientHasPostImportCategory: Boolean,
     override var taskGroupCount: Int? = null,
 
-    val movieId: Int? = null,
+    val movieId: Long? = null,
     val movie: ArrMovie? = null
 ): QueueItem {
     override val taskGroup: String
@@ -39,4 +39,7 @@ data class RadarrQueueItem(
 
     override val titleLabel: String
         get() = movie?.title ?: title ?: "Unknown"
+
+    override val mediaId: Long?
+        get() = movieId
 }

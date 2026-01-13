@@ -59,8 +59,8 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
     protected val _addItemUiState = MutableStateFlow<DetailsUiState<T>>(DetailsUiState.Initial)
     override val addItemUiState: StateFlow<DetailsUiState<T>> = _addItemUiState
 
-    protected val _automaticSearchIds = MutableStateFlow<List<Int>>(emptyList())
-    override val automaticSearchIds: StateFlow<List<Int>> = _automaticSearchIds
+    protected val _automaticSearchIds = MutableStateFlow<List<Long>>(emptyList())
+    override val automaticSearchIds: StateFlow<List<Long>> = _automaticSearchIds
 
     protected val _automaticSearchResult = MutableStateFlow<Boolean?>(null)
     override val automaticSearchResult: StateFlow<Boolean?> = _automaticSearchResult
@@ -138,7 +138,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         }
     }
 
-    override suspend fun getDetails(id: Int) {
+    override suspend fun getDetails(id: Long) {
         _detailUiState.value = DetailsUiState.Loading
 
         val result = client.getDetail(id)
@@ -167,7 +167,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         }
     }
 
-    override suspend fun setMonitorStatus(id: Int, monitorStatus: Boolean) {
+    override suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean) {
         val resp = client.setMonitorStatus(id, monitorStatus)
 
         val item = (_detailUiState.value as? DetailsUiState.Success<T>)?.item
@@ -247,7 +247,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         }
     }
 
-    private suspend fun handleSearchCommand(payload: CommandPayload, ids: List<Int>) {
+    private suspend fun handleSearchCommand(payload: CommandPayload, ids: List<Long>) {
         _automaticSearchIds.value = ids
         val resp = client.command(payload)
         when(resp) {

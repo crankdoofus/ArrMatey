@@ -37,7 +37,7 @@ import kotlin.time.Instant
 
 @Serializable
 data class ArrSeries(
-    override val id: Int? = null,
+    override val id: Long? = null,
     override val title: String,
     override val originalLanguage: Language,
     override val year: Int,

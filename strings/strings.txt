@@ -228,6 +228,18 @@
         en = Single Episode
     [activity]
         en = Activity
+    [protocol]
+        en = Protocol
+    [download_client]
+        en = Download Client
+    [indexer]
+        en = Indexer
+    [langauges]
+        en = Languages
+    [added]
+        en = Added
+    [destination]
+        en = Destination
 
 [[Errors]]
     [instance_connect_error]

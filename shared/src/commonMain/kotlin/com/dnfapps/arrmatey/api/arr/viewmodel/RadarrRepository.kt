@@ -18,8 +18,8 @@ class RadarrRepository(instance: Instance): BaseArrRepository<ArrMovie, MovieRel
 
     override val client: RadarrClient by inject { parametersOf(instance) }
 
-    private val _movieExtaFileMap = MutableStateFlow<Map<Int, List<ExtraFile>>>(emptyMap())
-    val movieExtraFileMap: StateFlow<Map<Int, List<ExtraFile>>> = _movieExtaFileMap
+    private val _movieExtaFileMap = MutableStateFlow<Map<Long, List<ExtraFile>>>(emptyMap())
+    val movieExtraFileMap: StateFlow<Map<Long, List<ExtraFile>>> = _movieExtaFileMap
 
     init {
         if (instance.type != InstanceType.Radarr) {
@@ -27,7 +27,7 @@ class RadarrRepository(instance: Instance): BaseArrRepository<ArrMovie, MovieRel
         }
     }
 
-    suspend fun getMovieExtraFile(id: Int) {
+    suspend fun getMovieExtraFile(id: Long) {
         val response = client.getMovieExtraFile(id)
         if (response is NetworkResult.Success) {
             val newMap = _movieExtaFileMap.value.toMutableMap()

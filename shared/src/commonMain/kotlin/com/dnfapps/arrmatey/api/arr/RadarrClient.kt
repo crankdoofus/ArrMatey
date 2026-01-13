@@ -24,7 +24,7 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    override suspend fun getDetail(id: Int): NetworkResult<ArrMovie> {
+    override suspend fun getDetail(id: Long): NetworkResult<ArrMovie> {
         val resp = httpClient.safeGet<ArrMovie>("api/v3/movie/$id")
         return resp
     }
@@ -37,7 +37,7 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    override suspend fun setMonitorStatus(id: Int, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>> {
+    override suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean): NetworkResult<List<MonitoredResponse>> {
         val resp = httpClient.safePut<List<MonitoredResponse>>("api/v3/movie/editor") {
             contentType(ContentType.Application.Json)
 
@@ -71,7 +71,7 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    suspend fun getMovieExtraFile(id: Int): NetworkResult<List<ExtraFile>> {
+    suspend fun getMovieExtraFile(id: Long): NetworkResult<List<ExtraFile>> {
         val resp = httpClient.safeGet<List<ExtraFile>>("api/v3/extrafile?movieId=$id")
         return resp
     }

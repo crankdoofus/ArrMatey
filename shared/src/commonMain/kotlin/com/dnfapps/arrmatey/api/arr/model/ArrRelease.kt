@@ -90,9 +90,9 @@ enum class ReleaseProtocol {
 }
 
 sealed interface ReleaseParams {
-    data class Movie(val movieId: Int): ReleaseParams
+    data class Movie(val movieId: Long): ReleaseParams
     data class Series(
-        val seriesId: Int? = null,
+        val seriesId: Long? = null,
         val seasonNumber: Int? = null,
         val episodeId: Long? = null
     ): ReleaseParams

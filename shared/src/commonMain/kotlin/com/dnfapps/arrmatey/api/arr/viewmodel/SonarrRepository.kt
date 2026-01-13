@@ -27,7 +27,7 @@ class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries, SeriesR
         }
     }
 
-    suspend fun getEpisodes(seriesId: Int, seasonNumber: Int? = null) {
+    suspend fun getEpisodes(seriesId: Long, seasonNumber: Int? = null) {
         _episodeState.emit(EpisodeUiState.Loading)
         val resp = client.getEpisodes(seriesId, seasonNumber)
         when (resp) {

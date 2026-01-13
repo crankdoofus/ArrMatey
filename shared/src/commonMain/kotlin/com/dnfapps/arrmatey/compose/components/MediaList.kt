@@ -22,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import arrmatey.shared.generated.resources.Res
 import arrmatey.shared.generated.resources.season
 import arrmatey.shared.generated.resources.unknown
@@ -48,8 +50,10 @@ import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
+import com.dnfapps.arrmatey.api.client.ActivityQueue
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.extensions.pxToDp
+import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
 import com.dnfapps.arrmatey.utils.format
 import com.skydoves.cloudy.cloudy
@@ -64,12 +68,17 @@ fun <T: AnyArrMedia> MediaList(
     onItemClick: (T) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activityQueue by ActivityQueue.items.collectAsStateWithLifecycle()
+
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items) { item ->
-            MediaItem(item, onItemClick)
+            val isActive by remember { derivedStateOf {
+                activityQueue.flatMap { it.value }.any { it.mediaId == item.id }
+            } }
+            MediaItem(item, onItemClick, isActive)
         }
     }
 }
@@ -77,7 +86,8 @@ fun <T: AnyArrMedia> MediaList(
 @Composable
 fun <T: AnyArrMedia> MediaItem(
     item: T,
-    onItemClick: (T) -> Unit
+    onItemClick: (T) -> Unit,
+    isActive: Boolean = false
 ) {
     var cardHeight by remember { mutableStateOf(0.dp) }
     Card(
@@ -133,7 +143,7 @@ fun <T: AnyArrMedia> MediaItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    MediaDetails(item)
+                    MediaDetails(item, isActive)
                 }
             }
         }
@@ -141,15 +151,15 @@ fun <T: AnyArrMedia> MediaItem(
 }
 
 @Composable
-private fun ColumnScope.MediaDetails(item: AnyArrMedia) {
+private fun ColumnScope.MediaDetails(item: AnyArrMedia, isActive: Boolean) {
     when (item) {
-        is ArrSeries -> SeriesDetails(item)
+        is ArrSeries -> SeriesDetails(item, isActive)
         is ArrMovie -> MovieDetails(item)
     }
 }
 
 @Composable
-private fun ColumnScope.SeriesDetails(item: ArrSeries) {
+private fun ColumnScope.SeriesDetails(item: ArrSeries, isActive: Boolean) {
     val countStr = "${item.episodeFileCount}/${item.episodeCount} (${(item.statusProgress).toInt()}%)"
     val seasonLabel = pluralStringResource(Res.plurals.season, item.seasonCount)
     val seasonCountStr = "${item.seasonCount} $seasonLabel"
@@ -179,7 +189,7 @@ private fun ColumnScope.SeriesDetails(item: ArrSeries) {
         modifier = Modifier
             .fillMaxWidth()
             .height(6.dp),
-        color = item.statusColor
+        color = if (isActive) SonarrDownloading else item.statusColor
     )
 }
 

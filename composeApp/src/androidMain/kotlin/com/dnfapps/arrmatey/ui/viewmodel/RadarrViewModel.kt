@@ -11,7 +11,7 @@ class RadarrViewModel(instance: Instance): ArrViewModel(instance) {
 
     val movieExtraFilesMap = radarrRepo.movieExtraFileMap
 
-    fun getMovieExtraFile(id: Int) {
+    fun getMovieExtraFile(id: Long) {
         viewModelScope.launch {
             radarrRepo.getMovieExtraFile(id)
         }
