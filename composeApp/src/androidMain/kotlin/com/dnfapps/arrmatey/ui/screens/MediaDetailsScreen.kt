@@ -1,40 +1,25 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import android.widget.Toast
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.ExpandCircleDown
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -42,64 +27,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.CommandPayload
-import com.dnfapps.arrmatey.api.arr.model.Episode
-import com.dnfapps.arrmatey.api.arr.model.Season
-import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
-import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
 import com.dnfapps.arrmatey.api.arr.viewmodel.DetailsUiState
-import com.dnfapps.arrmatey.api.arr.viewmodel.EpisodeUiState
-import com.dnfapps.arrmatey.api.client.ActivityQueue
-import com.dnfapps.arrmatey.compose.components.DetailHeaderBanner
-import com.dnfapps.arrmatey.compose.components.PosterItem
-import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
-import com.dnfapps.arrmatey.entensions.Bullet
-import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
-import com.dnfapps.arrmatey.extensions.formatAsRuntime
-import com.dnfapps.arrmatey.extensions.isToday
-import com.dnfapps.arrmatey.extensions.isTodayOrAfter
-import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
-import com.dnfapps.arrmatey.ui.components.ExtraFileCard
-import com.dnfapps.arrmatey.ui.components.MovieFileCard
+import com.dnfapps.arrmatey.ui.components.DetailsHeader
+import com.dnfapps.arrmatey.ui.components.InfoArea
+import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
+import com.dnfapps.arrmatey.ui.components.MovieFileView
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
-import com.dnfapps.arrmatey.ui.components.ReleaseDownloadButtons
+import com.dnfapps.arrmatey.ui.components.SeasonsArea
+import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
-import com.dnfapps.arrmatey.ui.viewmodel.RadarrViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
-import com.dnfapps.arrmatey.utils.format
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -170,7 +121,10 @@ fun MediaDetailsScreen(
 
                                     ItemDescriptionCard(item)
 
-                                    FilesArea(item)
+                                    when (item) {
+                                        is ArrSeries -> SeasonsArea(item)
+                                        is ArrMovie -> MovieFileView(item)
+                                    }
 
                                     InfoArea(item)
                                 }
@@ -210,543 +164,6 @@ fun MediaDetailsScreen(
                     }
                 }
             )
-        }
-    }
-}
-
-@Composable
-fun DetailsHeader(item: AnyArrMedia) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        DetailHeaderBanner(item)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 170.dp)
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            PosterItem(
-                item = item,
-                modifier = Modifier.height(220.dp)
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = item.title,
-                    fontSize = 38.sp,
-                    fontWeight = FontWeight.Medium,
-                    lineHeight = 42.sp,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = listOf(
-                        item.year,
-                        item.runtimeString,
-                        item.certification
-                    ).joinToString(Bullet),
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = listOf(item.releasedBy, item.statusString).joinToString(Bullet),
-                    fontSize = 14.sp,
-                    lineHeight = 16.sp
-                )
-                Text(
-                    text = item.genres.joinToString(Bullet),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.secondary,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = 16.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ItemDescriptionCard(item: AnyArrMedia) {
-    item.overview?.let { overview ->
-        var expanded by remember { mutableStateOf(false) }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-                .clickable(enabled = !expanded) {
-                    expanded = true
-                },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(vertical = 12.dp, horizontal = 18.dp)
-            ) {
-                Text(
-                    text = overview,
-                    maxLines = if (expanded) Int.MAX_VALUE else 10,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
-                    onTextLayout = { result ->
-                        if (!result.didOverflowHeight) {
-                            expanded = true
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTime::class)
-@Composable
-fun UpcomingDateView(item: AnyArrMedia) {
-    when (item) {
-        is ArrSeries -> if (item.status == SeriesStatus.Continuing) item.nextAiring?.format()?.let {
-                "${stringResource(R.string.airing_next)} $it"
-            } ?: stringResource(R.string.continuing_unknown) else null
-        is ArrMovie -> item.inCinemas?.format()?.takeUnless {
-            item.digitalRelease != null || item.physicalRelease != null
-        }?.let { "${stringResource(R.string.in_cinemas)} $it" }
-    }?.let { airingString ->
-        Text(
-            text = airingString,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary
-        )
-    }
-}
-
-@Composable
-fun FilesArea(item: AnyArrMedia) {
-    when (item) {
-        is ArrSeries -> SeasonsArea(item)
-        is ArrMovie -> MovieFileView(item)
-    }
-}
-
-@OptIn(ExperimentalTime::class)
-@Composable
-fun MovieFileView(
-    movie: ArrMovie,
-    navigation: ArrTabNavigation = LocalArrTabNavigation.current
-) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null || arrViewModel !is RadarrViewModel) return
-
-    val context = LocalContext.current
-
-    val searchIds by arrViewModel.automaticSearchIds.collectAsStateWithLifecycle()
-    val searchResult by arrViewModel.automaticSearchResult.collectAsStateWithLifecycle()
-
-    val movieExtraFileMap by arrViewModel.movieExtraFilesMap.collectAsStateWithLifecycle()
-    val movieExtraFiles = remember(movieExtraFileMap) {
-        movieExtraFileMap[movie.id] ?: emptyList()
-    }
-
-    LaunchedEffect(Unit) {
-        movie.id?.let {
-            arrViewModel.getMovieExtraFile(it)
-        }
-    }
-
-    val searchQueuedMessage = stringResource(R.string.search_queued)
-    val searchErrorMessage = stringResource(R.string.search_error)
-
-    LaunchedEffect(searchResult) {
-        when (searchResult) {
-            true -> Toast.makeText(context, searchQueuedMessage, Toast.LENGTH_SHORT).show()
-            false -> Toast.makeText(context, searchErrorMessage, Toast.LENGTH_SHORT).show()
-            else -> {}
-        }
-    }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        ReleaseDownloadButtons(
-            onInteractiveClicked = {
-                val destination = ArrScreen.MovieReleases(movie.id!!)
-                navigation.navigateTo(destination)
-            },
-            onAutomaticClicked = {
-                movie.id?.let { id ->
-                    val movieSearchCommand = CommandPayload.Movie(listOf(id))
-                    arrViewModel.command(movieSearchCommand)
-                }
-            },
-            automaticSearchEnabled = movie.monitored,
-            automaticSearchInProgress = searchIds.contains(movie.id),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.files),
-                fontWeight = FontWeight.Medium,
-                fontSize = 26.sp
-            )
-            Text(
-                text = stringResource(R.string.history),
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable {
-                    navigation.navigateTo(ArrScreen.MovieFiles(movie))
-                }
-            )
-        }
-        movie.movieFile?.let { file ->
-            MovieFileCard(file)
-        }
-        movieExtraFiles.takeUnless { it.isEmpty() }?.forEach { extraFile ->
-            ExtraFileCard(extraFile)
-        }
-
-        if (movie.movieFile == null && movieExtraFiles.isEmpty()) {
-            Text(
-                text = stringResource(R.string.no_files),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun SeasonsArea(series: ArrSeries) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null || arrViewModel !is SonarrViewModel) return
-
-    val episodeState by arrViewModel.episodeState.collectAsStateWithLifecycle()
-
-    val activityQueue by ActivityQueue.items.collectAsStateWithLifecycle()
-    val queueItems by remember { derivedStateOf { activityQueue.flatMap { it.value } } }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.seasons),
-            fontWeight = FontWeight.Medium,
-            fontSize = 26.sp
-        )
-        series.seasons.sortedByDescending { it.seasonNumber }.forEach { season ->
-            var expanded by rememberSaveable { mutableStateOf(false) }
-            val iconRotation by animateFloatAsState(
-                targetValue = if (expanded) 180f else 0f,
-                animationSpec = tween(durationMillis = 200),
-                label = "iconRotation"
-            )
-            Card(
-                modifier = Modifier.fillMaxWidth().animateContentSize(),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { expanded = !expanded }
-                    ) {
-                        Text(
-                            text = if (season.seasonNumber == 0) {
-                                stringResource(R.string.specials)
-                            } else {
-                                "${stringResource(R.string.season_singular)} ${season.seasonNumber}"
-                            },
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 22.sp
-                        )
-                        season.statistics?.let { statistics ->
-                            Text(
-                                text = "${statistics.episodeFileCount}/${statistics.totalEpisodeCount}",
-                                fontSize = 16.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.Default.ExpandCircleDown,
-                            contentDescription = null,
-                            modifier = Modifier.rotate(iconRotation)
-                        )
-                        Icon(
-                            imageVector = if (season.monitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                            contentDescription = if (season.monitored) {
-                                stringResource(R.string.monitored)
-                            } else {
-                                stringResource(R.string.unmonitored)
-                            },
-                            modifier = Modifier.clickable {
-                                arrViewModel.toggleSeasonMonitor(series, season.seasonNumber)
-                            }
-                        )
-                    }
-                    if (expanded) {
-                        when (val state = episodeState) {
-                            is EpisodeUiState.Initial -> {}
-                            is EpisodeUiState.Loading -> {
-                                Spacer(modifier = Modifier.weight(1f))
-                                LoadingIndicator(
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .size(96.dp)
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                            is EpisodeUiState.Success -> {
-                                val seasonEpisodes = state.items
-                                        .filter { it.seasonNumber == season.seasonNumber }
-                                        .sortedByDescending { it.episodeNumber }
-
-                                Spacer(modifier = Modifier.height(6.dp))
-                                SeasonHeader(series.id, season, seasonEpisodes)
-                                Spacer(modifier = Modifier.height(12.dp))
-                                seasonEpisodes.forEachIndexed { index, episode ->
-                                    val isActive by remember { derivedStateOf {
-                                        queueItems.any { item ->
-                                            when(item) {
-                                                is SonarrQueueItem -> item.calcEpisodeId == episode.id ||
-                                                        (item.calcSeriesId == episode.seriesId && item.seasonNumber == episode.seasonNumber)
-                                                else -> false
-                                            }
-                                        }
-                                    } }
-                                    val activityProgress by remember { derivedStateOf {
-                                        queueItems.firstOrNull { it is SonarrQueueItem && it.episodeId == episode.id }?.progressLabel
-                                            ?: queueItems.firstOrNull { it is SonarrQueueItem && it.calcSeriesId == episode.seriesId && it.seasonNumber == episode.seasonNumber }?.progressLabel
-                                    } }
-                                    EpisodeRow(episode, isActive, activityProgress)
-                                    if (index < seasonEpisodes.size-1) {
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                                    }
-                                }
-                            }
-                            is EpisodeUiState.Error -> {
-                                Text("ERROR")
-                                Text(state.error.message)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTime::class)
-@Composable
-private fun SeasonHeader(
-    seriesId: Long?,
-    season: Season,
-    episodes: List<Episode>,
-    navigation: ArrTabNavigation = LocalArrTabNavigation.current
-) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null) return
-
-    val tbaLabel = stringResource(R.string.tba)
-    val year = remember(episodes) {
-        episodes.mapNotNull { it.airDateUtc }.minOrNull()
-            ?.toLocalDateTime(TimeZone.UTC)?.date?.year?.toString()
-            ?: tbaLabel
-    }
-
-    val runtime = remember(episodes) {
-        val items = episodes.mapNotNull { it.runtime?.takeIf { r -> r > 0 } }
-        if (items.isEmpty()) null
-        else items.sorted()[items.size / 2].formatAsRuntime()
-    }
-
-    val seasonInfo = listOfNotNull(
-        year, runtime, season.statistics?.sizeOnDisk?.bytesAsFileSizeString()
-    )
-    val infoString = seasonInfo.joinToString(Bullet)
-    Text(
-        text = infoString,
-        fontSize = 16.sp
-    )
-    ReleaseDownloadButtons(
-        onInteractiveClicked = {
-            seriesId?.let { seriesId ->
-                val destination = ArrScreen.SeriesRelease(seriesId = seriesId, seasonNumber = season.seasonNumber)
-                navigation.navigateTo(destination)
-            }
-        },
-        onAutomaticClicked = {
-            seriesId?.let { seriesId ->
-                val seasonSearchCommand = CommandPayload.Season(seriesId, season.seasonNumber)
-                arrViewModel.command(seasonSearchCommand)
-            }
-        },
-        automaticSearchInProgress = false,
-        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-        smallSpacing = true,
-        automaticSearchEnabled = episodes.any { it.monitored }
-    )
-}
-
-@Composable
-private fun EpisodeRow(
-    episode: Episode,
-    isActive: Boolean,
-    progressLabel: String? = null,
-    navigation: ArrTabNavigation = LocalArrTabNavigation.current
-) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null || arrViewModel !is SonarrViewModel) return
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            val titleString = buildAnnotatedString {
-                withStyle(SpanStyle(fontSize = 16.sp)) {
-                    withStyle((SpanStyle(color = MaterialTheme.colorScheme.primary))) {
-                        append("${episode.episodeNumber}. ")
-                    }
-                    withStyle(SpanStyle(fontWeight = FontWeight.Medium)) {
-                        append(episode.title ?: "")
-                    }
-                    episode.finaleType?.let { finalType ->
-                        withStyle(SpanStyle(
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.secondary
-                        )) {
-                            bullet()
-                            append(finalType.label)
-                        }
-                    }
-                }
-            }
-            Text(
-                text = titleString,
-                lineHeight = 16.sp,
-                overflow = TextOverflow.MiddleEllipsis,
-                maxLines = 1
-            )
-
-            val statusString = if (isActive) progressLabel else
-                episode.episodeFile?.qualityName
-                    ?: episode.airDate?.takeIf { it.isTodayOrAfter() }?.let {
-                        stringResource(R.string.unaired)
-                    }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                statusString?.let {
-                    Text(
-                        text = statusString,
-                        fontSize = 14.sp,
-                        color = if (isActive) SonarrDownloading else Color.Unspecified
-                    )
-                } ?:
-                    Text(
-                        text = stringResource(R.string.missing),
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.error
-                    )
-
-                val (weight, color) = if (episode.airDate?.isToday() == true)
-                    FontWeight.Medium to MaterialTheme.colorScheme.primary
-                else
-                    FontWeight.Normal to Color.Unspecified
-                Text(
-                    text = "$Bullet${episode.formatAirDateUtc()}",
-                    color = color,
-                    fontWeight = weight,
-                    fontSize = 14.sp
-                )
-            }
-        }
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.clickable {
-                val destination = ArrScreen.SeriesRelease(episodeId = episode.id)
-                navigation.navigateTo(destination)
-            }
-        )
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = null,
-            modifier = Modifier.clickable {
-                val payload = CommandPayload.Episode(listOf(episode.id))
-                arrViewModel.command(payload)
-            }
-        )
-        Icon(
-            imageVector = if (episode.monitored) {
-                Icons.Default.Bookmark
-            } else {
-                Icons.Default.BookmarkBorder
-            },
-            contentDescription = null,
-            modifier = Modifier.clickable {
-                arrViewModel.toggleEpisodeMonitor(episode.id)
-            }
-        )
-    }
-}
-
-@Composable
-private fun InfoArea(item: AnyArrMedia) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.information),
-            fontWeight = FontWeight.Medium,
-            fontSize = 26.sp
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp)
-        ) {
-            Column (
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
-            ) {
-                val infoItems by item.infoItems.collectAsStateWithLifecycle(emptyList())
-                if (infoItems.isEmpty()) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
-                infoItems.forEachIndexed { index, info ->
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = info.label, fontSize = 14.sp)
-                        Text(
-                            text = info.value,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.End,
-                            fontSize = 14.sp
-                        )
-                    }
-                    if (index < infoItems.size - 1) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    }
-                }
-            }
         }
     }
 }
