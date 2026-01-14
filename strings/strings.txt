@@ -105,8 +105,6 @@
         en = Rating
     [file_size]
         en = File Size
-    [grabbed]
-        en = Grabbed
     [digital_release]
         en = Digital Release
     [physical_release]
@@ -242,6 +240,30 @@
         en = Destination
     [no_history]
         en = No History
+
+[[History Event Type]]
+    [grabbed]
+        en = Grabbed
+    [download_folder_imported]
+        en = Download Folder Imported
+    [download_failed]
+        en = Download Failed
+    [download_ignored]
+        en = Download Ignored
+    [movie_file_renamed]
+        en = Movie File Renamed
+    [movie_file_deleted]
+        en = Movie File Deleted
+    [movie_file_imported]
+        en = Movie File Imported
+    [movie_folder_imported]
+        en = Movie Folder Imported
+    [episode_file_renamed]
+        en = Episode File Renamed
+    [episode_file_deleted]
+        en = Episode File Deleted
+    [series_folder_imported]
+        en = Series Folder Imported
 
 [[Errors]]
     [instance_connect_error]

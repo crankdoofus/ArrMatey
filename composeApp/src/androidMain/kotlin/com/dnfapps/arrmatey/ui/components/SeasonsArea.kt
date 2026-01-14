@@ -42,12 +42,18 @@ import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
 import com.dnfapps.arrmatey.api.arr.viewmodel.EpisodeUiState
 import com.dnfapps.arrmatey.api.client.ActivityQueue
+import com.dnfapps.arrmatey.navigation.ArrScreen
+import com.dnfapps.arrmatey.navigation.ArrTabNavigation
+import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SeasonsArea(series: ArrSeries) {
+fun SeasonsArea(
+    series: ArrSeries,
+    navigation: ArrTabNavigation = LocalArrTabNavigation.current
+) {
     val arrViewModel = LocalArrViewModel.current
     if (arrViewModel == null || arrViewModel !is SonarrViewModel) return
 
@@ -154,7 +160,10 @@ fun SeasonsArea(series: ArrSeries) {
                                         queueItems.firstOrNull { it is SonarrQueueItem && it.episodeId == episode.id }?.progressLabel
                                             ?: queueItems.firstOrNull { it is SonarrQueueItem && it.calcSeriesId == episode.seriesId && it.seasonNumber == episode.seasonNumber }?.progressLabel
                                     } }
-                                    EpisodeRow(episode, isActive, activityProgress)
+                                    EpisodeRow(episode, isActive, progressLabel = activityProgress, onClick = {
+                                        val destination = ArrScreen.EpisodeDetails(series, episode)
+                                        navigation.navigateTo(destination)
+                                    })
                                     if (index < seasonEpisodes.size-1) {
                                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                                     }

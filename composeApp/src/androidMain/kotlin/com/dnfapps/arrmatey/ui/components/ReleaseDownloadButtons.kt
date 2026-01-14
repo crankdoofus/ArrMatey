@@ -23,8 +23,8 @@ fun ReleaseDownloadButtons(
     onInteractiveClicked: () -> Unit,
     automaticSearchEnabled: Boolean,
     onAutomaticClicked: () -> Unit,
-    automaticSearchInProgress: Boolean,
     modifier: Modifier = Modifier,
+    automaticSearchInProgress: Boolean = false,
     smallSpacing: Boolean = false
 ) {
     Row(

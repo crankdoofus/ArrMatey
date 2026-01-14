@@ -4,12 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +44,8 @@ import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 fun EpisodeRow(
     episode: Episode,
     isActive: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     progressLabel: String? = null,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
@@ -50,7 +54,11 @@ fun EpisodeRow(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.clickable(
+            enabled = onClick != null,
+            onClick = onClick ?: {}
+        )
     ) {
         Column(
             modifier = Modifier.weight(1f),
@@ -61,7 +69,7 @@ fun EpisodeRow(
                         append("${episode.episodeNumber}. ")
                     }
                     withStyle(SpanStyle(fontWeight = FontWeight.Medium)) {
-                        append(episode.title ?: "")
+                        append(episode.displayTitle)
                     }
                     episode.finaleType?.let { finalType ->
                         withStyle(SpanStyle(
@@ -114,32 +122,45 @@ fun EpisodeRow(
                 )
             }
         }
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.clickable {
+        IconButton(
+            onClick = {
                 val destination = ArrScreen.SeriesRelease(episodeId = episode.id)
                 navigation.navigateTo(destination)
-            }
-        )
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = null,
-            modifier = Modifier.clickable {
+            },
+            modifier = Modifier.size(24.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+            )
+        }
+        IconButton(
+            onClick = {
                 val payload = CommandPayload.Episode(listOf(episode.id))
                 arrViewModel.command(payload)
-            }
-        )
-        Icon(
-            imageVector = if (episode.monitored) {
-                Icons.Default.Bookmark
-            } else {
-                Icons.Default.BookmarkBorder
             },
-            contentDescription = null,
-            modifier = Modifier.clickable {
+            enabled = episode.monitored,
+            modifier = Modifier.size(24.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+            )
+        }
+        IconButton(
+            onClick = {
                 arrViewModel.toggleEpisodeMonitor(episode.id)
-            }
-        )
+            },
+            modifier = Modifier.size(24.dp)
+        ) {
+            Icon(
+                imageVector = if (episode.monitored) {
+                    Icons.Default.Bookmark
+                } else {
+                    Icons.Default.BookmarkBorder
+                },
+                contentDescription = null,
+            )
+        }
     }
 }

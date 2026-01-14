@@ -2,6 +2,8 @@ package com.dnfapps.arrmatey.navigation
 
 import androidx.navigation3.runtime.NavKey
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
+import com.dnfapps.arrmatey.api.arr.model.ArrSeries
+import com.dnfapps.arrmatey.api.arr.model.Episode
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.model.InstanceType
 
@@ -18,6 +20,7 @@ sealed interface ArrScreen : NavKey {
     data class Search(val query: String = ""): ArrScreen
     data class MovieReleases(val movieId: Long): ArrScreen
     data class MovieFiles(val movie: ArrMovie): ArrScreen
+    data class EpisodeDetails(val series: ArrSeries, val episode: Episode): ArrScreen
     data class SeriesRelease(val seriesId: Long? = null, val seasonNumber: Int? = null, val episodeId: Long? = null): ArrScreen
 
 }

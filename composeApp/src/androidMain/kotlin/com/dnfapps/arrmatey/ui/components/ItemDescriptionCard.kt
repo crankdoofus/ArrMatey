@@ -17,36 +17,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 
 @Composable
-fun ItemDescriptionCard(item: AnyArrMedia) {
-    item.overview?.let { overview ->
-        var expanded by remember { mutableStateOf(false) }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-                .clickable(enabled = !expanded) {
-                    expanded = true
-                },
-            shape = RoundedCornerShape(12.dp)
+fun ItemDescriptionCard(overview: String) {
+    var expanded by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .clickable(enabled = !expanded) {
+                expanded = true
+            },
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 18.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(vertical = 12.dp, horizontal = 18.dp)
-            ) {
-                Text(
-                    text = overview,
-                    maxLines = if (expanded) Int.MAX_VALUE else 10,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
-                    onTextLayout = { result ->
-                        if (!result.didOverflowHeight) {
-                            expanded = true
-                        }
+            Text(
+                text = overview,
+                maxLines = if (expanded) Int.MAX_VALUE else 10,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 14.sp,
+                onTextLayout = { result ->
+                    if (!result.didOverflowHeight) {
+                        expanded = true
                     }
-                )
-            }
+                }
+            )
         }
     }
 }

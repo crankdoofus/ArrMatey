@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.Episode
 import com.dnfapps.arrmatey.api.client.ActivityQueue
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 
@@ -149,5 +151,29 @@ fun <T: AnyArrMedia> PosterItem(
         if (imageLoaded) {
             additionalContent()
         }
+    }
+}
+
+@Composable
+fun EpisodePosterItem(episode: Episode) {
+    val url = episode.getPoster()?.remoteUrl
+    val model = ImageRequest.Builder(LocalPlatformContext.current)
+        .data(url)
+        .diskCacheKey(url)
+        .networkCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .crossfade(true)
+        .build()
+
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .height(100.dp)
+    ) {
+        AsyncImage(
+            model = model,
+            contentDescription = null,
+            contentScale = ContentScale.FillHeight
+        )
     }
 }

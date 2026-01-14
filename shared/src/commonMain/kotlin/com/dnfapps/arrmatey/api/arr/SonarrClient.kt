@@ -6,6 +6,7 @@ import com.dnfapps.arrmatey.api.arr.model.MonitoredResponse
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.model.SeriesRelease
 import com.dnfapps.arrmatey.api.arr.model.SonarrHistoryItem
+import com.dnfapps.arrmatey.api.arr.model.SonarrHistoryResponse
 import com.dnfapps.arrmatey.api.client.NetworkResult
 import com.dnfapps.arrmatey.api.client.safeGet
 import com.dnfapps.arrmatey.api.client.safePost
@@ -77,8 +78,13 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
 
     override suspend fun getItemHistory(id: Long, page: Int, pageSize: Int): NetworkResult<List<SonarrHistoryItem>> {
         val query = "?episodeId=$id&page=$page&pageSize=$pageSize"
-        val resp = httpClient.safeGet<List<SonarrHistoryItem>>("api/v3/history$query")
-        return resp
+        val resp = httpClient.safeGet<SonarrHistoryResponse>("api/v3/history$query")
+        return when (resp) {
+            is NetworkResult.Success<SonarrHistoryResponse> -> NetworkResult.Success(data = resp.data.records)
+            is NetworkResult.NetworkError -> NetworkResult.NetworkError(message = resp.message, cause = resp.cause)
+            is NetworkResult.UnexpectedError -> NetworkResult.UnexpectedError(cause = resp.cause)
+            is NetworkResult.HttpError -> NetworkResult.HttpError(code = resp.code, message = resp.message)
+        }
     }
 
     suspend fun updateEpisode(item: Episode): NetworkResult<Episode> {
@@ -92,12 +98,14 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
     suspend fun getEpisodes(
         seriesId: Long,
         seasonNumber: Int? = null,
-        includeEpisodeFile: Boolean = true
+        includeEpisodeFile: Boolean = true,
+        includeImages: Boolean = true
     ): NetworkResult<List<Episode>> {
         val queryParams = listOfNotNull(
             "seriesId=$seriesId",
             seasonNumber?.let { "seasonNumber=$it" },
-            if (includeEpisodeFile) "includeEpisodeFile=true" else null
+            if (includeEpisodeFile) "includeEpisodeFile=true" else null,
+            if (includeImages) "includeImages=true" else null
         ).joinToString("&")
         val query = "?$queryParams"
         val resp = httpClient.safeGet<List<Episode>>("api/v3/episode$query")

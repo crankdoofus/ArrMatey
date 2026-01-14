@@ -111,7 +111,7 @@ fun MovieFileView(
             )
         }
         movie.movieFile?.let { file ->
-            MovieFileCard(file)
+            FileCard(file)
         }
         movieExtraFiles.takeUnless { it.isEmpty() }?.forEach { extraFile ->
             ExtraFileCard(extraFile)

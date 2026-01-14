@@ -2,6 +2,7 @@ package com.dnfapps.arrmatey.entensions
 
 import androidx.annotation.StringRes
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.api.arr.model.HistoryEventType
 import com.dnfapps.arrmatey.api.arr.model.MovieStatus
 import com.dnfapps.arrmatey.api.arr.model.SeriesMonitorType
 import com.dnfapps.arrmatey.api.arr.model.SeriesType
@@ -18,6 +19,7 @@ fun MovieStatus.stringResource() = when (this) {
     MovieStatus.InCinemas -> R.string.in_cinemas
 }
 
+@StringRes
 fun SeriesMonitorType.stringResource() = when (this) {
     SeriesMonitorType.Unknown -> R.string.unknown
     SeriesMonitorType.All -> R.string.all
@@ -35,12 +37,14 @@ fun SeriesMonitorType.stringResource() = when (this) {
     SeriesMonitorType.Skip -> R.string.skip
 }
 
+@StringRes
 fun SeriesType.stringResource() = when (this) {
     SeriesType.Standard -> R.string.standard
     SeriesType.Daily -> R.string.daily
     SeriesType.Anime -> R.string.anime
 }
 
+@StringRes
 fun ReleaseSortBy.stringResource() = when (this) {
     ReleaseSortBy.Age -> R.string.age
     ReleaseSortBy.Weight -> R.string.weight
@@ -50,8 +54,24 @@ fun ReleaseSortBy.stringResource() = when (this) {
     ReleaseSortBy.CustomScore -> R.string.custom_score
 }
 
+@StringRes
 fun ReleaseFilterBy.stringResource() = when (this) {
     ReleaseFilterBy.Any -> R.string.any
     ReleaseFilterBy.SeasonPack -> R.string.season_pack
     ReleaseFilterBy.SingleEpisode -> R.string.single_episode
+}
+
+@StringRes
+fun HistoryEventType.stringResource() = when (this) {
+    HistoryEventType.Unknown -> R.string.unknown
+    HistoryEventType.Grabbed -> R.string.grabbed
+    HistoryEventType.DownloadFolderImported -> R.string.download_folder_imported
+    HistoryEventType.DownloadFailed -> R.string.download_failed
+    HistoryEventType.DownloadIgnored -> R.string.download_ignored
+    HistoryEventType.MovieFileRenamed -> R.string.movie_file_renamed
+    HistoryEventType.MovieFileDeleted -> R.string.movie_file_deleted
+    HistoryEventType.MovieFolderImported -> R.string.movie_folder_imported
+    HistoryEventType.EpisodeFileRenamed -> R.string.episode_file_renamed
+    HistoryEventType.EpisodeFileDeleted -> R.string.episode_file_deleted
+    HistoryEventType.SeriesFolderImported -> R.string.series_folder_imported
 }

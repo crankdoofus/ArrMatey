@@ -25,3 +25,17 @@ fun LocalDate.isTodayOrAfter(timeZone: TimeZone = TimeZone.currentSystemDefault(
 }
 
 fun LocalDate.isTodayOrAfter(): Boolean = isTodayOrAfter(timeZone = TimeZone.currentSystemDefault())
+
+fun LocalDate.isTodayOrBefore(timeZone: TimeZone = TimeZone.currentSystemDefault()): Boolean {
+    val today = Clock.System.todayIn(timeZone)
+    return this <= today
+}
+
+fun LocalDate.isTodayOrBefore(): Boolean = isTodayOrBefore(TimeZone.currentSystemDefault())
+
+fun LocalDate.isBeforeToday(timeZone: TimeZone = TimeZone.currentSystemDefault()): Boolean {
+    val today = Clock.System.todayIn(timeZone)
+    return this < today
+}
+
+fun LocalDate.isBeforeToday(): Boolean = isBeforeToday(TimeZone.currentSystemDefault())

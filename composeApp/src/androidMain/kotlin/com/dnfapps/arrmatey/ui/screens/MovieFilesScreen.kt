@@ -1,7 +1,9 @@
 package com.dnfapps.arrmatey.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +33,7 @@ import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.ExtraFileCard
 import com.dnfapps.arrmatey.ui.components.HistoryItemView
-import com.dnfapps.arrmatey.ui.components.MovieFileCard
+import com.dnfapps.arrmatey.ui.components.FileCard
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.RadarrViewModel
@@ -107,7 +109,7 @@ fun MovieFilesScreen(
                 }
                 item {
                     movie.movieFile?.let { file ->
-                        MovieFileCard(file)
+                        FileCard(file)
                     }
                 }
                 items(movieExtraFiles) { extraFile ->
@@ -127,6 +129,9 @@ fun MovieFilesScreen(
                     item {
                         Text(stringResource(R.string.no_history))
                     }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }

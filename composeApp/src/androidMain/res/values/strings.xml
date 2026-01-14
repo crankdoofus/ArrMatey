@@ -56,7 +56,6 @@
     <string name="added">Added</string>
     <string name="rating">Rating</string>
     <string name="file_size">File Size</string>
-    <string name="grabbed">Grabbed</string>
     <string name="digital_release">Digital Release</string>
     <string name="physical_release">Physical Release</string>
     <string name="next_airing">Next Airing</string>
@@ -125,6 +124,19 @@
     <string name="langauges">Languages</string>
     <string name="destination">Destination</string>
     <string name="no_history">No History</string>
+
+    <!-- History Event Type -->
+    <string name="grabbed">Grabbed</string>
+    <string name="download_folder_imported">Download Folder Imported</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="download_ignored">Download Ignored</string>
+    <string name="movie_file_renamed">Movie File Renamed</string>
+    <string name="movie_file_deleted">Movie File Deleted</string>
+    <string name="movie_file_imported">Movie File Imported</string>
+    <string name="movie_folder_imported">Movie Folder Imported</string>
+    <string name="episode_file_renamed">Episode File Renamed</string>
+    <string name="episode_file_deleted">Episode File Deleted</string>
+    <string name="series_folder_imported">Series Folder Imported</string>
 
     <!-- Errors -->
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>

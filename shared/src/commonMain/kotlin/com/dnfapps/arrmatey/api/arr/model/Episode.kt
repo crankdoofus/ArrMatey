@@ -1,6 +1,10 @@
 package com.dnfapps.arrmatey.api.arr.model
 
+import com.dnfapps.arrmatey.extensions.formatAsRuntime
+import com.dnfapps.arrmatey.extensions.isAfterToday
+import com.dnfapps.arrmatey.extensions.isBeforeToday
 import com.dnfapps.arrmatey.utils.formatLocalDateTime
+import com.dnfapps.arrmatey.utils.padStart
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -38,6 +42,15 @@ data class Episode(
     val grabDate: String? = null,
     val images: List<ArrImage> = emptyList()
 ) {
+    val displayTitle: String
+        get() = title ?: "Unknown"
+
+    val runtimeString: String?
+        get() = runtime?.formatAsRuntime()
+
+    val seasonEpLabel: String
+        get() = "${seasonNumber}x${episodeNumber.padStart(2, '0')}"
+
     fun formatAirDateUtc(
         friendlyTodayFormat: Boolean = true,
         timeZone: TimeZone = TimeZone.currentSystemDefault()
@@ -59,6 +72,24 @@ data class Episode(
 
     val episodeLabel: String
         get() = "${seasonNumber}x${episodeNumber}"
+
+    fun getPoster(): ArrImage?  {
+        return images.firstOrNull { it.coverType == CoverType.Poster }
+            ?: images.firstOrNull { it.coverType == CoverType.Screenshot }
+    }
+    fun getBanner(): ArrImage? {
+        return images.firstOrNull { it.coverType == CoverType.FanArt }
+            ?: images.firstOrNull { it.coverType == CoverType.Banner }
+            ?: images.firstOrNull { it.coverType == CoverType.Poster }
+            ?: images.firstOrNull { it.coverType == CoverType.Screenshot }
+    }
+
+    val statusLabel: String
+        get() = when {
+            hasFile -> "Downloaded"
+            airDate?.isBeforeToday() == true -> "Unaired"
+            else -> "Missing"
+        }
 }
 
 enum class FinalType(val label: String) {

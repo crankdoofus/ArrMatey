@@ -15,5 +15,8 @@ enum class CoverType {
     @SerialName("fanart")
     FanArt,
 
+    @SerialName("screenshot")
+    Screenshot,
+
     Undefined
 }

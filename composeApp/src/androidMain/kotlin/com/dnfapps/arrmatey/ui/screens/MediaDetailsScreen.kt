@@ -119,7 +119,9 @@ fun MediaDetailsScreen(
                                 ) {
                                     UpcomingDateView(item)
 
-                                    ItemDescriptionCard(item)
+                                    item.overview?.let { overview ->
+                                        ItemDescriptionCard(overview)
+                                    }
 
                                     when (item) {
                                         is ArrSeries -> SeasonsArea(item)

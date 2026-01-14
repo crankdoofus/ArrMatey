@@ -6,7 +6,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.api.arr.model.MediaFile
 import com.dnfapps.arrmatey.api.arr.model.MovieFile
+import com.dnfapps.arrmatey.compose.utils.breakable
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.utils.format
@@ -14,25 +16,25 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun MovieFileCard(file: MovieFile) {
+fun FileCard(file: MediaFile) {
     ContainerCard {
         Text(
-            text = file.relativePath,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
+            text = file.relativePath.breakable(),
+            fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = listOf(
+            text = listOfNotNull(
+                file.quality?.qualityLabel,
                 file.languages.first().name,
-                file.size.bytesAsFileSizeString(),
-                file.quality.qualityLabel
+                file.size.bytesAsFileSizeString()
             ).joinToString(Bullet),
-            fontSize = 14.sp
+            fontSize = 12.sp
         )
-        val formattedDate = file.dateAdded.format("MMM d, yyyy")
-        Text(
-            text = stringResource(R.string.added_on, formattedDate),
-            fontSize = 14.sp
-        )
+        file.dateAdded?.format("MMM d, yyyy")?.let { formattedDate ->
+            Text(
+                text = stringResource(R.string.added_on, formattedDate),
+                fontSize = 12.sp
+            )
+        }
     }
 }

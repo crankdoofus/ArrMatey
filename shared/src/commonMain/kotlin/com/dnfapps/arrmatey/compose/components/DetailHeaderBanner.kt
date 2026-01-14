@@ -11,28 +11,28 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 
 @Composable
 fun DetailHeaderBanner(
-    item: AnyArrMedia
+    bannerUrl: String?,
+    height: Dp = 400.dp
 ) {
     val context = LocalPlatformContext.current
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(height)
             .background(MaterialTheme.colorScheme.background)
             .clipToBounds()
     ) {
-        val bannerUrl = item.getBanner()?.remoteUrl
         val bannerModel = ImageRequest.Builder(context)
             .data(bannerUrl)
             .diskCacheKey(bannerUrl)

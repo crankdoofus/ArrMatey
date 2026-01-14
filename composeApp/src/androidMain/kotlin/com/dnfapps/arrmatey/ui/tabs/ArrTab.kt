@@ -17,6 +17,7 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.screens.ArrLibraryScreen
 import com.dnfapps.arrmatey.ui.screens.ArrSearchScreen
+import com.dnfapps.arrmatey.ui.screens.EpisodeDetailsScreen
 import com.dnfapps.arrmatey.ui.screens.InteractiveSearchScreen
 import com.dnfapps.arrmatey.ui.screens.MediaDetailsScreen
 import com.dnfapps.arrmatey.ui.screens.MediaPreviewScreen
@@ -82,6 +83,9 @@ fun ArrTab(type: InstanceType) {
                 }
                 entry<ArrScreen.MovieFiles> { params ->
                     MovieFilesScreen(movie = params.movie)
+                }
+                entry<ArrScreen.EpisodeDetails> { params ->
+                    EpisodeDetailsScreen(params.series, params.episode)
                 }
             }
         )

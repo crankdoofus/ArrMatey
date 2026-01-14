@@ -8,6 +8,6 @@ fun <T: AnyArrMedia> DetailHeaderBannerViewController(
     item: T
 ) = ComposeUIViewController {
     BasicTheme {
-        DetailHeaderBanner(item)
+        DetailHeaderBanner(item.getBanner()?.remoteUrl)
     }
 }

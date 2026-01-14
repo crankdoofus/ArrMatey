@@ -54,8 +54,11 @@ import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
+import com.dnfapps.arrmatey.ui.components.DetailsHeader
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
+import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import org.koin.compose.koinInject
@@ -89,7 +92,9 @@ fun MediaPreviewScreen(
                 ) {
                     UpcomingDateView(item)
 
-                    ItemDescriptionCard(item)
+                    item.overview?.let { overview ->
+                        ItemDescriptionCard(overview)
+                    }
                 }
             }
 

@@ -6,24 +6,23 @@ import kotlin.time.Instant
 
 @Serializable
 data class EpisodeFile(
-    val id: Long,
+    override val id: Long,
+    override val relativePath: String,
+    override val path: String? = null,
+    override val size: Long,
+    @Contextual override val dateAdded: Instant? = null,
+    override val sceneName: String? = null,
+    override val releaseGroup: String? = null,
+    override val languages: List<Language> = emptyList(),
+    override val quality: QualityInfo? = null,
+    override val customFormats: List<CustomFormat> = emptyList(),
+    override val customFormatScore: Int? = null,
+    override val indexerFlags: Int? = null,
+    override val mediaInfo: MediaInfo? = null,
+    override val qualityCutoffNotMet: Boolean,
+    override val originalFilePath: String? = null,
+
     val seriesId: Long,
     val seasonNumber: Int,
-    val relativePath: String? = null,
-    val path: String? = null,
-    val size: Long,
-    @Contextual val dateAdded: Instant? = null,
-    val sceneName: String? = null,
-    val releaseGroup: String? = null,
-    val languages: List<Language> = emptyList(),
-    val quality: QualityInfo? = null,
-    val customFormats: List<CustomFormat> = emptyList(),
-    val customFormatScore: Int? = null,
-    val indexerFlags: Int? = null,
     val releaseType: String? = null,
-    val mediaInfo: MediaInfo? = null,
-    val qualityCutoffNotMet: Boolean
-) {
-    val qualityName: String?
-        get() = quality?.quality?.name
-}
+): MediaFile
