@@ -26,7 +26,7 @@ struct MediaDetailsScreen: View {
     }
     
     private var isMonitored: Bool {
-        if let state = detailUiState as? DetailsUiStateSuccess<AnyArrMedia> {
+        if let state = detailUiState as? DetailsUiStateSuccess<ArrMedia> {
             return state.item?.monitored == true
         }
         return false
@@ -68,7 +68,7 @@ struct MediaDetailsScreen: View {
                 ProgressView()
                     .progressViewStyle(.circular)
             }
-        case let state as DetailsUiStateSuccess<AnyArrMedia>:
+        case let state as DetailsUiStateSuccess<ArrMedia>:
             if let item = state.item {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12){
@@ -96,7 +96,7 @@ struct MediaDetailsScreen: View {
                 }
                 .ignoresSafeArea(edges: .top)
             }
-        case let error as DetailsUiStateError<AnyArrMedia>:
+        case let error as DetailsUiStateError<ArrMedia>:
             VStack{}
         default:
             VStack {
@@ -105,7 +105,7 @@ struct MediaDetailsScreen: View {
         }
     }
     
-    private func makeAiringString(for item: AnyArrMedia) -> String? {
+    private func makeAiringString(for item: ArrMedia) -> String? {
         switch item {
         case let series as ArrSeries:
             if series.status == .continuing {
@@ -126,7 +126,7 @@ struct MediaDetailsScreen: View {
     }
     
     @ViewBuilder
-    private func filesArea(for item: AnyArrMedia) -> some View {
+    private func filesArea(for item: ArrMedia) -> some View {
         if let series = item as? ArrSeries, let vm = arrViewModel as? SonarrViewModel {
             SeriesFilesView(series: series, viewModel: vm)
         } else if let movie = item as? ArrMovie, let vm = arrViewModel as? RadarrViewModel {

@@ -23,10 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 
 @Composable
-fun InfoArea(item: AnyArrMedia) {
+fun InfoArea(item: ArrMedia) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -42,30 +43,30 @@ fun InfoArea(item: AnyArrMedia) {
             Column (
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
             ) {
-                val infoItems by item.infoItems.collectAsStateWithLifecycle(emptyList())
-                if (infoItems.isEmpty()) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
-                infoItems.forEachIndexed { index, info ->
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = info.label, fontSize = 14.sp)
-                        Text(
-                            text = info.value,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.End,
-                            fontSize = 14.sp
-                        )
-                    }
-                    if (index < infoItems.size - 1) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    }
-                }
+//                val infoItems by item.infoItems.collectAsStateWithLifecycle(emptyList())
+//                if (infoItems.isEmpty()) {
+//                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+//                }
+//                infoItems.forEachIndexed { index, info ->
+//                    Row(
+//                        horizontalArrangement = Arrangement.SpaceBetween,
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Text(text = info.label, fontSize = 14.sp)
+//                        Text(
+//                            text = info.value,
+//                            color = MaterialTheme.colorScheme.primary,
+//                            maxLines = 1,
+//                            overflow = TextOverflow.Ellipsis,
+//                            textAlign = TextAlign.End,
+//                            fontSize = 14.sp
+//                        )
+//                    }
+//                    if (index < infoItems.size - 1) {
+//                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+//                    }
+//                }
             }
         }
     }

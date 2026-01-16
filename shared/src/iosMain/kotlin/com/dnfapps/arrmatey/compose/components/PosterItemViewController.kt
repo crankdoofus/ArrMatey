@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import platform.UIKit.UIColor
 
-fun <T: AnyArrMedia> PosterItemViewController(
+fun <T: ArrMedia> PosterItemViewController(
     item: T,
     onItemClick: ((T) -> Unit)? = null,
     enabled: Boolean = true

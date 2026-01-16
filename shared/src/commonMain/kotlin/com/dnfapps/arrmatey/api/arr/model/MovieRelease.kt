@@ -53,4 +53,4 @@ data class MovieRelease(
     val edition: String,
     val magetUrl: String? = null,
     val movieId: Int? = null,
-): IArrRelease
+): ArrRelease

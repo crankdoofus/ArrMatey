@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 
 enum class ReleaseSortBy {
     Weight,
@@ -11,7 +11,7 @@ enum class ReleaseSortBy {
     CustomScore
 }
 
-fun List<IArrRelease>.applySorting(sortBy: ReleaseSortBy, sortOrder: SortOrder) = when(sortBy) {
+fun List<ArrRelease>.applySorting(sortBy: ReleaseSortBy, sortOrder: SortOrder) = when(sortBy) {
     ReleaseSortBy.Weight -> sortedBy { it.releaseWeight }
     ReleaseSortBy.Age -> sortedBy { it.ageMinutes }
     ReleaseSortBy.Quality -> sortedBy { it.quality.quality.resolution }

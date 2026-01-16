@@ -1,12 +1,12 @@
 package com.dnfapps.arrmatey.api.client
 
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.QueueItem
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
-import com.dnfapps.arrmatey.api.arr.viewmodel.IArrRepository
+import com.dnfapps.arrmatey.api.arr.viewmodel.ArrRepository
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.model.Instance
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +38,7 @@ object ActivityQueue: KoinComponent {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val instances = mutableMapOf<Instance, IArrRepository<*,*,*>>()
+    private val instances = mutableMapOf<Instance, ArrRepository>()
 
     var shouldRefresh: Boolean = false
 
@@ -58,8 +58,8 @@ object ActivityQueue: KoinComponent {
         }
     }
 
-    private fun createRepository(instance: Instance): BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams> {
-        return get<BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams>> { parametersOf(instance) }
+    private fun createRepository(instance: Instance): BaseArrRepository {
+        return get<BaseArrRepository> { parametersOf(instance) }
     }
 
     private fun startTimer() {

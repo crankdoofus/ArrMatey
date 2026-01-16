@@ -32,17 +32,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.MovieStatus
+import com.dnfapps.arrmatey.api.arr.model.MediaStatus
 import com.dnfapps.arrmatey.api.arr.model.SeriesAddOptions
 import com.dnfapps.arrmatey.api.arr.model.SeriesMonitorType
 import com.dnfapps.arrmatey.api.arr.model.SeriesType
@@ -51,7 +50,6 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
 import com.dnfapps.arrmatey.entensions.stringResource
-import com.dnfapps.arrmatey.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DetailsHeader
@@ -61,14 +59,12 @@ import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaPreviewScreen(
-    item: AnyArrMedia,
+    item: ArrMedia,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -138,7 +134,7 @@ fun MediaPreviewScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMediaSheet(
-    item: AnyArrMedia,
+    item: ArrMedia,
     onDismiss: () -> Unit
 ) {
     when (item) {
@@ -161,7 +157,7 @@ fun AddSeriesForm(
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is DetailsUiState.Success<out AnyArrMedia> -> {
+            is DetailsUiState.Success<out ArrMedia> -> {
                 onDismiss()
                 state.item.id?.let { id ->
                     val newScreen = ArrScreen.Details(id)
@@ -290,7 +286,7 @@ fun AddMovieForm(
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is DetailsUiState.Success<out AnyArrMedia> -> {
+            is DetailsUiState.Success<out ArrMedia> -> {
                 onDismiss()
                 state.item.id?.let { id ->
                     val newScreen = ArrScreen.Details(id)
@@ -306,7 +302,7 @@ fun AddMovieForm(
     val rootFolders by arrViewModel.rootFolders.collectAsStateWithLifecycle()
 
     var monitored by remember { mutableStateOf(true) }
-    var minimumAvailability by remember { mutableStateOf(MovieStatus.Announced) }
+    var minimumAvailability by remember { mutableStateOf(MediaStatus.Announced) }
     var qualityProfile by remember { mutableStateOf(qualityProfiles.first()) }
     var rootFolder by remember { mutableStateOf(rootFolders.first()) }
 
@@ -370,9 +366,9 @@ fun AddMovieForm(
 
             DropdownPicker(
                 options = listOf(
-                    MovieStatus.Announced,
-                    MovieStatus.InCinemas,
-                    MovieStatus.Released
+                    MediaStatus.Announced,
+                    MediaStatus.InCinemas,
+                    MediaStatus.Released
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 selectedOption = minimumAvailability,

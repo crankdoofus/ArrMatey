@@ -5,13 +5,9 @@ import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.api.arr.GenericClient
 import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.SonarrClient
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
-import com.dnfapps.arrmatey.api.arr.model.QueueItem
-import com.dnfapps.arrmatey.api.arr.model.QueueItemSerializer
-import com.dnfapps.arrmatey.api.arr.model.RadarrQueueItem
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
-import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
 import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
 import com.dnfapps.arrmatey.api.arr.viewmodel.createInstanceRepository
 import com.dnfapps.arrmatey.api.client.createInstanceClient
@@ -24,8 +20,6 @@ import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
 import com.dnfapps.arrmatey.utils.NetworkConnectivityRepository
 import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -56,7 +50,7 @@ val databaseModule = module {
     single { InstanceRepository() }
     factory { AddInstanceRepository() }
 
-    factory<BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams>> {
+    factory<BaseArrRepository> {
         (instance: Instance) -> createInstanceRepository(instance)
     }
 }

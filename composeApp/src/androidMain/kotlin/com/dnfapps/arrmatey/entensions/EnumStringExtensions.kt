@@ -3,20 +3,22 @@ package com.dnfapps.arrmatey.entensions
 import androidx.annotation.StringRes
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.api.arr.model.HistoryEventType
-import com.dnfapps.arrmatey.api.arr.model.MovieStatus
+import com.dnfapps.arrmatey.api.arr.model.MediaStatus
 import com.dnfapps.arrmatey.api.arr.model.SeriesMonitorType
 import com.dnfapps.arrmatey.api.arr.model.SeriesType
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
-import org.jetbrains.compose.resources.StringResource
 
 @StringRes
-fun MovieStatus.stringResource() = when (this) {
-    MovieStatus.Tba -> R.string.tba
-    MovieStatus.Deleted -> R.string.deleted
-    MovieStatus.Released -> R.string.released
-    MovieStatus.Announced -> R.string.announced
-    MovieStatus.InCinemas -> R.string.in_cinemas
+fun MediaStatus.stringResource() = when (this) {
+    MediaStatus.Tba -> R.string.tba
+    MediaStatus.Deleted -> R.string.deleted
+    MediaStatus.Released -> R.string.released
+    MediaStatus.Announced -> R.string.announced
+    MediaStatus.InCinemas -> R.string.in_cinemas
+    MediaStatus.Ended -> R.string.ended
+    MediaStatus.Upcoming -> R.string.upcoming
+    MediaStatus.Continuing -> R.string.continuing
 }
 
 @StringRes

@@ -124,6 +124,9 @@
     <string name="langauges">Languages</string>
     <string name="destination">Destination</string>
     <string name="no_history">No History</string>
+    <string name="ended">Ended</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="continuing">Continuing</string>
 
     <!-- History Event Type -->
     <string name="grabbed">Grabbed</string>

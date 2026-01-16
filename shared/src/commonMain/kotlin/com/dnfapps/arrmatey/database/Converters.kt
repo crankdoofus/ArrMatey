@@ -1,17 +1,15 @@
 package com.dnfapps.arrmatey.database
 
 import androidx.room.TypeConverter
+import com.dnfapps.arrmatey.api.arr.model.AlternateTitle
 import com.dnfapps.arrmatey.api.arr.model.ArrImage
 import com.dnfapps.arrmatey.api.arr.model.Language
-import com.dnfapps.arrmatey.api.arr.model.MovieAddOptions
-import com.dnfapps.arrmatey.api.arr.model.MovieAlternateTitle
 import com.dnfapps.arrmatey.api.arr.model.MovieCollection
 import com.dnfapps.arrmatey.api.arr.model.MovieFile
 import com.dnfapps.arrmatey.api.arr.model.MovieRatings
 import com.dnfapps.arrmatey.api.arr.model.MovieStatistics
 import com.dnfapps.arrmatey.api.arr.model.Season
 import com.dnfapps.arrmatey.api.arr.model.SeriesAddOptions
-import com.dnfapps.arrmatey.api.arr.model.SeriesAlternateTitle
 import com.dnfapps.arrmatey.api.arr.model.SeriesRatings
 import com.dnfapps.arrmatey.api.arr.model.SeriesStatistics
 import kotlinx.serialization.json.Json
@@ -54,23 +52,23 @@ class Converters: KoinComponent {
     }
 
     @TypeConverter
-    fun storeSeriesAlternateTitle(altTitle: SeriesAlternateTitle): String {
+    fun storeAlternateTitle(altTitle: AlternateTitle): String {
         return json.encodeToString(altTitle)
     }
 
     @TypeConverter
-    fun retrieveSeriesAlternateTitle(value: String): SeriesAlternateTitle {
-        return json.decodeFromString<SeriesAlternateTitle>(value)
+    fun retrieveAlternateTitle(value: String): AlternateTitle {
+        return json.decodeFromString<AlternateTitle>(value)
     }
 
     @TypeConverter
-    fun storeSeriesAltTitleList(altTitles: List<SeriesAlternateTitle>): String {
+    fun storeSeriesAltTitleList(altTitles: List<AlternateTitle>): String {
         return json.encodeToString(altTitles)
     }
 
     @TypeConverter
-    fun retrieveSeriesAltTitleList(value: String): List<SeriesAlternateTitle> {
-        return json.decodeFromString<List<SeriesAlternateTitle>>(value)
+    fun retrieveSeriesAltTitleList(value: String): List<AlternateTitle> {
+        return json.decodeFromString<List<AlternateTitle>>(value)
     }
 
     @TypeConverter
@@ -111,26 +109,6 @@ class Converters: KoinComponent {
     @TypeConverter
     fun retrieveSeasons(value: String): List<Season> {
         return json.decodeFromString<List<Season>>(value)
-    }
-
-    @TypeConverter
-    fun storeMovieAltTitles(altTitles: List<MovieAlternateTitle>): String {
-        return json.encodeToString(altTitles)
-    }
-
-    @TypeConverter
-    fun retrieveMovieAltTitles(value: String): List<MovieAlternateTitle> {
-        return json.decodeFromString<List<MovieAlternateTitle>>(value)
-    }
-
-    @TypeConverter
-    fun storeMovieAddOptions(addOptions: MovieAddOptions): String {
-        return json.encodeToString(addOptions)
-    }
-
-    @TypeConverter
-    fun retrieveMovieAddOptions(value: String): MovieAddOptions {
-        return json.decodeFromString<MovieAddOptions>(value)
     }
 
     @TypeConverter

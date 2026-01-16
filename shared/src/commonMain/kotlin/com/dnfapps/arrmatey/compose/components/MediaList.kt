@@ -46,10 +46,10 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
+import com.dnfapps.arrmatey.api.arr.model.MediaStatus
 import com.dnfapps.arrmatey.api.client.ActivityQueue
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.extensions.pxToDp
@@ -63,7 +63,7 @@ import org.jetbrains.compose.resources.stringResource
 private val defaultHeight = 100.dp
 
 @Composable
-fun <T: AnyArrMedia> MediaList(
+fun <T: ArrMedia> MediaList(
     items: List<T>,
     onItemClick: (T) -> Unit,
     modifier: Modifier = Modifier
@@ -84,7 +84,7 @@ fun <T: AnyArrMedia> MediaList(
 }
 
 @Composable
-fun <T: AnyArrMedia> MediaItem(
+fun <T: ArrMedia> MediaItem(
     item: T,
     onItemClick: (T) -> Unit,
     isActive: Boolean = false
@@ -151,7 +151,7 @@ fun <T: AnyArrMedia> MediaItem(
 }
 
 @Composable
-private fun ColumnScope.MediaDetails(item: AnyArrMedia, isActive: Boolean) {
+private fun ColumnScope.MediaDetails(item: ArrMedia, isActive: Boolean) {
     when (item) {
         is ArrSeries -> SeriesDetails(item, isActive)
         is ArrMovie -> MovieDetails(item)
@@ -170,7 +170,7 @@ private fun ColumnScope.SeriesDetails(item: ArrSeries, isActive: Boolean) {
     Text(firstLine, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     val statusStr = when (item.status) {
-        SeriesStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - ${stringResource(Res.string.unknown)}"
+        MediaStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - ${stringResource(Res.string.unknown)}"
         else -> item.status.name
     }
     Text(statusStr, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
@@ -218,7 +218,7 @@ private fun ColumnScope.MovieDetails(item: ArrMovie) {
 
 @Composable
 fun BannerView(
-    item: AnyArrMedia,
+    item: ArrMedia,
     modifier: Modifier = Modifier,
     overlay: @Composable () -> Unit = {}
 ) {

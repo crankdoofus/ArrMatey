@@ -1,7 +1,6 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.SeriesRelease
 
 enum class ReleaseFilterBy {
@@ -10,7 +9,7 @@ enum class ReleaseFilterBy {
     SingleEpisode
 }
 
-fun List<IArrRelease>.applyFiltering(filterBy: ReleaseFilterBy) =
+fun List<ArrRelease>.applyFiltering(filterBy: ReleaseFilterBy) =
     (this as? List<SeriesRelease>)?.let { releases ->
         when (filterBy) {
             ReleaseFilterBy.Any -> releases

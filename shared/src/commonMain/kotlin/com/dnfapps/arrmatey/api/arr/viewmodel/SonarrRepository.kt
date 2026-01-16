@@ -1,6 +1,7 @@
 package com.dnfapps.arrmatey.api.arr.viewmodel
 
 import com.dnfapps.arrmatey.api.arr.SonarrClient
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.DownloadReleasePayload
 import com.dnfapps.arrmatey.api.arr.model.Episode
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
-class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries, SeriesRelease, ReleaseParams.Series>(instance) {
+class SonarrRepository(instance: Instance): BaseArrRepository(instance) {
 
     override val client: SonarrClient by inject { parametersOf(instance) }
 
@@ -87,7 +88,8 @@ class SonarrRepository(instance: Instance): BaseArrRepository<ArrSeries, SeriesR
         }
     }
 
-    override suspend fun downloadRelease(release: SeriesRelease, force: Boolean) {
+    override suspend fun downloadRelease(release: ArrRelease, force: Boolean) {
+        if (release !is SeriesRelease) return
         _downloadReleaseState.value = DownloadState.Loading(release.guid)
         val payload = DownloadReleasePayload.Series(
             guid = release.guid,

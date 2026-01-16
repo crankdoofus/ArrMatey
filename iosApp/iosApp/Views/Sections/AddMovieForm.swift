@@ -15,7 +15,7 @@ struct AddMovieForm: View {
     let movie: ArrMovie
     
     @State private var isMonitored: Bool = true
-    @State private var selectedMinimumAvailability: MovieStatus = .announced
+    @State private var selectedMinimumAvailability: MediaStatus = .announced
     @State private var selectedQualityProfileId: Int32? = nil
     @State private var selectedRootFolderId: Int32? = nil
     
@@ -25,7 +25,7 @@ struct AddMovieForm: View {
     @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
     @EnvironmentObject private var navigation: NavigationManager
     
-    private let selectableStatuses: [MovieStatus] = [
+    private let selectableStatuses: [MediaStatus] = [
         .announced,
         .inCinemas,
         .released,

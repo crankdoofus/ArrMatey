@@ -240,6 +240,12 @@
         en = Destination
     [no_history]
         en = No History
+    [ended]
+        en = Ended
+    [upcoming]
+        en = Upcoming
+    [continuing]
+        en = Continuing
 
 [[History Event Type]]
     [grabbed]

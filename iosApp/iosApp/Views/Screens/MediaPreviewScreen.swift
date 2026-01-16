@@ -9,7 +9,7 @@ import SwiftUI
 import Shared
 
 struct MediaPreviewScreen: View {
-    private let media: AnyArrMedia
+    private let media: ArrMedia
 
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
@@ -34,7 +34,7 @@ struct MediaPreviewScreen: View {
     }
     
     init(json: String) {
-        media = AnyArrMediaCompanion().fromJson(value: json)
+        media = ArrMediaCompanion().fromJson(value: json)
     }
     
     var body: some View {
@@ -86,7 +86,7 @@ struct MediaPreviewScreen: View {
         }
     }
 
-    private func makeAiringString(for item: AnyArrMedia) -> String? {
+    private func makeAiringString(for item: ArrMedia) -> String? {
         switch item {
         case let series as ArrSeries:
             if series.status == .continuing {

@@ -8,9 +8,9 @@
 import SwiftUI
 import Shared
 
-struct PosterItemView<T: AnyArrMedia>: UIViewControllerRepresentable {
+struct PosterItemView<T: ArrMedia>: UIViewControllerRepresentable {
     let item: T
-    let onItemClick: ((AnyArrMedia) -> Void)?
+    let onItemClick: ((ArrMedia) -> Void)?
     var enabled: Bool = true
 
     func makeUIViewController(context: Context) -> UIViewController {

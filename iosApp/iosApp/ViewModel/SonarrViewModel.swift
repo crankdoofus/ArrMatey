@@ -8,7 +8,7 @@
 import Shared
 
 class SonarrViewModel: ArrViewModel {
-    var repository: any IArrRepository
+    var repository: any ArrRepository
     
     let instance: Instance
 

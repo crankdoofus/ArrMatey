@@ -7,7 +7,7 @@
 
 import Shared
 
-extension MovieStatus {
+extension MediaStatus {
     func label() -> String {
         switch self {
         case .tba: "tba"
@@ -15,6 +15,9 @@ extension MovieStatus {
         case .released: "released"
         case .announced: "announced"
         case .inCinemas: "in_cinemas"
+        case .ended: "ended"
+        case .upcoming: "upcoming"
+        case .continuing: "continuing"
         }
     }
 }
@@ -46,6 +49,47 @@ extension SeriesType {
         case .standard: "standard"
         case .daily: "daily"
         case .anime: "anime"
+        }
+    }
+}
+
+extension ReleaseSortBy {
+    func label() -> String {
+        switch self {
+        case .age: "age"
+        case .weight: "weight"
+        case .quality: "quality"
+        case .seeders: "seeders"
+        case .fileSize: "file_size"
+        case .customScore: "custom_score"
+        }
+    }
+}
+
+extension ReleaseFilterBy {
+    func label() -> String {
+        switch self {
+        case .any: "any"
+        case .seasonPack: "season_pack"
+        case .singleEpisode: "single_episode"
+        }
+    }
+}
+
+extension HistoryEventType {
+    func label() -> String {
+        switch self {
+        case .unknown: "unknown"
+        case .grabbed: "grabbed"
+        case .downloadFolderImported: "download_folder_imported"
+        case .downloadFailed: "download_failed"
+        case .downloadIgnored: "download_ignored"
+        case .movieFileDeleted: "movie_file_deleted"
+        case .movieFileRenamed: "movie_file_renamed"
+        case .movieFolderImported: "movie_folder_imported"
+        case .episodeFileDeleted: "episode_file_deleted"
+        case .episodeFileRenamed: "epsiode_file_renamed"
+        case .seriesFolderImported: "series_folder_imported"
         }
     }
 }

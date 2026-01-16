@@ -22,10 +22,10 @@ protocol ArrViewModel {
     func getDetails(id: Int64) async
     func setMonitorStatus(id: Int64, isMonitored: Bool) async
     func performLookup(_ query: String) async
-    func addItem(item: AnyArrMedia) async
+    func addItem(item: ArrMedia) async
     
     var instance: Instance { get }
-    var repository: IArrRepository { get }
+    var repository: ArrRepository { get }
 }
 
 extension ArrViewModel {
@@ -89,7 +89,7 @@ extension ArrViewModel {
         }
     }
     
-    func addItem(item: AnyArrMedia) async {
+    func addItem(item: ArrMedia) async {
         do {
             try await repository.addItem(item: item)
         } catch {

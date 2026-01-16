@@ -9,7 +9,7 @@ import Shared
 
 class RadarrViewModel: ArrViewModel {
     
-    var repository: any IArrRepository
+    var repository: any ArrRepository
     
     let instance: Instance
     

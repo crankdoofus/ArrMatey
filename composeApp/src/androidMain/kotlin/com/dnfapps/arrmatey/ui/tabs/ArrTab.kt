@@ -8,7 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.model.Instance
@@ -60,7 +60,7 @@ fun ArrTab(type: InstanceType) {
                 entry<ArrScreen.Search> { search ->
                     ArrSearchScreen(search.query, type)
                 }
-                entry<ArrScreen.Preview<AnyArrMedia>> { preview ->
+                entry<ArrScreen.Preview<ArrMedia>> { preview ->
                     MediaPreviewScreen(preview.item)
                 }
                 entry<ArrScreen.MovieReleases> { params ->

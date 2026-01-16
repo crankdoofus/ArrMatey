@@ -36,7 +36,7 @@ data class ArrMovie(
     override val monitored: Boolean,
     override val runtime: Int,
     override val tmdbId: Int,
-    override val status: MovieStatus,
+    override val status: MediaStatus,
     override val sortTitle: String? = null,
     override val overview: String? = null,
     override val path: String? = null,
@@ -47,10 +47,9 @@ data class ArrMovie(
     override val folder: String? = null,
     override val certification: String? = null,
     override val images: List<ArrImage> = emptyList(),
-    override val alternateTitles: List<MovieAlternateTitle> = emptyList(),
+    override val alternateTitles: List<AlternateTitle> = emptyList(),
     override val genres: List<String> = emptyList(),
     override val tags: List<Int> = emptyList(),
-    override val addOptions: MovieAddOptions? = null,
     override val ratings: MovieRatings,
     override val statistics: MovieStatistics? = null,
     @Contextual override val added: Instant,
@@ -70,7 +69,7 @@ data class ArrMovie(
     val studio: String,
     val hasFile: Boolean = false,
     val movieFileId: Int,
-    val minimumAvailability: MovieStatus,
+    val minimumAvailability: MediaStatus,
     val isAvailable: Boolean,
     val folderName: String,
     val keywords: List<String> = emptyList(),
@@ -78,7 +77,7 @@ data class ArrMovie(
     val collection: MovieCollection? = null,
     val popularity: Double,
     val lastSearchTime: String? = null,
-): ArrMedia<MovieAlternateTitle, MovieAddOptions, MovieRatings, MovieStatistics, MovieStatus>() {
+): ArrMedia {
 
     override fun ratingScore(): Double {
         val imdb = ratings.imdb?.value
@@ -99,7 +98,7 @@ data class ArrMovie(
 
     override val statusColor: Color
         get() = when {
-            status == MovieStatus.Tba || status == MovieStatus.Announced -> RadarrUnreleased
+            status == MediaStatus.Tba || status == MediaStatus.Announced -> RadarrUnreleased
             movieFile != null && monitored -> RadarrDownloadedMonitored
             movieFile != null && !monitored -> RadarrDownloadedUnmonitored
             movieFile == null && monitored -> RadarrMissingMonitored
@@ -110,72 +109,64 @@ data class ArrMovie(
     override val releasedBy: String?
         get() = studio
 
-    val ratingsAsMap: Map<RatingType, MovieRating?>
-        get() = mapOf(
-            RatingType.Tmdb to ratings.tmdb,
-            RatingType.Imdb to ratings.imdb,
-            RatingType.Metacritic to ratings.metacritic,
-            RatingType.RottenTomatoes to ratings.rottenTomatoes,
-            RatingType.Trakt to ratings.trakt
-        )
 
     override fun setMonitored(monitored: Boolean): ArrMovie {
         return copy(monitored = monitored)
     }
 
-    override val infoItems: Flow<List<Info>>
-        get() = _infoItems
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val newInfo = listOfNotNull(
-                    Info(
-                        label = getString(Res.string.minimum_availability),
-                        value = minimumAvailability.name
-                    ),
-                    Info(
-                        label = getString(Res.string.root_folder),
-                        value = rootFolderPath.takeUnless { it.isBlank() } ?: getString(Res.string.unknown)
-                    ),
-                    Info(
-                        label = getString(Res.string.path),
-                        value = path ?: getString(Res.string.unknown)
-                    ),
-                    inCinemas?.format("MMM d, yyyy")?.let {
-                        Info(
-                            label = getString(Res.string.in_cinemas),
-                            value = it
-                        )
-                    },
-                    physicalRelease?.format("MMM d, yyyy")?.let {
-                        Info(
-                            label = getString(Res.string.physical_release),
-                            value = it
-                        )
-                    },
-                    digitalRelease?.format("MMM d, yyyy")?.let {
-                        Info(
-                            label = getString(Res.string.digital_release),
-                            value = it
-                        )
-                    }
-                )
-                _infoItems.emit(newInfo)
-            } catch (e: Exception) {
-                println(e.message)
-            }
-        }
-    }
+//    override val infoItems: Flow<List<Info>>
+//        get() = _infoItems
+//
+//    init {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
+//                val newInfo = listOfNotNull(
+//                    Info(
+//                        label = getString(Res.string.minimum_availability),
+//                        value = minimumAvailability.name
+//                    ),
+//                    Info(
+//                        label = getString(Res.string.root_folder),
+//                        value = rootFolderPath.takeUnless { it.isBlank() } ?: getString(Res.string.unknown)
+//                    ),
+//                    Info(
+//                        label = getString(Res.string.path),
+//                        value = path ?: getString(Res.string.unknown)
+//                    ),
+//                    inCinemas?.format("MMM d, yyyy")?.let {
+//                        Info(
+//                            label = getString(Res.string.in_cinemas),
+//                            value = it
+//                        )
+//                    },
+//                    physicalRelease?.format("MMM d, yyyy")?.let {
+//                        Info(
+//                            label = getString(Res.string.physical_release),
+//                            value = it
+//                        )
+//                    },
+//                    digitalRelease?.format("MMM d, yyyy")?.let {
+//                        Info(
+//                            label = getString(Res.string.digital_release),
+//                            value = it
+//                        )
+//                    }
+//                )
+//                _infoItems.emit(newInfo)
+//            } catch (e: Exception) {
+//                println(e.message)
+//            }
+//        }
+//    }
 
     fun copyForCreation(
         monitored: Boolean,
-        minimumAvailability: MovieStatus,
+        minimumAvailability: MediaStatus,
         qualityProfileId: Int,
         rootFolderPath: String
     ) = copy(
         id = 0,
-        alternateTitles = alternateTitles.filter { it.id != null },
+        alternateTitles = alternateTitles.filter { it.title != null },
         monitored = monitored,
         minimumAvailability = minimumAvailability,
         qualityProfileId = qualityProfileId,

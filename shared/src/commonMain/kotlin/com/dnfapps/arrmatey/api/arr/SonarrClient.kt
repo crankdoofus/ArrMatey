@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.api.arr
 
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.Episode
 import com.dnfapps.arrmatey.api.arr.model.MonitoredResponse
@@ -19,7 +20,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
-class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease, ReleaseParams.Series>(instance) {
+class SonarrClient(instance: Instance) : BaseArrClient(instance) {
 
     override suspend fun getLibrary(): NetworkResult<List<ArrSeries>> {
         val resp = httpClient.safeGet<List<ArrSeries>>("api/v3/series")
@@ -31,7 +32,7 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
         return resp
     }
 
-    override suspend fun update(item: ArrSeries): NetworkResult<ArrSeries> {
+    override suspend fun update(item: ArrMedia): NetworkResult<ArrSeries> {
         val resp = httpClient.safePut<ArrSeries>("api/v3/series/${item.id}") {
             contentType(ContentType.Application.Json)
             setBody(item)
@@ -44,7 +45,7 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
         return resp
     }
 
-    override suspend fun addItemToLibrary(item: ArrSeries): NetworkResult<ArrSeries> {
+    override suspend fun addItemToLibrary(item: ArrMedia): NetworkResult<ArrSeries> {
         val resp = httpClient.safePost<ArrSeries>("api/v3/series") {
             contentType(ContentType.Application.Json)
             setBody(item)
@@ -52,7 +53,13 @@ class SonarrClient(instance: Instance) : BaseArrClient<ArrSeries, SeriesRelease,
         return resp
     }
 
-    override suspend fun getReleases(params: ReleaseParams.Series): NetworkResult<List<SeriesRelease>> {
+    override suspend fun getReleases(params: ReleaseParams): NetworkResult<List<SeriesRelease>> {
+        if (params !is ReleaseParams.Series) {
+            return NetworkResult.UnexpectedError(
+                cause = IllegalStateException("Params must be of type ReleaseParams.Series: $params")
+            )
+        }
+
         val query = when (val epId = params.episodeId) {
             null -> "?seriesId=${params.seriesId}&seasonNumber=${params.seasonNumber}"
             else -> "?episodeId=${epId}"

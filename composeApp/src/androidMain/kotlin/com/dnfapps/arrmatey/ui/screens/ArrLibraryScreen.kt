@@ -64,7 +64,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
 import com.dnfapps.arrmatey.api.arr.viewmodel.UiErrorType
 import com.dnfapps.arrmatey.compose.components.MediaList
@@ -433,8 +433,8 @@ private fun InstanceErrorView(
 
 @Composable
 fun MediaView(
-    items: List<AnyArrMedia>,
-    onItemClick: (AnyArrMedia) -> Unit,
+    items: List<ArrMedia>,
+    onItemClick: (ArrMedia) -> Unit,
     viewType: ViewType
 ) {
     when (viewType) {

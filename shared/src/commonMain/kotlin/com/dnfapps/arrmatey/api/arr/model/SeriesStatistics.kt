@@ -12,4 +12,4 @@ data class SeriesStatistics(
 
     override val sizeOnDisk: Long,
     override val releaseGroups: List<String> = emptyList()
-): ArrStatistics()
+): ArrStatistics

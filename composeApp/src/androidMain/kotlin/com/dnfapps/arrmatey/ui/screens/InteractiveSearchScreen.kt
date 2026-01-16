@@ -2,7 +2,6 @@ package com.dnfapps.arrmatey.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
@@ -56,15 +55,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.viewmodel.DownloadState
 import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
 import com.dnfapps.arrmatey.compose.components.ProgressBox
-import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
-import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.applyFiltering
 import com.dnfapps.arrmatey.compose.utils.applySorting
@@ -97,7 +94,7 @@ fun InteractiveSearchScreen(
     val releaseUiState by arrViewModel.releaseUiState.collectAsStateWithLifecycle()
     val downloadState by arrViewModel.downloadReleaseState.collectAsStateWithLifecycle(DownloadState.Initial)
 
-    var confirmRelease by remember { mutableStateOf<IArrRelease?>( null) }
+    var confirmRelease by remember { mutableStateOf<ArrRelease?>( null) }
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
@@ -302,7 +299,7 @@ fun InteractiveSearchScreen(
 }
 
 @Composable
-fun <T: IArrRelease> ReleaseItem(
+fun <T: ArrRelease> ReleaseItem(
     item: T,
     onItemClick: ((T) -> Unit)? = null,
     animate: Boolean = false

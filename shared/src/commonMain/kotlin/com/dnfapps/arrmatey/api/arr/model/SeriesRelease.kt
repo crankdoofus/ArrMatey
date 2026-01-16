@@ -69,4 +69,4 @@ data class SeriesRelease(
     val seriesId: Int? = null,
     val episodeId: Long? = null,
     val episodeIds: List<Long> = emptyList()
-): IArrRelease
+): ArrRelease

@@ -6,10 +6,9 @@ import com.dnfapps.arrmatey.ui.theme.DownloadGreen
 import com.dnfapps.arrmatey.ui.theme.DownloadOrange
 import com.dnfapps.arrmatey.ui.theme.DownloadRed
 import kotlinx.serialization.SerialName
-import org.koin.core.component.KoinComponent
 import kotlin.time.Instant
 
-interface IArrRelease: KoinComponent {
+sealed interface ArrRelease {
     val id: Int?
     val guid: String
     val quality: QualityInfo

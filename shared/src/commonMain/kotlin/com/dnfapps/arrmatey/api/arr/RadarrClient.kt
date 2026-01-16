@@ -1,8 +1,8 @@
 package com.dnfapps.arrmatey.api.arr
 
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ExtraFile
-import com.dnfapps.arrmatey.api.arr.model.HistoryItem
 import com.dnfapps.arrmatey.api.arr.model.MonitoredResponse
 import com.dnfapps.arrmatey.api.arr.model.MovieRelease
 import com.dnfapps.arrmatey.api.arr.model.RadarrHistoryItem
@@ -19,7 +19,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
-class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, ReleaseParams.Movie>(instance) {
+class RadarrClient(instance: Instance): BaseArrClient(instance) {
 
     override suspend fun getLibrary(): NetworkResult<List<ArrMovie>> {
         val resp = httpClient.safeGet<List<ArrMovie>>("api/v3/movie")
@@ -31,7 +31,7 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    override suspend fun update(item: ArrMovie): NetworkResult<ArrMovie> {
+    override suspend fun update(item: ArrMedia): NetworkResult<ArrMovie> {
         val resp = httpClient.safePut<ArrMovie>("api/v3/move/${item.id}") {
             contentType(ContentType.Application.Json)
             setBody(item)
@@ -59,7 +59,7 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    override suspend fun addItemToLibrary(item: ArrMovie): NetworkResult<ArrMovie> {
+    override suspend fun addItemToLibrary(item: ArrMedia): NetworkResult<ArrMovie> {
         val resp = httpClient.safePost<ArrMovie>("api/v3/movie") {
             contentType(ContentType.Application.Json)
             setBody(item)
@@ -67,10 +67,14 @@ class RadarrClient(instance: Instance): BaseArrClient<ArrMovie, MovieRelease, Re
         return resp
     }
 
-    override suspend fun getReleases(params: ReleaseParams.Movie): NetworkResult<List<MovieRelease>> {
-        val movieId = params.movieId
-        val resp = httpClient.safeGet<List<MovieRelease>>("api/v3/release?movieId=$movieId")
-        return resp
+    override suspend fun getReleases(params: ReleaseParams): NetworkResult<List<MovieRelease>> {
+        return when (params) {
+            is ReleaseParams.Movie ->
+                httpClient.safeGet<List<MovieRelease>>("api/v3/release?movieId=${params.movieId}")
+            else -> NetworkResult.UnexpectedError(
+                cause = IllegalStateException("Params must be ReleaseParams.Movie: $params")
+            )
+        }
     }
 
     override suspend fun getItemHistory(id: Long, page: Int, pageSize: Int): NetworkResult<List<RadarrHistoryItem>> {

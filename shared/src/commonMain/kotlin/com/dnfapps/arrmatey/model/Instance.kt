@@ -28,21 +28,24 @@ enum class InstanceType(
     val iconKey: String,
     val github: String,
     val website: String,
-    val defaultPort: Int
+    val defaultPort: Int,
+    val supportsActivityQueue: Boolean
 ) {
     Sonarr(
         descriptionKey = "sonarr_description",
         github = "https://github.com/Sonarr/Sonarr",
         website = "https://sonarr.tv/",
         iconKey = "sonarr",
-        defaultPort = 8989
+        defaultPort = 8989,
+        supportsActivityQueue = true
     ),
     Radarr(
         descriptionKey = "radarr_description",
         github = "https://github.com/Radarr/Radarr",
         website = "https://radarr.video/",
         iconKey = "radarr",
-        defaultPort = 7878
+        defaultPort = 7878,
+        supportsActivityQueue = true
     );
 
     companion object {

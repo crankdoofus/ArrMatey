@@ -8,4 +8,4 @@ data class MovieStatistics(
 
     override val sizeOnDisk: Long,
     override val releaseGroups: List<String>
-): ArrStatistics()
+): ArrStatistics

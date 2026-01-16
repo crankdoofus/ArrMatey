@@ -9,7 +9,7 @@ import Shared
 import SwiftUI
 
 struct MediaDetailsHeader: View {
-    let item: AnyArrMedia
+    let item: ArrMedia
     
     var body: some View {
         ZStack {

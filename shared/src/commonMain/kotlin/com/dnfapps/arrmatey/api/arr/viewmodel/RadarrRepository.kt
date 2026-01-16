@@ -2,6 +2,7 @@ package com.dnfapps.arrmatey.api.arr.viewmodel
 
 import com.dnfapps.arrmatey.api.arr.RadarrClient
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.DownloadReleasePayload
 import com.dnfapps.arrmatey.api.arr.model.ExtraFile
 import com.dnfapps.arrmatey.api.arr.model.MovieRelease
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
-class RadarrRepository(instance: Instance): BaseArrRepository<ArrMovie, MovieRelease, ReleaseParams.Movie>(instance) {
+class RadarrRepository(instance: Instance): BaseArrRepository(instance) {
 
     override val client: RadarrClient by inject { parametersOf(instance) }
 
@@ -36,7 +37,8 @@ class RadarrRepository(instance: Instance): BaseArrRepository<ArrMovie, MovieRel
         }
     }
 
-    override suspend fun downloadRelease(release: MovieRelease, force: Boolean) {
+    override suspend fun downloadRelease(release: ArrRelease, force: Boolean) {
+        if (release !is MovieRelease) return
         _downloadReleaseState.value = DownloadState.Loading(release.guid)
         val payload = DownloadReleasePayload.Movie(
             guid = release.guid,

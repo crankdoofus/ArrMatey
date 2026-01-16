@@ -8,7 +8,7 @@
 import SwiftUI
 import Shared
 
-struct MediaHeaderBanner<T: AnyArrMedia>: UIViewControllerRepresentable {
+struct MediaHeaderBanner<T: ArrMedia>: UIViewControllerRepresentable {
     let item: T
     
     func makeUIViewController(context: Context) -> some UIViewController {

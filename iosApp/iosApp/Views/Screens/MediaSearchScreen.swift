@@ -34,8 +34,8 @@ struct MediaSearchScreen: View {
         arrTabViewModel.arrViewModel
     }
     
-    private var sortedItems: [AnyArrMedia] {
-        guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>, let items = success?.items as? [AnyArrMedia] else { return [] }
+    private var sortedItems: [ArrMedia] {
+        guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>, let items = success?.items as? [ArrMedia] else { return [] }
         
         // todo - add sorting
         return items

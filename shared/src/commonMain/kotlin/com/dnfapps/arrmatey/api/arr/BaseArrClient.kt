@@ -1,13 +1,10 @@
 package com.dnfapps.arrmatey.api.arr
 
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
 import com.dnfapps.arrmatey.api.arr.model.CommandResponse
 import com.dnfapps.arrmatey.api.arr.model.DownloadReleasePayload
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
 import com.dnfapps.arrmatey.api.arr.model.QualityProfile
 import com.dnfapps.arrmatey.api.arr.model.QueuePage
-import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
 import com.dnfapps.arrmatey.api.arr.model.RootFolder
 import com.dnfapps.arrmatey.api.arr.model.Tag
 import com.dnfapps.arrmatey.api.client.NetworkResult
@@ -22,9 +19,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
 
-abstract class BaseArrClient<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
-    instance: Instance
-): KoinComponent, IArrClient<T, R, P> {
+abstract class BaseArrClient(instance: Instance): KoinComponent, ArrClient {
     protected val httpClient: HttpClient = get { parametersOf(instance) }
 
     override suspend fun getQualityProfiles(): NetworkResult<List<QualityProfile>> {

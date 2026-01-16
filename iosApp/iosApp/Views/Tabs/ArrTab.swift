@@ -101,12 +101,12 @@ struct ArrTab: View {
             }
     }
     
-    private var sortedAndFilteredItems: [AnyArrMedia] {
+    private var sortedAndFilteredItems: [ArrMedia] {
         guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>,
-              let items = success?.items as? [AnyArrMedia] else { return [] }
+              let items = success?.items as? [ArrMedia] else { return [] }
         
-        let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as [AnyArrMedia]
-        let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as [AnyArrMedia]
+        let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as [ArrMedia]
+        let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as [ArrMedia]
         
         if searchQuery.isEmpty { return filtered }
         return filtered.filter { $0.title.localizedCaseInsensitiveContains(searchQuery) }
@@ -250,8 +250,8 @@ struct ArrTab: View {
     
     @ViewBuilder
     private func mediaView(
-        items: [AnyArrMedia],
-        onItemClicked: @escaping (AnyArrMedia) -> Void
+        items: [ArrMedia],
+        onItemClicked: @escaping (ArrMedia) -> Void
     ) -> some View {
         switch viewType {
         case .grid: PosterGridView(items: items, onItemClick: onItemClicked)

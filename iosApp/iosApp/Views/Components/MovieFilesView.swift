@@ -42,9 +42,10 @@ struct MovieFilesView: View {
                     Text(fileInfoLine(file: file))
                         .font(.system(size: 14))
                     
-                    let dateAdded = file.dateAdded.format(pattern: "MMM d, yyyy")
-                    Text(String(localized: LocalizedStringResource("added_on \(dateAdded)")))
-                        .font(.system(size: 14))
+                    if let dateAdded = file.dateAdded?.format(pattern: "MMM d, yyyy") {
+                        Text(String(localized: LocalizedStringResource("added_on \(dateAdded)")))
+                            .font(.system(size: 14))
+                    }
                 }
                 .padding(.vertical, 12)
                 .padding(.horizontal, 18)
@@ -97,7 +98,7 @@ struct MovieFilesView: View {
     private func fileInfoLine(file: MovieFile) -> String {
         let languageName = file.languages.first?.name ?? ""
         let sizeString = file.size.bytesAsFileSizeString()
-        let qualityName = file.quality.quality.name
+        let qualityName = file.quality?.quality.name ?? ""
         return [languageName, sizeString, qualityName]
             .filter { !$0.isEmpty }
             .joined(separator: " • ")

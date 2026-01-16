@@ -7,18 +7,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.SeriesStatus
+import com.dnfapps.arrmatey.api.arr.model.MediaStatus
 import com.dnfapps.arrmatey.utils.format
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun UpcomingDateView(item: AnyArrMedia) {
+fun UpcomingDateView(item: ArrMedia) {
     when (item) {
-        is ArrSeries -> if (item.status == SeriesStatus.Continuing) item.nextAiring?.format()?.let {
+        is ArrSeries -> if (item.status == MediaStatus.Continuing) item.nextAiring?.format()?.let {
             "${stringResource(R.string.airing_next)} $it"
         } ?: stringResource(R.string.continuing_unknown) else null
         is ArrMovie -> item.inCinemas?.format()?.takeUnless {

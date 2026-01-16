@@ -1,12 +1,12 @@
 package com.dnfapps.arrmatey.api.arr.viewmodel
 
-import com.dnfapps.arrmatey.api.arr.IArrClient
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.ArrClient
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 import com.dnfapps.arrmatey.api.arr.model.ArrMovie
+import com.dnfapps.arrmatey.api.arr.model.ArrRelease
 import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.api.arr.model.CommandPayload
 import com.dnfapps.arrmatey.api.arr.model.HistoryItem
-import com.dnfapps.arrmatey.api.arr.model.IArrRelease
 import com.dnfapps.arrmatey.api.arr.model.QualityProfile
 import com.dnfapps.arrmatey.api.arr.model.QueuePage
 import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
@@ -23,30 +23,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.io.files.Path
 import org.koin.core.component.KoinComponent
 
-fun createInstanceRepository(instance: Instance): BaseArrRepository<out AnyArrMedia, out IArrRelease, out ReleaseParams> {
+fun createInstanceRepository(instance: Instance): BaseArrRepository {
     return when (instance.type) {
         InstanceType.Sonarr -> SonarrRepository(instance)
         InstanceType.Radarr -> RadarrRepository(instance)
     }
 }
 
-abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParams>(
+abstract class BaseArrRepository(
     protected val instance: Instance
-): KoinComponent, IArrRepository<T, R, P> {
+): KoinComponent, ArrRepository {
 
-    abstract val client: IArrClient<T, R, P>
+    abstract val client: ArrClient
 
-    protected val _uiState = MutableStateFlow<LibraryUiState<T>>(LibraryUiState.Initial)
-    override val uiState: StateFlow<LibraryUiState<T>> = _uiState.asStateFlow()
+    protected val _uiState = MutableStateFlow<LibraryUiState<ArrMedia>>(LibraryUiState.Initial)
+    override val uiState: StateFlow<LibraryUiState<ArrMedia>> = _uiState.asStateFlow()
 
-    protected val _detailUiState = MutableStateFlow<DetailsUiState<T>>(DetailsUiState.Initial)
+    protected val _detailUiState = MutableStateFlow<DetailsUiState<ArrMedia>>(DetailsUiState.Initial)
     override val detailUiState = _detailUiState
 
-    protected val _lookupUiState = MutableStateFlow<LibraryUiState<T>>(LibraryUiState.Initial)
-    override val lookupUiState: StateFlow<LibraryUiState<T>> = _lookupUiState.asStateFlow()
+    protected val _lookupUiState = MutableStateFlow<LibraryUiState<ArrMedia>>(LibraryUiState.Initial)
+    override val lookupUiState: StateFlow<LibraryUiState<ArrMedia>> = _lookupUiState.asStateFlow()
 
     protected val _qualityProfiles = MutableStateFlow<List<QualityProfile>>(emptyList())
     override val qualityProfiles: StateFlow<List<QualityProfile>> = _qualityProfiles
@@ -57,8 +56,8 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
     protected val _tags = MutableStateFlow<List<Tag>>(emptyList())
     override val tags: StateFlow<List<Tag>> = _tags
 
-    protected val _addItemUiState = MutableStateFlow<DetailsUiState<T>>(DetailsUiState.Initial)
-    override val addItemUiState: StateFlow<DetailsUiState<T>> = _addItemUiState
+    protected val _addItemUiState = MutableStateFlow<DetailsUiState<ArrMedia>>(DetailsUiState.Initial)
+    override val addItemUiState: StateFlow<DetailsUiState<ArrMedia>> = _addItemUiState
 
     protected val _automaticSearchIds = MutableStateFlow<List<Long>>(emptyList())
     override val automaticSearchIds: StateFlow<List<Long>> = _automaticSearchIds
@@ -72,8 +71,8 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
     protected val _itemHistoryRefreshing = MutableStateFlow(false)
     override val itemHistoryRefreshing: StateFlow<Boolean> = _itemHistoryRefreshing
 
-    protected val _releasesUiState = MutableStateFlow<LibraryUiState<R>>(LibraryUiState.Initial)
-    override val releasesUiState: StateFlow<LibraryUiState<R>> = _releasesUiState
+    protected val _releasesUiState = MutableStateFlow<LibraryUiState<ArrRelease>>(LibraryUiState.Initial)
+    override val releasesUiState: StateFlow<LibraryUiState<ArrRelease>> = _releasesUiState
 
     protected val _downloadReleaseState = MutableStateFlow<DownloadState>(DownloadState.Initial)
     override val downloadReleaseState: StateFlow<DownloadState> = _downloadReleaseState
@@ -177,7 +176,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
     override suspend fun setMonitorStatus(id: Long, monitorStatus: Boolean) {
         val resp = client.setMonitorStatus(id, monitorStatus)
 
-        val item = (_detailUiState.value as? DetailsUiState.Success<T>)?.item
+        val item = (_detailUiState.value as? DetailsUiState.Success<ArrMedia>)?.item
         if (
             resp is NetworkResult.Success
             && resp.data.firstOrNull() != null
@@ -187,7 +186,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
             if (item is ArrSeries || item is ArrMovie) {
                 val newItem = item.setMonitored(
                     monitored = first.monitored
-                ) as T
+                )
                 _detailUiState.value = DetailsUiState.Success(item = newItem)
             }
         }
@@ -231,7 +230,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         }
     }
 
-    override suspend fun addItem(item: T) {
+    override suspend fun addItem(item: ArrMedia) {
         _addItemUiState.value = DetailsUiState.Loading
         val result = client.addItemToLibrary(item)
 
@@ -270,7 +269,7 @@ abstract class BaseArrRepository<T: AnyArrMedia, R: IArrRelease, P: ReleaseParam
         client.command(payload)
     }
 
-    override suspend fun getReleases(params: P) {
+    override suspend fun getReleases(params: ReleaseParams) {
         _releasesUiState.emit(LibraryUiState.Loading)
 
         val resp = client.getReleases(params)

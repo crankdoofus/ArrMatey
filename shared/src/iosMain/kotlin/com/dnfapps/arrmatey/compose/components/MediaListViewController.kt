@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
-import com.dnfapps.arrmatey.api.arr.model.AnyArrMedia
+import com.dnfapps.arrmatey.api.arr.model.ArrMedia
 
 fun MediaListViewController(
-    items: List<AnyArrMedia>,
-    onItemClick: (AnyArrMedia) -> Unit = {}
+    items: List<ArrMedia>,
+    onItemClick: (ArrMedia) -> Unit = {}
 ) = ComposeUIViewController {
     MediaList(
         items = items,
