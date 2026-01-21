@@ -9,94 +9,94 @@ import SwiftUI
 import Shared
 
 struct MediaDetailsScreen: View {
-    let id: Int64
-    let type: InstanceType
+    private let id: Int64
+    private let type: InstanceType
+
+    @ObservedObject private var viewModel: ArrMediaDetailsViewModelS
     
-    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
-    
-    @State private var detailUiState: Any = DetailsUiStateInitial()
-    @State private var observationTask: Task<Void, Never>? = nil
-    
-    private var instance: Instance? {
-        arrTabViewModel.currentInstance
+    init(id: Int64, type: InstanceType) {
+        self.id = id
+        self.type = type
+        self.viewModel = ArrMediaDetailsViewModelS(id: id, type: type)
     }
     
-    private var arrViewModel: ArrViewModel? {
-        arrTabViewModel.arrViewModel
+    private var uiState: MediaDetailsUiState {
+        viewModel.uiState
+    }
+    
+    private var automaticSearchIds: Set<Int64> {
+        viewModel.automaticSearchIds
+    }
+    
+    private var lastSearchResult: Bool? {
+        viewModel.lastSearchResult
     }
     
     private var isMonitored: Bool {
-        if let state = detailUiState as? DetailsUiStateSuccess<ArrMedia> {
-            return state.item?.monitored == true
-        }
-        return false
+        if let state = uiState as? MediaDetailsUiStateSuccess {
+            state.item.monitored
+        } else { false }
     }
     
     var body: some View {
         contentForState()
-            .task {
-                await setupViewModel()
-                if let vm = arrViewModel {
-                    await vm.getDetails(id: id)
-                }
-            }
-            .onDisappear {
-                observationTask?.cancel()
-            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Image(systemName: isMonitored ? "bookmark.fill" : "bookmark")
                         .imageScale(.medium)
                         .onTapGesture {
-                            Task {
-                                await arrViewModel?.setMonitorStatus(id: id, isMonitored: !isMonitored)
-                            }
+                            viewModel.toggleMonitor()
                         }
                 }
+            }
+            .task {
+                viewModel.refreshDetails()
             }
     }
     
     @ViewBuilder
     private func contentForState() -> some View {
-        switch detailUiState {
-        case is DetailsUiStateInitial:
+        switch uiState {
+        case is MediaDetailsUiStateInitial:
             ZStack {
                 Text("initial state")
             }
-        case is DetailsUiStateLoading:
+        case is MediaDetailsUiStateLoading:
             ZStack {
                 ProgressView()
                     .progressViewStyle(.circular)
             }
-        case let state as DetailsUiStateSuccess<ArrMedia>:
-            if let item = state.item {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12){
-                        MediaDetailsHeader(item: item)
-                        
-                        VStack(alignment: .leading, spacing: 12) {
-                            if let airingString = makeAiringString(for: item) {
-                                Text(airingString)
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.accentColor)
-                            }
-                            
-                            ItemDescriptionCard(overview: item.overview)
-                            
-                            filesArea(for: item)
-                            
-                            MediaInfoArea(item: item)
-                            
-                            Spacer()
-                                .frame(height: 12)
+        case let state as MediaDetailsUiStateSuccess:
+            let item = state.item
+            let episodes = state.episodes
+            let extraFiles = state.extraFiles
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12){
+                    MediaDetailsHeader(item: item)
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        if let airingString = makeAiringString(for: item) {
+                            Text(airingString)
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.accentColor)
                         }
-                        .padding(.horizontal, 24)
+                        
+                        ItemDescriptionCard(overview: item.overview)
+                        
+                        filesArea(for: item, extraFiles, episodes)
+                        
+                        MediaInfoArea(item: item)
+                        
+                        Spacer()
+                            .frame(height: 12)
                     }
-                    .frame(alignment: .top)
+                    .padding(.horizontal, 24)
                 }
-                .ignoresSafeArea(edges: .top)
+                .frame(alignment: .top)
             }
-        case let error as DetailsUiStateError<ArrMedia>:
+            .ignoresSafeArea(edges: .top)
+        case _ as MediaDetailsUiStateError:
             VStack{}
         default:
             VStack {
@@ -126,33 +126,43 @@ struct MediaDetailsScreen: View {
     }
     
     @ViewBuilder
-    private func filesArea(for item: ArrMedia) -> some View {
-        if let series = item as? ArrSeries, let vm = arrViewModel as? SonarrViewModel {
-            SeriesFilesView(series: series, viewModel: vm)
-        } else if let movie = item as? ArrMovie, let vm = arrViewModel as? RadarrViewModel {
-            MovieFilesView(movie: movie, viewModel: vm)
+    private func filesArea(
+        for item: ArrMedia,
+        _ extraFiles: [ExtraFile],
+        _ episodes: [Episode]
+    ) -> some View {
+        if let series = item as? ArrSeries {
+            SeriesFilesView(
+                series: series,
+                episodes: episodes,
+                searchIds: automaticSearchIds,
+                searchResult: lastSearchResult,
+                onToggleSeasonMonitor: { sn in
+                    viewModel.toggleSeasonMonitor(seasonNumber: sn)
+                },
+                onToggleEpisodeMonitor: { ep in
+                    viewModel.toggleEpisodeMonitor(episode: ep)
+                },
+                onEpisodeAutomaticSearch: { id in
+                    viewModel.performEpisodeAutomaticLookup(episodeId: id)
+                },
+                onSeasonAutomaticSearch: { sn in
+                    viewModel.performSeasonAutomaticLookup(seasonNumber: sn)
+                }
+            )
+        } else if let movie = item as? ArrMovie {
+            MovieFilesView(
+                movie: movie,
+                movieExtraFiles: extraFiles,
+                searchIds: automaticSearchIds,
+                searchResult: lastSearchResult,
+                onAutomaticSearch: { id in
+                    viewModel.performMovieAutomaticLookup(movieId: id)
+                }
+            )
         } else {
             EmptyView()
         }
     }
     
-    @MainActor
-    private func setupViewModel() async {
-        observationTask?.cancel()
-        observationTask = Task {
-            await observeUiState()
-        }
-    }
-    
-    @MainActor
-    private func observeUiState() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.getDetailsUiState()
-            for try await state in flow {
-                self.detailUiState = state
-            }
-        }
-    }
 }

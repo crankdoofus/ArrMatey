@@ -10,31 +10,39 @@ import Shared
 
 struct MediaPreviewScreen: View {
     private let media: ArrMedia
-
+    private let type: InstanceType
+    
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
+    @EnvironmentObject private var navigation: NavigationManager
+
+    @ObservedObject private var viewModel: MediaPreviewViewModelS
 
     @State private var sheetPresented: Bool = false
     
-    @State private var qualityProfiles: [QualityProfile] = []
-    @State private var rootFolders: [RootFolder] = []
-    @State private var tags: [Tag] = []
-    
-    @State private var observeQualityProfilesTask: Task<Void, Never>? = nil
-    @State private var observeRootFoldersTask: Task<Void, Never>? = nil
-    @State private var observeTagsTask: Task<Void, Never>? = nil
-
-
-    private var instance: Instance? {
-        arrTabViewModel.currentInstance
+    init(json: String, type: InstanceType) {
+        self.type = type
+        self.media = ArrMediaCompanion().fromJson(value: json)
+        self.viewModel = MediaPreviewViewModelS(type: type)
     }
     
-    private var arrViewModel: ArrViewModel? {
-        arrTabViewModel.arrViewModel
+    private var lastAddedItemId: Int64? {
+        viewModel.lastAddedItemId
     }
     
-    init(json: String) {
-        media = ArrMediaCompanion().fromJson(value: json)
+    private var addItemStatus: OperationStatus {
+        viewModel.addItemStatus
+    }
+    
+    private var qualityProfiles: [QualityProfile] {
+        viewModel.qualityProfiles
+    }
+    
+    private var rootFolders: [RootFolder] {
+        viewModel.rootFolders
+    }
+    
+    private var tags: [Tag] {
+        viewModel.tags
     }
     
     var body: some View {
@@ -63,26 +71,49 @@ struct MediaPreviewScreen: View {
                 }
             }
         }
-        .sheet(isPresented: $sheetPresented) {
-            switch media {
-            case let series as ArrSeries:
-                AddSeriesForm(qualityProfiles: $qualityProfiles, rootFolders: $rootFolders, onDismiss: { sheetPresented = false }, series: series)
-                    .presentationDetents([.medium])
-                    .presentationBackground(.ultraThinMaterial)
-            case let movie as ArrMovie:
-                AddMovieForm(qualityProfiles: $qualityProfiles, rootFolders: $rootFolders, onDismiss: { sheetPresented = false }, movie: movie)
-                    .presentationDetents([.medium])
-                    .presentationBackground(.ultraThinMaterial)
-            default: EmptyView()
+        .onChange(of: lastAddedItemId) { _, newValue in
+            if let id = newValue {
+                sheetPresented = false
+                navigation.replaceCurrent(with: .details(id), for: type)
             }
         }
-        .task {
-            await setupViewModel()
+        .sheet(isPresented: $sheetPresented) {
+            addMediaSheet()
         }
-        .onDisappear {
-            observeQualityProfilesTask?.cancel()
-            observeRootFoldersTask?.cancel()
-            observeTagsTask?.cancel()
+    }
+    
+    @ViewBuilder
+    private func addMediaSheet() -> some View {
+        switch media {
+        case let series as ArrSeries:
+            AddSeriesForm(
+                series: series,
+                addItemStatus: addItemStatus,
+                qualityProfiles: qualityProfiles,
+                rootFolders: rootFolders,
+                tags: tags,
+                onAddItem: { item in
+                    viewModel.addItem(item)
+                },
+                onDismiss: { sheetPresented = false }
+            )
+                .presentationDetents([.medium])
+                .presentationBackground(.ultraThinMaterial)
+        case let movie as ArrMovie:
+            AddMovieForm(
+                movie: movie,
+                addItemStatus: addItemStatus,
+                qualityProfiles: qualityProfiles,
+                rootFolders: rootFolders,
+                tags: tags,
+                onAddItem: { item in
+                    viewModel.addItem(item)
+                },
+                onDismiss: { sheetPresented = false }
+            )
+                .presentationDetents([.medium])
+                .presentationBackground(.ultraThinMaterial)
+        default: EmptyView()
         }
     }
 
@@ -106,62 +137,4 @@ struct MediaPreviewScreen: View {
         }
     }
     
-    @ViewBuilder
-    private func seriesForm() -> some View {
-        
-    }
-    
-    @MainActor
-    private func setupViewModel() async {
-        observeQualityProfilesTask?.cancel()
-        observeQualityProfilesTask = Task {
-            await observeQualityProfiles()
-        }
-        
-        observeRootFoldersTask?.cancel()
-        observeRootFoldersTask = Task {
-            await observeRootFolders()
-        }
-        
-        observeTagsTask?.cancel()
-        observeTagsTask = Task {
-            await observeTags()
-        }
-    }
-    
-    @MainActor
-    private func observeQualityProfiles() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let qpFlow = viewModel.qualityProfiles()
-            for try await qp in qpFlow {
-                self.qualityProfiles = qp
-            }
-        }
-    }
-    
-    @MainActor
-    private func observeRootFolders() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.rootFolders()
-            for try await rootFolders in flow {
-                self.rootFolders = rootFolders
-            }
-        }
-    }
-    
-    @MainActor
-    private func observeTags() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.tags()
-            for try await tags in flow {
-                self.tags = tags
-            }
-        }
-    }
 }

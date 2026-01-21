@@ -1,38 +1,64 @@
 package com.dnfapps.arrmatey.di
 
-import com.dnfapps.arrmatey.DataStoreFactory
-import com.dnfapps.arrmatey.PreferencesStore
-import com.dnfapps.arrmatey.api.arr.GenericClient
-import com.dnfapps.arrmatey.api.arr.RadarrClient
-import com.dnfapps.arrmatey.api.arr.SonarrClient
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.model.ArrRelease
-import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
-import com.dnfapps.arrmatey.api.arr.viewmodel.BaseArrRepository
-import com.dnfapps.arrmatey.api.arr.viewmodel.createInstanceRepository
-import com.dnfapps.arrmatey.api.client.createInstanceClient
-import com.dnfapps.arrmatey.compose.screens.viewmodel.AddInstanceRepository
+import com.dnfapps.arrmatey.arr.api.client.GenericClient
+import com.dnfapps.arrmatey.instances.repository.InstanceManager
+import com.dnfapps.arrmatey.arr.usecase.AddMediaItemUseCase
+import com.dnfapps.arrmatey.instances.usecase.CreateInstanceUseCase
+import com.dnfapps.arrmatey.instances.usecase.DeleteInstanceUseCase
+import com.dnfapps.arrmatey.instances.usecase.DismissInfoCardUseCase
+import com.dnfapps.arrmatey.arr.usecase.DownloadReleaseUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetActivityTasksUseCase
+import com.dnfapps.arrmatey.instances.usecase.GetInstanceByIdUseCase
+import com.dnfapps.arrmatey.instances.usecase.GetInstanceRepositoryUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetLibraryUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetLookupResultsUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetMediaDetailsUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetMovieFilesUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetReleasesUseCase
+import com.dnfapps.arrmatey.instances.usecase.ObserveAllInstancesByTypeUseCase
+import com.dnfapps.arrmatey.instances.usecase.ObserveScopedReposByTypeUseCase
+import com.dnfapps.arrmatey.instances.usecase.ObserveSelectedInstanceScopedRepoUseCase
+import com.dnfapps.arrmatey.instances.usecase.ObserveSelectedInstanceUseCase
+import com.dnfapps.arrmatey.arr.usecase.PerformLookupUseCase
+import com.dnfapps.arrmatey.instances.usecase.SetInstanceActiveUseCase
+import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
+import com.dnfapps.arrmatey.instances.usecase.UpdateInstanceUseCase
+import com.dnfapps.arrmatey.instances.usecase.UpdatePreferencesUseCase
+import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.AddInstanceViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaDetailsViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrSearchViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.EditInstanceViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.EpisodeDetailsViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.InstancesViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.InteractiveSearchViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.MediaPreviewViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.MoreScreenViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.MovieFilesViewModel
+import com.dnfapps.arrmatey.arr.service.ActivityQueueService
+import com.dnfapps.arrmatey.arr.api.client.HttpClientFactory
+import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.database.ArrMateyDatabase
 import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.database.getRoomDatabase
-import com.dnfapps.arrmatey.model.Instance
+import com.dnfapps.arrmatey.datastore.DataStoreFactory
+import com.dnfapps.arrmatey.datastore.InstancePreferenceStoreRepository
+import com.dnfapps.arrmatey.datastore.PreferencesStore
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
 import com.dnfapps.arrmatey.utils.NetworkConnectivityRepository
-import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import kotlin.math.sin
+
+val databaseModule = module {
+    single { getRoomDatabase(get()) }
+    single { get<ArrMateyDatabase>().getInstanceDao() }
+}
 
 val networkModule = module {
-    factory<HttpClient> { (instance: Instance?) -> createInstanceClient(instance, get()) }
-
-    single { GenericClient() }
-    factory<SonarrClient> { (instance: Instance) -> SonarrClient(instance) }
-    factory<RadarrClient> { (instance: Instance) -> RadarrClient(instance) }
-
-    single { NetworkConnectivityObserverFactory().create() }
-    single { NetworkConnectivityRepository() }
-
     single {
         Json {
             isLenient = true
@@ -40,26 +66,91 @@ val networkModule = module {
             encodeDefaults = true
         }
     }
+
+    single { HttpClientFactory(get()) }
+
+    single { GenericClient(get()) }
+
+    single { NetworkConnectivityObserverFactory().create() }
+    single { NetworkConnectivityRepository() }
 }
 
-val databaseModule = module {
-    single { getRoomDatabase(get()) }
+val preferencesModule = module {
+    single { DataStoreFactory() }
+    single { PreferencesStore(get()) }
+}
 
-    single { get<ArrMateyDatabase>().getInstanceDao() }
+val repositoryModule = module {
+    single { InstanceRepository(get()) }
+    single { InstancePreferenceStoreRepository(get()) }
 
-    single { InstanceRepository() }
-    factory { AddInstanceRepository() }
+    single { InstanceManager(get(), get()) }
+}
 
-    factory<BaseArrRepository> {
-        (instance: Instance) -> createInstanceRepository(instance)
+val serviceModule = module {
+    single { ActivityQueueService(get()) }
+}
+
+val useCaseModule = module {
+    factory { GetInstanceRepositoryUseCase(get()) }
+    factory { GetLibraryUseCase(get(), get()) }
+    factory { GetMediaDetailsUseCase(get()) }
+    factory { UpdatePreferencesUseCase(get()) }
+    factory { AddMediaItemUseCase(get()) }
+    factory { GetActivityTasksUseCase(get()) }
+    factory { ObserveAllInstancesByTypeUseCase(get()) }
+    factory { ObserveScopedReposByTypeUseCase(get()) }
+    factory { ObserveSelectedInstanceScopedRepoUseCase(get()) }
+    factory { ObserveSelectedInstanceUseCase(get()) }
+    factory { SetInstanceActiveUseCase(get()) }
+    factory { GetLookupResultsUseCase(get()) }
+    factory { PerformLookupUseCase(get()) }
+    factory { AddMediaItemUseCase(get()) }
+    factory { GetReleasesUseCase(get()) }
+    factory { DownloadReleaseUseCase(get()) }
+    factory { GetMovieFilesUseCase(get()) }
+    factory { TestInstanceConnectionUseCase(get()) }
+    factory { CreateInstanceUseCase(get()) }
+    factory { UpdateInstanceUseCase(get()) }
+    factory { DismissInfoCardUseCase(get()) }
+    factory { GetInstanceByIdUseCase(get()) }
+    factory { DeleteInstanceUseCase(get()) }
+}
+
+val viewModelModule = module {
+    factory { ActivityQueueViewModel(get(), get(), get()) }
+    factory { (type: InstanceType) ->
+        ArrMediaViewModel(type, get(), get(), get())
     }
-}
-
-val appModule = module {
-    single { DataStoreFactory().provideDataStore() }
-    single { PreferencesStore() }
+    factory { (id: Long, type: InstanceType) ->
+        ArrMediaDetailsViewModel(id, type, get(), get())
+    }
+    factory { (type: InstanceType) ->
+        InstancesViewModel(type, get(), get(), get())
+    }
+    factory { (type: InstanceType) ->
+        ArrSearchViewModel(type, get(), get())
+    }
+    factory { (type: InstanceType) ->
+        MediaPreviewViewModel(type, get(), get())
+    }
+    factory { (type: InstanceType) ->
+        InteractiveSearchViewModel(type, get(), get(), get())
+    }
+    factory { (movieId: Long) ->
+        MovieFilesViewModel(movieId, get())
+    }
+    factory { (seriesId: Long, episode: Episode) ->
+        EpisodeDetailsViewModel(seriesId, episode, get())
+    }
+    factory { ActivityQueueViewModel(get(), get(), get()) }
+    factory { MoreScreenViewModel(get()) }
+    factory { AddInstanceViewModel(get(), get(), get(), get()) }
+    factory { (instanceId: Long) ->
+        EditInstanceViewModel(instanceId, get(), get(), get(), get())
+    }
 }
 
 expect fun platformModules(): List<Module>
 
-fun appModules() = listOf(networkModule, databaseModule, appModule) + platformModules()
+fun appModules() = listOf(networkModule, databaseModule, preferencesModule, repositoryModule, serviceModule, useCaseModule, viewModelModule) + platformModules()

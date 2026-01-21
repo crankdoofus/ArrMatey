@@ -1,0 +1,455 @@
+package com.dnfapps.arrmatey.instances.repository
+
+import com.dnfapps.arrmatey.arr.api.client.ArrClient
+import com.dnfapps.arrmatey.arr.api.client.RadarrClient
+import com.dnfapps.arrmatey.arr.api.client.SonarrClient
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrRelease
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.CommandPayload
+import com.dnfapps.arrmatey.arr.api.model.DownloadReleasePayload
+import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.arr.api.model.ExtraFile
+import com.dnfapps.arrmatey.arr.api.model.HistoryItem
+import com.dnfapps.arrmatey.arr.api.model.MonitoredResponse
+import com.dnfapps.arrmatey.arr.api.model.QualityProfile
+import com.dnfapps.arrmatey.arr.api.model.QueueItem
+import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
+import com.dnfapps.arrmatey.arr.api.model.RootFolder
+import com.dnfapps.arrmatey.arr.api.model.Tag
+import com.dnfapps.arrmatey.client.NetworkResult
+import com.dnfapps.arrmatey.client.OperationStatus
+import com.dnfapps.arrmatey.client.onError
+import com.dnfapps.arrmatey.client.onSuccess
+import com.dnfapps.arrmatey.arr.state.DownloadState
+import com.dnfapps.arrmatey.instances.model.Instance
+import com.dnfapps.arrmatey.instances.model.InstanceType
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+
+class InstanceScopedRepository(
+    val instance: Instance,
+    private val httpClient: HttpClient
+) {
+    val client: ArrClient = createClient()
+
+    private fun createClient(): ArrClient = when (instance.type) {
+            InstanceType.Sonarr -> SonarrClient(instance, httpClient)
+            InstanceType.Radarr -> RadarrClient(instance, httpClient)
+        }
+
+    private val _library = MutableStateFlow<NetworkResult<List<ArrMedia>>?>(null)
+    val library: StateFlow<NetworkResult<List<ArrMedia>>?> = _library.asStateFlow()
+
+    private val _lookupResults = MutableStateFlow<NetworkResult<List<ArrMedia>>?>(null)
+    val lookupResults: StateFlow<NetworkResult<List<ArrMedia>>?> = _lookupResults.asStateFlow()
+
+    private val _lastAddedItemId = MutableStateFlow<Long?>(null)
+    val lastAddedItemId: StateFlow<Long?> = _lastAddedItemId.asStateFlow()
+
+    private val _releases = MutableStateFlow<NetworkResult<List<ArrRelease>>?>(null)
+    val releases: StateFlow<NetworkResult<List<ArrRelease>>?> = _releases.asStateFlow()
+
+    private val _historyCache = MutableStateFlow<Map<Long, List<HistoryItem>>>(emptyMap())
+    val historyCache: StateFlow<Map<Long, List<HistoryItem>>> = _historyCache.asStateFlow()
+
+    private val _mediaDetailsCache = MutableStateFlow<Map<Long, ArrMedia>>(emptyMap())
+
+
+    private val _qualityProfiles = MutableStateFlow<List<QualityProfile>>(emptyList())
+    val qualityProfiles: StateFlow<List<QualityProfile>> = _qualityProfiles.asStateFlow()
+
+    private val _rootFolders = MutableStateFlow<List<RootFolder>>(emptyList())
+    val rootFolders: StateFlow<List<RootFolder>> = _rootFolders.asStateFlow()
+
+    private val _tags = MutableStateFlow<List<Tag>>(emptyList())
+    val tags: StateFlow<List<Tag>> = _tags.asStateFlow()
+
+    private val _activityTasks = MutableStateFlow<List<QueueItem>>(emptyList())
+    val activityTasks: StateFlow<List<QueueItem>> = _activityTasks.asStateFlow()
+
+
+    private val _addItemStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val addItemStatus: StateFlow<OperationStatus> = _addItemStatus.asStateFlow()
+
+    private val _searchStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val searchStatus: StateFlow<OperationStatus> = _searchStatus.asStateFlow()
+
+    private val _downloadStatus = MutableStateFlow<DownloadState>(DownloadState.Initial)
+    val downloadStatus: StateFlow<DownloadState> = _downloadStatus.asStateFlow()
+
+    private val _monitorStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val monitorStatus: StateFlow<OperationStatus> = _monitorStatus.asStateFlow()
+
+    private val _historyStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val historyStatus: StateFlow<OperationStatus> = _historyStatus.asStateFlow()
+
+    // Sonarr-specific
+    private val _episodes = MutableStateFlow<Map<Long, List<Episode>>>(emptyMap())
+    val episodes: StateFlow<Map<Long, List<Episode>>> = _episodes.asStateFlow()
+
+    // Radarr-specific
+    private val _movieExtraFiles = MutableStateFlow<Map<Long, List<ExtraFile>>>(emptyMap())
+    val movieExtraFiles: StateFlow<Map<Long, List<ExtraFile>>> = _movieExtraFiles.asStateFlow()
+
+    suspend fun refreshLibrary() {
+        _library.value = NetworkResult.Loading
+        delay(5_000)
+        _library.value = client.getLibrary()
+    }
+
+    suspend fun getMediaDetails(id: Long): NetworkResult<ArrMedia> {
+        return client.getDetail(id)
+            .onSuccess { media ->
+                val currentCache = _mediaDetailsCache.value.toMutableMap()
+                currentCache[id] = media
+                _mediaDetailsCache.value = currentCache
+            }
+    }
+
+    suspend fun refreshQualityProfiles() {
+        client.getQualityProfiles()
+            .onSuccess { _qualityProfiles.value = it }
+    }
+
+    suspend fun refreshRootFolders() {
+        client.getRootFolders()
+            .onSuccess { _rootFolders.value = it }
+    }
+
+    suspend fun refreshTags() {
+        client.getTags()
+            .onSuccess { _tags.value = it }
+    }
+
+    suspend fun refreshAllMetadata() {
+        coroutineScope {
+            launch { refreshQualityProfiles() }
+            launch { refreshRootFolders() }
+            launch { refreshTags() }
+        }
+    }
+
+    suspend fun refreshActivityTasks(page: Int = 1, pageSize: Int = 100) {
+        client.fetchActivityTasks(page, pageSize)
+            .onSuccess { queue ->
+                _activityTasks.value = queue.records
+            }
+    }
+
+    suspend fun performLookup(query: String) {
+        if (query.isBlank()) {
+            _lookupResults.value = null
+            return
+        }
+
+        _lookupResults.value = NetworkResult.Loading
+
+        client.lookup(query)
+            .onSuccess { results ->
+                _lookupResults.value = NetworkResult.Success(results)
+            }
+            .onError { code, message, cause ->
+                _lookupResults.value = NetworkResult.Error(code, message, cause)
+            }
+    }
+
+    fun clearLookup() {
+        _lookupResults.value = null
+    }
+
+    suspend fun addItem(item: ArrMedia) {
+        _addItemStatus.value = OperationStatus.InProgress
+
+        client.addItemToLibrary(item)
+            .onSuccess { addedItem ->
+                _addItemStatus.value = OperationStatus.Success("Item added successfully")
+                addedItem.id?.let {
+                    val newMap = _mediaDetailsCache.value.toMutableMap()
+                    newMap[it] = addedItem
+                    _mediaDetailsCache.value = newMap
+                }
+                _lastAddedItemId.value = addedItem.id
+                refreshLibrary()
+            }
+            .onError { code, error, cause ->
+                _addItemStatus.value = OperationStatus.Error(code, error, cause)
+            }
+    }
+
+    suspend fun getReleases(params: ReleaseParams) {
+        _releases.value = NetworkResult.Loading
+
+        client.getReleases(params)
+            .onSuccess { releases ->
+                _releases.value = NetworkResult.Success(releases)
+            }
+            .onError { code, message, cause ->
+                _releases.value = NetworkResult.Error(code, message, cause)
+            }
+    }
+
+    suspend fun downloadRelease(
+        payload: DownloadReleasePayload
+    ): NetworkResult<Any> {
+        _downloadStatus.value = DownloadState.Loading(payload.guid)
+
+        return client.downloadRelease(payload)
+            .onSuccess {
+                _downloadStatus.value = DownloadState.Success
+            }
+            .onError { code, error, cause ->
+                _downloadStatus.value = DownloadState.Error
+            }
+    }
+
+    suspend fun executeAutomaticSearch(itemId: Long) {
+        _searchStatus.value = OperationStatus.InProgress
+
+        client.performAutomaticSearch(itemId)
+            .onSuccess {
+                _searchStatus.value = OperationStatus.Success("Search initiated")
+            }
+            .onError { code, error, cause ->
+                _searchStatus.value = OperationStatus.Error(code, error, cause)
+            }
+    }
+
+    suspend fun executeCommand(payload: CommandPayload): NetworkResult<Any> {
+        return client.command(payload)
+    }
+
+    suspend fun getItemHistory(itemId: Long, page: Int = 1, pageSize: Int = 100): NetworkResult<List<HistoryItem>> {
+        _historyStatus.value = OperationStatus.InProgress
+
+        return client.getItemHistory(itemId, page, pageSize)
+            .onSuccess { history ->
+                val currentCache = _historyCache.value.toMutableMap()
+                currentCache[itemId] = history
+                _historyCache.value = currentCache
+                _historyStatus.value = OperationStatus.Success()
+            }
+            .onError { code, message, cause ->
+                _historyStatus.value = OperationStatus.Error(code, message, cause)
+            }
+    }
+
+    suspend fun setMonitorState(id: Long, status: Boolean): NetworkResult<MonitoredResponse?> {
+        _monitorStatus.value = OperationStatus.InProgress
+
+        return client.setMonitorStatus(id, status)
+            .map { it.firstOrNull() }
+            .onSuccess { response ->
+                _monitorStatus.value = OperationStatus.Success(
+                    if (status) "Monitored" else "Unmonitored"
+                )
+                response?.let { updateMonitoredInCache(it.id, it.monitored) }
+            }
+    }
+
+    suspend fun toggleSeasonMonitor(id: Long, seasonNumber: Int): NetworkResult<ArrMedia> {
+        _monitorStatus.value = OperationStatus.InProgress
+
+        val currentSeries = _mediaDetailsCache.value[id] as? ArrSeries
+        if (currentSeries == null) {
+            _monitorStatus.value = OperationStatus.Error(message = "Series not found in cache")
+            return NetworkResult.Error(message = "Series not found in cache")
+        }
+
+        val updatedSeason = currentSeries.seasons.map { season ->
+            if (season.seasonNumber == seasonNumber) {
+                season.copy(monitored = !season.monitored)
+            } else {
+                season
+            }
+        }
+
+        val updatedSeries = currentSeries.copy(seasons = updatedSeason)
+
+        return client.update(updatedSeries)
+            .onSuccess { resultSeries ->
+                _monitorStatus.value = OperationStatus.Success("Season monitor toggled")
+
+                val currentCache = _mediaDetailsCache.value.toMutableMap()
+                currentCache[id] = resultSeries
+                _mediaDetailsCache.value = currentCache
+
+                updateSeriesInLibraryCache(resultSeries)
+            }
+    }
+
+    suspend fun toggleEpisodeMonitor(episode: Episode): NetworkResult<Episode> {
+        _monitorStatus.value = OperationStatus.InProgress
+
+        val updatedEpisode = episode.copy(monitored = !episode.monitored)
+
+        if (instance.type != InstanceType.Sonarr) {
+            _monitorStatus.value = OperationStatus.Error(message = "Not a Sonarr instance")
+            return NetworkResult.Error(message = "Not a Sonarr instance")
+        }
+
+        return (client as SonarrClient).updateEpisode(updatedEpisode)
+            .onSuccess { resultEpisode ->
+                _monitorStatus.value = OperationStatus.Success(
+                    if (resultEpisode.monitored) "Episode monitored" else "Episode unmonitored"
+                )
+                updateEpisodeInCache(resultEpisode.copy(
+                    images = episode.images,
+                    episodeFile = episode.episodeFile
+                ))
+            }
+            .onError { code, message, cause ->
+                _monitorStatus.value = OperationStatus.Error(code, message, cause)
+            }
+    }
+
+    private fun updateSeriesInLibraryCache(series: ArrMedia) {
+        val currentLibrary = _library.value
+        if (currentLibrary is NetworkResult.Success) {
+            val updatedItems = currentLibrary.data.map { item ->
+                if (item.id == series.id) series else item
+            }
+            _library.value = NetworkResult.Success(
+                updatedItems
+            )
+        }
+    }
+
+    private fun updateEpisodeInCache(episode: Episode) {
+        val currentEpisodes = _episodes.value.toMutableMap()
+        currentEpisodes.forEach { (seriesId, episodeList) ->
+            val index = episodeList.indexOfFirst { it.id == episode.id }
+            if (index != -1) {
+                val updatedList = episodeList.toMutableList()
+                updatedList[index] = episode
+                currentEpisodes[seriesId] = updatedList
+            }
+        }
+        _episodes.value = currentEpisodes
+    }
+
+    private fun updateMonitoredInCache(id: Long, status: Boolean) {
+        val libraryState = _library.value
+        if (libraryState is NetworkResult.Success) {
+            val updatedItems = libraryState.data.map { item ->
+                if (item.id == id) {
+                    when (item) {
+                        is ArrSeries -> item.copy(monitored = status)
+                        is ArrMovie -> item.copy(monitored = status)
+                    }
+                } else {
+                    item
+                }
+            }
+            _library.value = NetworkResult.Success(
+                updatedItems
+            )
+        }
+
+        val currentDetailsCache = _mediaDetailsCache.value
+        currentDetailsCache[id]?.let { item ->
+            val updatedMedia = when (item) {
+                is ArrSeries -> item.copy(monitored = status)
+                is ArrMovie -> item.copy(monitored = status)
+            }
+            val updatedCache = currentDetailsCache.toMutableMap()
+            updatedCache[id] = updatedMedia
+            _mediaDetailsCache.value = updatedCache
+        }
+    }
+
+    fun cleanup() {
+        httpClient.close()
+    }
+
+    fun clearReleases() {
+        _releases.value = null
+    }
+
+    fun observeMediaDetails(id: Long): Flow<NetworkResult<ArrMedia>> = flow {
+        emit(NetworkResult.Loading)
+
+        val result = client.getDetail(id)
+        when (result) {
+            is NetworkResult.Success -> {
+                val currentCache = _mediaDetailsCache.value.toMutableMap()
+                currentCache[id] = result.data
+                _mediaDetailsCache.value = currentCache
+            }
+
+            is NetworkResult.Error -> {
+                emit(result)
+                return@flow
+            }
+
+            is NetworkResult.Loading -> {}
+        }
+
+        _mediaDetailsCache
+            .map { cache ->
+                cache[id]?.let { NetworkResult.Success(it) }
+                    ?: NetworkResult.Error(message = "Media not found in cache")
+            }
+            .collect { emit(it) }
+    }
+
+    fun observeItemHistory(itemId: Long): Flow<List<HistoryItem>> {
+        return historyCache.map { cache ->
+            cache[itemId] ?: emptyList()
+        }
+    }
+
+    // Sonarr-specific
+    suspend fun getEpisodes(
+        seriesId: Long,
+        seasonNumber: Int? = null
+    ): NetworkResult<List<Episode>> =
+        safePerformSonarr { client ->
+            client.getEpisodes(seriesId, seasonNumber)
+                .onSuccess { episodes ->
+                    val currentMap = _episodes.value.toMutableMap()
+                    currentMap[seriesId] = episodes
+                    _episodes.value = currentMap
+                }
+        }
+
+    // Radarr-specific
+    suspend fun getMovieExtraFiles(movieId: Long): NetworkResult<List<ExtraFile>> =
+        safePerformRadarr { client ->
+            client.getMovieExtraFile(movieId)
+                .onSuccess { files ->
+                    val currentMap = _movieExtraFiles.value.toMutableMap()
+                    currentMap[movieId] = files
+                    _movieExtraFiles.value = currentMap
+                }
+        }
+
+    // Helpers
+    private suspend inline fun <reified T> safePerformSonarr(
+        operation: suspend (SonarrClient) -> NetworkResult<T>
+    ): NetworkResult<T> {
+        if (instance.type != InstanceType.Sonarr) {
+            return NetworkResult.Error(message = "Not a Sonarr instance")
+        }
+        return operation(client as SonarrClient)
+    }
+
+    private suspend inline fun <reified T> safePerformRadarr(
+        operation: suspend (RadarrClient) -> NetworkResult<T>
+    ): NetworkResult<T> {
+        if (instance.type != InstanceType.Radarr) {
+            return NetworkResult.Error(message = "Not a Radarr instance")
+        }
+        return operation(client as RadarrClient)
+    }
+
+}

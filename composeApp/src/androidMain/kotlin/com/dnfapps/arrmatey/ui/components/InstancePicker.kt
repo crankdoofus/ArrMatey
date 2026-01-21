@@ -21,19 +21,20 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.model.Instance
+import com.dnfapps.arrmatey.instances.model.Instance
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstancePicker(
     currentInstance: Instance?,
     typeInstances: List<Instance>,
-    hasMultipleInstances: Boolean,
     onInstanceSelected: (Instance) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var textWidth by remember { mutableStateOf(IntSize.Zero) }
+
+    val hasMultipleInstances = typeInstances.size > 1
 
     Box(modifier = modifier) {
         Row(

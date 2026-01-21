@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey
 
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.navigation.MoviesTabNavigation
 import com.dnfapps.arrmatey.navigation.SeriesTabNavigation

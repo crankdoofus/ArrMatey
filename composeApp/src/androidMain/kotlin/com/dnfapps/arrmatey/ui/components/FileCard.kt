@@ -6,8 +6,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.MediaFile
-import com.dnfapps.arrmatey.api.arr.model.MovieFile
+import com.dnfapps.arrmatey.arr.api.model.MediaFile
 import com.dnfapps.arrmatey.compose.utils.breakable
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.Bullet

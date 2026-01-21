@@ -11,201 +11,165 @@ import Shared
 import ToastViewSwift
 
 struct ArrTab: View {
-    let type: InstanceType
+    private let type: InstanceType
+    
+    @ObservedObject private var arrMediaViewModel: ArrMediaViewModelS
+    @ObservedObject private var instancesViewModel: InstancesViewModelS
+    @ObservedObject private var activityQueueViewModel: ActivityQueueViewModelS = ActivityQueueViewModelS()
+    @ObservedObject private var networkViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModel()
     
     @EnvironmentObject private var navigation: NavigationManager
-    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
-    
-    @ObservedObject private var networkViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModel()
-    @ObservedObject private var preferences: PreferencesViewModel = PreferencesViewModel()
-    
-    @State private var uiState: Any = LibraryUiStateInitial()
-    @State private var observationTask: Task<Void, Never>? = nil
     
     @State private var searchQuery: String = ""
     @State private var searchPresented: Bool = false
     
-    @State private var stableItemsKey: String = UUID().uuidString
-    
-    private var instance: Instance? {
-        arrTabViewModel.currentInstance
+    private var uiState: LibraryUiState {
+        arrMediaViewModel.uiState
     }
     
-    private var arrViewModel: ArrViewModel? {
-        arrTabViewModel.arrViewModel
+    private var instanceState: InstancesState {
+        instancesViewModel.instancesState
     }
     
-    private var viewType: ViewType {
-        preferences.viewTypeMap[type] ?? .grid
+    private var queueItems: [QueueItem] {
+        activityQueueViewModel.queueItems
+    }
+    
+    private var preferences: InstancePreferences {
+        if let success = arrMediaViewModel.uiState as? LibraryUiStateSuccess<ArrMedia> {
+            success.preferences
+        } else {
+            InstancePreferences.companion.empty()
+        }
     }
     
     init(type: InstanceType) {
         self.type = type
+        self.arrMediaViewModel = ArrMediaViewModelS(type: type)
+        self.instancesViewModel = InstancesViewModelS(type: type)
     }
     
     var body: some View {
         contentForState()
-            .navigationTitle(instance?.label ?? "")
-            .task {
-                await setupViewModel()
-            }
-            .onChange(of: arrTabViewModel.currentInstance?.id) { _, _ in
-                Task {
-                    await setupViewModel()
-                }
-            }
-            .onDisappear {
-                observationTask?.cancel()
-            }
+            .navigationTitle(instanceState.selectedInstance?.label ?? "")
             .toolbar {
-                if !networkViewModel.isConnected {
-                    ToolbarItem(placement: .navigation) {
-                        Image(systemName: "wifi.slash")
-                            .imageScale(.medium)
-                            .foregroundColor(.red)
-                            .onTapGesture {
-                                let errTitle = String(localized: LocalizedStringResource("no_network"))
-                                let toast = Toast.text(errTitle)
-                                toast.show()
-                            }
-                    }
-                }
-                
-                if let error = uiState as? LibraryUiStateError<AnyObject> {
-                    if error.type == .network {
-                        ToolbarItem(placement: .navigation) {
-                            Image(systemName: "externaldrive.badge.xmark")
-                                .imageScale(.medium)
-                                .foregroundColor(.red)
-                                .onTapGesture {
-                                    let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
-                                    let errSubtitle = "\(instance?.label ?? instance?.type.name ?? "") - \(instance?.url ?? "")"
-                                    let toast = Toast.text(errTitle, subtitle: errSubtitle)
-                                    toast.show()
-                                }
-                        }
-                    }
-                }
-                
-                if uiState is LibraryUiStateSuccess<AnyObject> {
-                    toolbarOptions
-                }
-                
-                ToolbarItem(placement: .navigation) {
-                    InstancePickerMenu(type: type)
-                        .menuIndicator(.hidden)
-                }
+                toolbarContent
             }
             .refreshable {
-                await arrViewModel?.refreshLibrary()
+                arrMediaViewModel.refresh()
             }
-    }
-    
-    private var sortedAndFilteredItems: [ArrMedia] {
-        guard case let success = uiState as? LibraryUiStateSuccess<AnyObject>,
-              let items = success?.items as? [ArrMedia] else { return [] }
-        
-        let sorted = SortByKt.applySorting(items, type: type, sortBy: preferences.sortBy, order: preferences.sortOrder) as [ArrMedia]
-        let filtered = FilterByKt.applyFiltering(sorted, type: type, filterBy: preferences.filterBy) as [ArrMedia]
-        
-        if searchQuery.isEmpty { return filtered }
-        return filtered.filter { $0.title.localizedCaseInsensitiveContains(searchQuery) }
-    }
-    
-    private var itemIdentifiers: [Int32] {
-        sortedAndFilteredItems.compactMap { $0.id as? Int32 }
+            .onReceive(instancesViewModel.$instancesState) { _ in
+                if instanceState.selectedInstance != nil {
+                    arrMediaViewModel.refresh()
+                }
+            }
+            .task {
+                if instanceState.selectedInstance != nil {
+                    arrMediaViewModel.refresh()
+                }
+            }
     }
     
     @ViewBuilder
     private func contentForState() -> some View {
-        if instance == nil {
+        if instanceState.selectedInstance == nil {
             VStack {
                 noInstanceView()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if uiState is LibraryUiStateInitial {
+            VStack {
+                noInstanceView()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if uiState is LibraryUiStateLoading {
+            ZStack {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }
+        } else if let success = uiState as? LibraryUiStateSuccess<AnyObject> {
+            ArrLibraryView(type: type, state: success, searchQuery: $searchQuery, searchPresented: $searchPresented)
+        } else if uiState is LibraryUiStateError {
+            ZStack {
+                errorView()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            switch uiState {
-            case is LibraryUiStateInitial:
-                VStack {
-                    noInstanceView()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case is LibraryUiStateLoading:
-                ZStack {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                }
-            case _ as LibraryUiStateSuccess<AnyObject>:
-                if sortedAndFilteredItems.isEmpty {
-                    VStack {
-                        emptyLibraryView()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    mediaView(items: sortedAndFilteredItems) { media in
-                        if let id = media.id as? Int64 {
-                            navigation.go(to: .details(id), of: type)
-                        }
-                    }
-                    .id(stableItemsKey)
-                    .onChange(of: itemIdentifiers) { _, _ in
-                        stableItemsKey = UUID().uuidString
-                    }
-                    .ignoresSafeArea(edges: .bottom)
-                    .searchable(text: $searchQuery, isPresented: $searchPresented, placement: .navigationBarDrawer)
-                }
-            case _ as LibraryUiStateError<AnyObject>:
-                ZStack {
-                    errorView()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            default:
-                VStack {
-                    noInstanceView()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack {
+                noInstanceView()
             }
-        }
-    }
-    
-    @MainActor
-    private func setupViewModel() async {
-        observationTask?.cancel()
-        observationTask = Task {
-            await observeUiState()
-        }
-    }
-    
-    @MainActor
-    private func observeUiState() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.getUiState()
-            for try await state in flow {
-                self.uiState = state
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
     @ToolbarContentBuilder
-    var toolbarOptions: some ToolbarContent {
-        ToolbarItem(placement: .navigation) {
-            SortByPickerMenu(type: type, sortedBy: $preferences.sortBy, sortOrder: $preferences.sortOrder)
-                .onChange(of: preferences.sortBy) { _, newValue in
-                    preferences.saveSortBy(newValue)
+    private var toolbarContent: some ToolbarContent {
+        if !networkViewModel.isConnected {
+            ToolbarItem(placement: .navigation) {
+                Image(systemName: "wifi.slash")
+                    .imageScale(.medium)
+                    .foregroundColor(.red)
+                    .onTapGesture {
+                        let errTitle = String(localized: LocalizedStringResource("no_network"))
+                        let toast = Toast.text(errTitle)
+                        toast.show()
+                    }
+            }
+        }
+        
+        if let error = uiState as? LibraryUiStateError {
+            if error.type == .network {
+                ToolbarItem(placement: .navigation) {
+                    Image(systemName: "externaldrive.badge.xmark")
+                        .imageScale(.medium)
+                        .foregroundColor(.red)
+                        .onTapGesture {
+                            let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
+                            let errSubtitle = "\(instanceState.selectedInstance?.label ?? instanceState.selectedInstance?.type.name ?? "") - \(instanceState.selectedInstance?.url ?? "")"
+                            let toast = Toast.text(errTitle, subtitle: errSubtitle)
+                            toast.show()
+                        }
                 }
-                .onChange(of: preferences.sortOrder) { _, newValue in
-                    preferences.saveSortOrder(newValue)
-                }
-                .menuIndicator(.hidden)
+            }
+        }
+        
+        if uiState is LibraryUiStateSuccess<AnyObject> {
+            toolbarViewOptions
         }
         
         ToolbarItem(placement: .navigation) {
-            FilterByPickerMenu(type: type, filteredBy: $preferences.filterBy)
-                .onChange(of: preferences.filterBy) { _, newValue in
-                    preferences.saveFilterBy(newValue)
+            InstancePickerMenu(
+                instances: instanceState.instances,
+                onChangeInstance: { instancesViewModel.setInstanceActive($0) }
+            )
+            .menuIndicator(.hidden)
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarViewOptions: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            SortByPickerMenu(
+                type: type,
+                sortBy: preferences.sortBy,
+                sortOrder: preferences.sortOrder,
+                changeSortBy: { newValue in
+                    arrMediaViewModel.updateSortBy(newValue)
+                },
+                changeSortOrder: { newValue in
+                    arrMediaViewModel.updateSortOrder(newValue)
                 }
+            )
+            .menuIndicator(.hidden)
+        }
+        
+        ToolbarItem(placement: .navigation) {
+            FilterByPickerMenu(
+                type: type,
+                filterBy: preferences.filterBy,
+                changeFilterBy: { newValue in
+                    arrMediaViewModel.updateFilterBy(newValue)
+                })
                 .menuIndicator(.hidden)
         }
         
@@ -214,7 +178,7 @@ struct ArrTab: View {
         }
         
         
-        let newType = switch viewType {
+        let newType = switch preferences.viewType {
         case .grid: ViewType.list
         case .list: ViewType.grid
         }
@@ -226,7 +190,7 @@ struct ArrTab: View {
             Image(systemName: image)
                 .imageScale(.medium)
                 .onTapGesture {
-                    preferences.saveViewType(type: type, viewType: newType)
+                    arrMediaViewModel.updateViewType(newType)
                 }
         }
         
@@ -248,16 +212,7 @@ struct ArrTab: View {
         }
     }
     
-    @ViewBuilder
-    private func mediaView(
-        items: [ArrMedia],
-        onItemClicked: @escaping (ArrMedia) -> Void
-    ) -> some View {
-        switch viewType {
-        case .grid: PosterGridView(items: items, onItemClick: onItemClicked)
-        case .list: PosterListView(items: items, onItemClick: onItemClicked)
-        }
-    }
+    
     
     @ViewBuilder
     private func errorView() -> some View {
@@ -272,9 +227,7 @@ struct ArrTab: View {
             Text("couldnt_connect_message")
                 .multilineTextAlignment(.center)
             Button(action: {
-                Task {
-                    await arrViewModel?.refreshLibrary()
-                }
+                arrMediaViewModel.refresh()
             }) {
                 Text("retry")
             }
@@ -289,26 +242,10 @@ struct ArrTab: View {
                 .font(.system(size: 64))
                 .imageScale(.large)
             
-            Text("no_type_instances \(type)")
+            Text(LocalizedStringResource("no_type_instances \(type)"))
                 .font(.system(size: 20, weight: .medium))
                 .multilineTextAlignment(.center)
-            Text(String(localized: LocalizedStringResource("no_type_instances_message \(type)")))
-                .multilineTextAlignment(.center)
-        }
-        .padding(.horizontal, 24)
-    }
-    
-    @ViewBuilder
-    private func emptyLibraryView() -> some View {
-        VStack(alignment: .center, spacing: 8) {
-            Image(systemName: "popcorn.fill")
-                .font(.system(size: 64))
-                .imageScale(.large)
-            
-            Text("empty_library")
-                .font(.system(size: 20, weight: .medium))
-                .multilineTextAlignment(.center)
-            Text("empty_library_message")
+            Text(LocalizedStringResource("no_type_instances_message \(type)"))
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 24)

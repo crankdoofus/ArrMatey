@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.ArrRelease
+import com.dnfapps.arrmatey.arr.api.model.ArrRelease
 
 enum class ReleaseSortBy {
     Weight,

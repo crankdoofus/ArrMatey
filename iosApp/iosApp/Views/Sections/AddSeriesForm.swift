@@ -9,10 +9,14 @@ import Shared
 import SwiftUI
 
 struct AddSeriesForm: View {
-    @Binding var qualityProfiles: [QualityProfile]
-    @Binding var rootFolders: [RootFolder]
-    let onDismiss: () -> Void
     let series: ArrSeries
+    let addItemStatus: OperationStatus
+    let qualityProfiles: [QualityProfile]
+    let rootFolders: [RootFolder]
+    let tags: [Tag]
+    let onAddItem: (ArrMedia) -> Void
+    let onDismiss: () -> Void
+    
     
     @State private var monitorType: SeriesMonitorType = .all
     @State private var selectedQualityProfileId: Int32? = nil
@@ -20,30 +24,16 @@ struct AddSeriesForm: View {
     @State private var useSeasonFolders: Bool = true
     @State private var selectedRootFolderId: Int32? = nil
     
-    @State private var addItemUiState: Any = DetailsUiStateInitial()
-    @State private var observationTask: Task<Void, Never>? = nil
-    
-    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
-    @EnvironmentObject private var navigation: NavigationManager
-    
     private let selectableMonitorTypes: [SeriesMonitorType] = SeriesMonitorType.companion.allValues().filter {
         $0 != .unknown && $0 != .latestSeason && $0 != .skip
     }
     
-    private var arrViewModel: ArrViewModel? {
-        arrTabViewModel.arrViewModel
-    }
-    
-    private var successItem: ArrSeries? {
-        (addItemUiState as? DetailsUiStateSuccess)?.item
+    private var selectedRootFolderPath: String? {
+        rootFolders.first { $0.id == selectedRootFolderId }?.path
     }
     
     private var isLoading: Bool {
-        addItemUiState is DetailsUiStateLoading
-    }
-    
-    private var selectedRootFolderPath: String? {
-        rootFolders.first { $0.id == selectedRootFolderId }?.path
+        addItemStatus is OperationStatusInProgress
     }
     
     var body: some View {
@@ -61,18 +51,6 @@ struct AddSeriesForm: View {
                     if !rootFolders.isEmpty && selectedRootFolderId == nil {
                         selectedRootFolderId = rootFolders[0].id
                     }
-                }
-                .onChange(of: successItem) { _, newValue in
-                    if let item = newValue, let id = item.id {
-                        onDismiss()
-                        navigation.replaceCurrent(with: .details(id.int64Value), for: .sonarr)
-                    }
-                }
-                .task {
-                    await setupViewModel()
-                }
-                .onDisappear {
-                    observationTask?.cancel()
                 }
         }
     }
@@ -131,7 +109,7 @@ struct AddSeriesForm: View {
                 Task {
                     if let profileId = selectedQualityProfileId, let path = selectedRootFolderPath {
                         let newSeries = series.doCopyForCreation(monitor: monitorType, qualityProfileId: profileId, seriesType: selectedSeriesType, seasonFolder: useSeasonFolders, rootFolderPath: path)
-                        await arrViewModel?.addItem(item: newSeries)
+                        onAddItem(newSeries)
                     }
                 }
             } label: {
@@ -142,26 +120,6 @@ struct AddSeriesForm: View {
                 }
             }
             .disabled(isLoading)
-        }
-    }
-    
-    @MainActor
-    private func setupViewModel() async {
-        observationTask?.cancel()
-        observationTask = Task {
-            await observeAddItemState()
-        }
-    }
-    
-    @MainActor
-    private func observeAddItemState() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.getAddItemUiState()
-            for try await value in flow {
-                self.addItemUiState = value
-            }
         }
     }
 }

@@ -17,7 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.entensions.getString
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 
 @Composable
 fun FilterMenuButton(

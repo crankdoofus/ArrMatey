@@ -10,7 +10,7 @@ import Shared
 
 struct EpisodeRow: View {
     let episode: Episode
-    let viewModel: SonarrViewModel
+    let onToggleEpisodeMonitor: (Episode) -> Void
     
     private var statusString: String? {
         episode.episodeFile?.qualityName ??
@@ -63,9 +63,7 @@ struct EpisodeRow: View {
             
             Image(systemName: episode.monitored ? "bookmark.fill" : "bookmark")
                 .onTapGesture {
-                    Task {
-                        await viewModel.toggleEpisodeMonitor(episodeId: episode.id)
-                    }
+                    onToggleEpisodeMonitor(episode)
                 }
         }
     }

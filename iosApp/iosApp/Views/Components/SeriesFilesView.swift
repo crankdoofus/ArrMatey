@@ -10,65 +10,41 @@ import Shared
 
 struct SeriesFilesView: View {
     let series: ArrSeries
-    let viewModel: SonarrViewModel
+    let episodes: [Episode]
+    let searchIds: Set<Int64>
+    let searchResult: Bool?
+    let onToggleSeasonMonitor: (Int32) -> Void
+    let onToggleEpisodeMonitor: (Episode) -> Void
+    let onEpisodeAutomaticSearch: (Int64) -> Void
+    let onSeasonAutomaticSearch: (Int32) -> Void
     
-    @State private var episodeState: EpisodeUiState = EpisodeUiStateInitial()
-    @State private var observationTask: Task<Void, Never>? = nil
+    @ObservedObject private var activityQueueViewModel = ActivityQueueViewModelS()
     
-    private var allEpisodes: [Episode]? {
-        if let state = episodeState as? EpisodeUiStateSuccess {
-            state.items.sorted { $0.episodeNumber > $1.episodeNumber }
-        } else { nil }
+    private var queueItems: [QueueItem] {
+        activityQueueViewModel.queueItems
     }
     
-    private func seasonEpisodes(seasonNumber: Int32) -> [Episode] {
-        guard let allEpisodes else { return [] }
-        return allEpisodes.filter { $0.seasonNumber == seasonNumber }
-    }
-    
-    private var seasons: [Season] {
-        series.seasons.sorted { $0.seasonNumber > $1.seasonNumber }
+    private var seasonEpisodes: [Int32:[Episode]] {
+        Dictionary(grouping: episodes, by: { $0.seasonNumber })
     }
     
     var body: some View {
-        contentForState()
-            .task {
-                await setupViewModel()
-                if let seriesId = series.id as? Int64 {
-                    await viewModel.getEpsiodes(seriesId: seriesId)
-                }
-            }
-    }
-    
-    @ViewBuilder
-    private func contentForState() -> some View {
+        let sortedSeasons = series.seasons.sorted { $0.seasonNumber > $1.seasonNumber }
         Section {
-            ForEach(seasons, id: \.self) { season in
-                SeasonCard(series: series, season: season, viewModel: viewModel, episodes: seasonEpisodes(seasonNumber: season.seasonNumber))
+            ForEach(sortedSeasons, id: \.self) { season in
+                SeasonCard(
+                    series: series,
+                    season: season,
+                    episodes: seasonEpisodes[season.seasonNumber] ?? [],
+                    onToggleSeasonMonitor: onToggleSeasonMonitor,
+                    onToggleEpisodeMonitor: onToggleEpisodeMonitor,
+                    onEpisodeAutomaticSearch: onEpisodeAutomaticSearch,
+                    onSeasonAutomaticSearch: onSeasonAutomaticSearch
+                )
             }
         } header : {
             Text(String(localized: LocalizedStringResource("seasons")))
                 .font(.system(size: 26, weight: .bold))
-        }
-    }
-    
-    @MainActor
-    private func setupViewModel() async {
-        observationTask?.cancel()
-        observationTask = Task {
-            await observeEpisodeState()
-        }
-    }
-    
-    @MainActor
-    private func observeEpisodeState() async {
-        do {
-            let flow = viewModel.getEpisodeState()
-            for try await state in flow {
-                self.episodeState = state
-            }
-        } catch {
-            print("Error observing episodes: \(error)")
         }
     }
 }

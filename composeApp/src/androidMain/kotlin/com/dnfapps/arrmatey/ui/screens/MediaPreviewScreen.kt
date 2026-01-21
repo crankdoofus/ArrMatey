@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,24 +35,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.MediaStatus
-import com.dnfapps.arrmatey.api.arr.model.SeriesAddOptions
-import com.dnfapps.arrmatey.api.arr.model.SeriesMonitorType
-import com.dnfapps.arrmatey.api.arr.model.SeriesType
-import com.dnfapps.arrmatey.api.arr.viewmodel.DetailsUiState
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.MediaStatus
+import com.dnfapps.arrmatey.arr.api.model.QualityProfile
+import com.dnfapps.arrmatey.arr.api.model.RootFolder
+import com.dnfapps.arrmatey.arr.api.model.SeriesAddOptions
+import com.dnfapps.arrmatey.arr.api.model.SeriesMonitorType
+import com.dnfapps.arrmatey.arr.api.model.SeriesType
+import com.dnfapps.arrmatey.arr.api.model.Tag
+import com.dnfapps.arrmatey.arr.viewmodel.MediaPreviewViewModel
+import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
 import com.dnfapps.arrmatey.entensions.stringResource
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DetailsHeader
@@ -58,18 +68,47 @@ import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaPreviewScreen(
     item: ArrMedia,
+    type: InstanceType,
+    viewModel: MediaPreviewViewModel = koinInjectParams(type),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
+    val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(false) }
-
     val scrollState = rememberScrollState()
+
+    val lastAddedItemId by viewModel.lastAddedItemId.collectAsStateWithLifecycle()
+    val addItemStatus by viewModel.addItemStatus.collectAsStateWithLifecycle()
+    val qualityProfiles by viewModel.qualityProfiles.collectAsStateWithLifecycle()
+    val rootFolders by viewModel.rootFolders.collectAsStateWithLifecycle()
+    val tags by viewModel.tags.collectAsStateWithLifecycle()
+
+    val successMessage = stringResource(R.string.success)
+
+    LaunchedEffect(addItemStatus) {
+        when (addItemStatus) {
+            is OperationStatus.Success -> {
+                showBottomSheet = false
+                viewModel.resetAddStatus()
+                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
+        }
+    }
+
+    LaunchedEffect(lastAddedItemId) {
+        lastAddedItemId?.let { id ->
+            showBottomSheet = false
+            val newScreen = ArrScreen.Details(id)
+            navigation.replaceCurrent(newScreen)
+            viewModel.clearLastAddedItemId()
+        }
+    }
 
     Scaffold { paddingValues ->
         Box(modifier = Modifier
@@ -124,6 +163,13 @@ fun MediaPreviewScreen(
             if (showBottomSheet) {
                 AddMediaSheet(
                     item = item,
+                    addItemStatus = addItemStatus,
+                    qualityProfiles = qualityProfiles,
+                    rootFolders = rootFolders,
+                    tags = tags,
+                    onAddItem = { newItem ->
+                        viewModel.addItem(newItem)
+                    },
                     onDismiss = { showBottomSheet = false }
                 )
             }
@@ -135,11 +181,32 @@ fun MediaPreviewScreen(
 @Composable
 fun AddMediaSheet(
     item: ArrMedia,
+    addItemStatus: OperationStatus,
+    qualityProfiles: List<QualityProfile>,
+    rootFolders: List<RootFolder>,
+    tags: List<Tag>,
+    onAddItem: (ArrMedia) -> Unit,
     onDismiss: () -> Unit
 ) {
     when (item) {
-        is ArrSeries -> AddSeriesForm(item, onDismiss)
-        is ArrMovie -> AddMovieForm(item, onDismiss)
+        is ArrSeries -> AddSeriesForm(
+            item,
+            addItemStatus,
+            qualityProfiles,
+            rootFolders,
+            tags,
+            onAddItem,
+            onDismiss
+        )
+        is ArrMovie -> AddMovieForm(
+            item,
+            addItemStatus,
+            qualityProfiles,
+            rootFolders,
+            tags,
+            onAddItem,
+            onDismiss
+        )
     }
 }
 
@@ -147,30 +214,22 @@ fun AddMediaSheet(
 @Composable
 fun AddSeriesForm(
     item: ArrSeries,
-    onDismiss: () -> Unit,
-    navigation: ArrTabNavigation = LocalArrTabNavigation.current
+    addItemStatus: OperationStatus,
+    qualityProfiles: List<QualityProfile>,
+    rootFolders: List<RootFolder>,
+    tags: List<Tag>,
+    onAddItem: (ArrMedia) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null) return
-
-    val uiState by arrViewModel.addItemUiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is DetailsUiState.Success<out ArrMedia> -> {
+    LaunchedEffect(addItemStatus) {
+        when(addItemStatus) {
+            is OperationStatus.Success -> {
                 onDismiss()
-                state.item.id?.let { id ->
-                    val newScreen = ArrScreen.Details(id)
-                    navigation.replaceCurrent(newScreen)
-                }
+                // check claude todo
             }
             else -> {}
         }
     }
-
-    val qualityProfiles by arrViewModel.qualityProfiles.collectAsStateWithLifecycle()
-    val tags by arrViewModel.tags.collectAsStateWithLifecycle()
-    val rootFolders by arrViewModel.rootFolders.collectAsStateWithLifecycle()
 
     var monitor by remember { mutableStateOf(SeriesMonitorType.All) }
     var qualityProfile by remember { mutableStateOf(qualityProfiles.first()) }
@@ -191,21 +250,25 @@ fun AddSeriesForm(
         ) {
             Button(
                 onClick = {
-                    val newItem = item.copy(
-                        addOptions = SeriesAddOptions(monitor = monitor),
+                    val newItem = item.copyForCreation(
+                        monitor = monitor,
                         qualityProfileId = qualityProfile.id,
                         seriesType = seriesType,
                         seasonFolder = seasonFolders,
                         rootFolderPath = rootFolder.path
                     )
-                    arrViewModel.addItem(newItem)
+                    onAddItem(newItem)
                 },
-                enabled = uiState !is DetailsUiState.Success<*>
+                enabled = addItemStatus !is OperationStatus.InProgress
             ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null
-                )
+                if (addItemStatus is OperationStatus.InProgress) {
+                    CircularProgressIndicator(Modifier.size(24.dp))
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null
+                    )
+                }
             }
 
             DropdownPicker(
@@ -276,30 +339,21 @@ fun AddSeriesForm(
 @Composable
 fun AddMovieForm(
     item: ArrMovie,
-    onDismiss: () -> Unit,
-    navigation: ArrTabNavigation = LocalArrTabNavigation.current
+    addItemStatus: OperationStatus,
+    qualityProfiles: List<QualityProfile>,
+    rootFolders: List<RootFolder>,
+    tags: List<Tag>,
+    onAddItem: (ArrMedia) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null) return
-
-    val uiState by arrViewModel.addItemUiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is DetailsUiState.Success<out ArrMedia> -> {
+    LaunchedEffect(addItemStatus) {
+        when (addItemStatus) {
+            is OperationStatus.Success -> {
                 onDismiss()
-                state.item.id?.let { id ->
-                    val newScreen = ArrScreen.Details(id)
-                    navigation.replaceCurrent(newScreen)
-                }
             }
             else -> {}
         }
     }
-
-    val qualityProfiles by arrViewModel.qualityProfiles.collectAsStateWithLifecycle()
-    val tags by arrViewModel.tags.collectAsStateWithLifecycle()
-    val rootFolders by arrViewModel.rootFolders.collectAsStateWithLifecycle()
 
     var monitored by remember { mutableStateOf(true) }
     var minimumAvailability by remember { mutableStateOf(MediaStatus.Announced) }
@@ -318,20 +372,24 @@ fun AddMovieForm(
         ) {
             Button(
                 onClick = {
-                    val newItem = item.copy(
+                    val newItem = item.copyForCreation(
                         monitored = monitored,
                         minimumAvailability = minimumAvailability,
                         qualityProfileId = qualityProfile.id,
                         rootFolderPath = rootFolder.path
                     )
-                    arrViewModel.addItem(newItem)
+                    onAddItem(newItem)
                 },
-                enabled = uiState !is DetailsUiState.Success<*>
+                enabled = addItemStatus !is OperationStatus.InProgress
             ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null
-                )
+                if (addItemStatus is OperationStatus.InProgress) {
+                    CircularProgressIndicator(Modifier.size(24.dp))
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null
+                    )
+                }
             }
 
             Row(

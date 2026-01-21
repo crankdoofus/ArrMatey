@@ -7,7 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.dnfapps.arrmatey.database.dao.InstanceDao
-import com.dnfapps.arrmatey.model.Instance
+import com.dnfapps.arrmatey.instances.model.Instance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 

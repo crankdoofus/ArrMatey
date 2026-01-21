@@ -11,8 +11,11 @@ import Shared
 struct SeasonCard: View {
     let series: ArrSeries
     let season: Season
-    let viewModel: SonarrViewModel
     let episodes: [Episode]
+    let onToggleSeasonMonitor: (Int32) -> Void
+    let onToggleEpisodeMonitor: (Episode) -> Void
+    let onEpisodeAutomaticSearch: (Int64) -> Void
+    let onSeasonAutomaticSearch: (Int32) -> Void
     
     @State private var expanded: Bool = false
     
@@ -24,7 +27,9 @@ struct SeasonCard: View {
                 seasonDetails
                 
                 ForEach(episodes, id: \.self) { episode in
-                    EpisodeRow(episode: episode, viewModel: viewModel)
+                    EpisodeRow(episode: episode, onToggleEpisodeMonitor: { ep in
+                        onToggleEpisodeMonitor(ep)
+                    })
                     if episode != episodes.last {
                         Divider()
                     }
@@ -100,18 +105,16 @@ struct SeasonCard: View {
                     .rotationEffect(.degrees(expanded ? 180 : 0))
                     .animation(.easeInOut(duration: 0.3), value: expanded)
             }
-            .onTapGesture {
-                expanded = !expanded
-            }
             
             Image(systemName: season.monitored ? "bookmark.fill" : "bookmark")
                 .onTapGesture {
-                    Task {
-                        await viewModel.toggleSeasonMonitor(series: series, seasonNumber: season.seasonNumber)
-                    }
+                    onToggleSeasonMonitor(season.seasonNumber)
                 }
         }
         .frame(maxWidth: .infinity)
+        .onTapGesture {
+            expanded = !expanded
+        }
     }
     
     private var seasonDetails: some View {

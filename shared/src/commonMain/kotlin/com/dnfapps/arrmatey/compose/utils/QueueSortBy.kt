@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.QueueItem
+import com.dnfapps.arrmatey.arr.api.model.QueueItem
 
 enum class QueueSortBy {
     Title,

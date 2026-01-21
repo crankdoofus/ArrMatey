@@ -1,0 +1,72 @@
+package com.dnfapps.arrmatey.arr.api.model
+
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import kotlin.time.Instant
+
+@Serializable
+data class SeriesRelease(
+    override val id: Int? = null,
+    override val guid: String,
+    override val quality: QualityInfo,
+    override val customFormats: List<CustomFormat>,
+    override val customFormatScore: Float,
+    override val qualityWeight: Float,
+    override val age: Float,
+    override val ageHours: Float,
+    override val ageMinutes: Float,
+    override val size: Long,
+    override val indexerId: Int,
+    override val indexer: String,
+    override val releaseGroup: String? = null,
+    override val subGroup: String? = null,
+    override val releaseHash: String? = null,
+    override val title: String,
+    override val sceneSource: Boolean,
+    override val approved: Boolean,
+    override val temporarilyRejected: Boolean,
+    override val rejected: Boolean,
+    override val tmdbId: Int? = null,
+    override val imdbId: String? = null,
+    override val rejections: List<String>,
+    @Contextual override val publishDate: Instant,
+    override val commentUrl: String,
+    override val downloadUrl: String,
+    override val infoUrl: String,
+    override val downloadAllowed: Boolean,
+    override val releaseWeight: Float,
+    override val infoHash: String,
+    override val seeders: Int,
+    override val leechers: Int,
+    override val protocol: ReleaseProtocol,
+    override val downloadClientId: Int? = null,
+    override val downloadClient: String? = null,
+    override val shouldOverride: Boolean = false,
+    override val languages: List<Language> = emptyList(),
+    override val magnetUrl: String? = null,
+
+    val indexerFlags: Int,
+    val fullSeason: Boolean,
+    val seasonNumber: Int,
+    val languageWeight: Float,
+    @Contextual val airDate: Instant? = null,
+    val seriesTitle: String? = null,
+    val episodeNumbers: List<Long>,
+    val absoluteEpisodeNumbers: List<Long>,
+    val mappedSeasonNumber: Int? = null,
+    val mappedEpisodeNumbers: List<Long>,
+    val mappedAbsoluteEpisodeNumbers: List<Long>,
+    val mappedSeriesId: Int? = null,
+//    val mappedEpisodeInfo: List<Any>, // todo
+    val tvdbId: Int,
+    val tvRageId: Int,
+    val episodeRequested: Boolean,
+//    val sceneMapping: Any, // todo
+    val isDaily: Boolean,
+    val isAbsoluteNumbering: Boolean,
+    val isPossibleSpecialEpisode: Boolean,
+    val special: Boolean,
+    val seriesId: Int? = null,
+    val episodeId: Long? = null,
+    val episodeIds: List<Long> = emptyList()
+): ArrRelease

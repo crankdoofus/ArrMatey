@@ -1,7 +1,7 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.ArrRelease
-import com.dnfapps.arrmatey.api.arr.model.SeriesRelease
+import com.dnfapps.arrmatey.arr.api.model.ArrRelease
+import com.dnfapps.arrmatey.arr.api.model.SeriesRelease
 
 enum class ReleaseFilterBy {
     Any,

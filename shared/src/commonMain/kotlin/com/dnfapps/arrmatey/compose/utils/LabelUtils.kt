@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.compose.utils
 
-import com.dnfapps.arrmatey.api.arr.model.Language
+import com.dnfapps.arrmatey.arr.api.model.Language
 
 fun List<Language>.singleLanguageLabel(): String {
     return when (this.size) {

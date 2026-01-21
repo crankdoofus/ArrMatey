@@ -30,23 +30,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.arr.viewmodel.MoreScreenViewModel
 import com.dnfapps.arrmatey.entensions.getDrawableId
 import com.dnfapps.arrmatey.isDebug
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.navigation.SettingsScreen
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    viewModel: MoreScreenViewModel = koinInject(),
     settingsNav: SettingsNavigation = koinInject<SettingsNavigation>()
 ) {
-    val instanceViewModel = viewModel<InstanceViewModel>()
-
-    val allInstances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
+    val allInstances by viewModel.instances.collectAsStateWithLifecycle()
 
     val radius = 12.dp
 

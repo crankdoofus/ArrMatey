@@ -11,11 +11,8 @@ import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
 import com.dnfapps.arrmatey.compose.icons.Hard_drive
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 
 enum class SortBy(
     val iosIcon: String,
@@ -66,28 +63,28 @@ enum class SortOrder(
     Desc("arrow.down", "sort_descending", Icons.Default.ArrowDownward)
 }
 
-private fun List<ArrMedia>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
-    SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.sortTitle?.lowercase() } else sortedByDescending { it.sortTitle?.lowercase() }
-    SortBy.Year -> if (order == SortOrder.Asc) sortedBy { it.year } else sortedByDescending { it.year }
-    SortBy.Added -> if (order == SortOrder.Asc) sortedBy { it.added } else sortedByDescending { it.added }
-    SortBy.Rating -> if (order == SortOrder.Asc) sortedBy { it.ratingScore() } else sortedByDescending { it.ratingScore() }
-    SortBy.FileSize -> if (order == SortOrder.Asc) sortedBy { it.statistics?.sizeOnDisk } else sortedByDescending { it.statistics?.sizeOnDisk }
-    else -> this
-}
-
-fun List<ArrSeries>.applySeriesSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-    SortBy.NextAiring -> if (order == SortOrder.Asc) sortedBy { it.nextAiring } else sortedByDescending { it.nextAiring }
-    SortBy.PreviousAiring -> if (order == SortOrder.Asc) sortedBy { it.previousAiring } else sortedByDescending { it.previousAiring }
-    else -> applyBaseSorting(sortBy, order) as List<ArrSeries>
-}
-
-fun List<ArrMovie>.applyMovieSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-    SortBy.Grabbed -> if (order == SortOrder.Asc) sortedBy { it.movieFile?.dateAdded } else sortedByDescending { it.movieFile?.dateAdded }
-    SortBy.DigitalRelease -> if (order == SortOrder.Asc) sortedBy { it.digitalRelease } else sortedByDescending { it.digitalRelease }
-    else -> applyBaseSorting(sortBy, order) as List<ArrMovie>
-}
-
-fun List<ArrMedia>.applySorting(type: InstanceType, sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(type) {
-    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesSorting(sortBy, order)
-    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieSorting(sortBy, order)
-}
+//private fun List<ArrMedia>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
+//    SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.sortTitle?.lowercase() } else sortedByDescending { it.sortTitle?.lowercase() }
+//    SortBy.Year -> if (order == SortOrder.Asc) sortedBy { it.year } else sortedByDescending { it.year }
+//    SortBy.Added -> if (order == SortOrder.Asc) sortedBy { it.added } else sortedByDescending { it.added }
+//    SortBy.Rating -> if (order == SortOrder.Asc) sortedBy { it.ratingScore() } else sortedByDescending { it.ratingScore() }
+//    SortBy.FileSize -> if (order == SortOrder.Asc) sortedBy { it.statistics?.sizeOnDisk } else sortedByDescending { it.statistics?.sizeOnDisk }
+//    else -> this
+//}
+//
+//fun List<ArrSeries>.applySeriesSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
+//    SortBy.NextAiring -> if (order == SortOrder.Asc) sortedBy { it.nextAiring } else sortedByDescending { it.nextAiring }
+//    SortBy.PreviousAiring -> if (order == SortOrder.Asc) sortedBy { it.previousAiring } else sortedByDescending { it.previousAiring }
+//    else -> applyBaseSorting(sortBy, order) as List<ArrSeries>
+//}
+//
+//fun List<ArrMovie>.applyMovieSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
+//    SortBy.Grabbed -> if (order == SortOrder.Asc) sortedBy { it.movieFile?.dateAdded } else sortedByDescending { it.movieFile?.dateAdded }
+//    SortBy.DigitalRelease -> if (order == SortOrder.Asc) sortedBy { it.digitalRelease } else sortedByDescending { it.digitalRelease }
+//    else -> applyBaseSorting(sortBy, order) as List<ArrMovie>
+//}
+//
+//fun List<ArrMedia>.applySorting(type: InstanceType, sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(type) {
+//    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesSorting(sortBy, order)
+//    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieSorting(sortBy, order)
+//}

@@ -22,7 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import arrmatey.shared.generated.resources.Res
 import arrmatey.shared.generated.resources.season
 import arrmatey.shared.generated.resources.unknown
@@ -46,11 +44,10 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.MediaStatus
-import com.dnfapps.arrmatey.api.client.ActivityQueue
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.extensions.pxToDp
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
@@ -66,18 +63,15 @@ private val defaultHeight = 100.dp
 fun <T: ArrMedia> MediaList(
     items: List<T>,
     onItemClick: (T) -> Unit,
+    itemIsActive: (T) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    val activityQueue by ActivityQueue.items.collectAsStateWithLifecycle()
-
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items) { item ->
-            val isActive by remember { derivedStateOf {
-                activityQueue.flatMap { it.value }.any { it.mediaId == item.id }
-            } }
+            val isActive = itemIsActive(item)
             MediaItem(item, onItemClick, isActive)
         }
     }

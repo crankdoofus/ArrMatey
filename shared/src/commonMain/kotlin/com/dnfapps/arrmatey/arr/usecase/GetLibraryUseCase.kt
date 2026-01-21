@@ -1,0 +1,85 @@
+package com.dnfapps.arrmatey.arr.usecase
+
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.state.LibraryUiState
+import com.dnfapps.arrmatey.client.ErrorType
+import com.dnfapps.arrmatey.client.NetworkResult
+import com.dnfapps.arrmatey.compose.utils.FilterBy
+import com.dnfapps.arrmatey.compose.utils.SortBy
+import com.dnfapps.arrmatey.compose.utils.SortOrder
+import com.dnfapps.arrmatey.datastore.InstancePreferenceStoreRepository
+import com.dnfapps.arrmatey.datastore.InstancePreferences
+import com.dnfapps.arrmatey.instances.repository.InstanceManager
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+
+class GetLibraryUseCase(
+    private val instanceManager: InstanceManager,
+    private val preferencesStoreRepository: InstancePreferenceStoreRepository
+) {
+    operator fun invoke(instanceId: Long): Flow<LibraryUiState<ArrMedia>> = flow {
+        val repository = instanceManager.getRepository(instanceId)
+        if (repository == null) {
+            emit(LibraryUiState.Error("Instance not found", ErrorType.Unexpected))
+            return@flow
+        }
+        val preferencesRepository = preferencesStoreRepository.getInstancePreferences(instanceId)
+
+        emit(LibraryUiState.Loading)
+        coroutineScope {
+            launch {
+                repository.refreshLibrary()
+            }
+        }
+
+        combine(
+            repository.library,
+            preferencesRepository.observePreferences()
+        ) { libraryResult, preferences ->
+            when (libraryResult) {
+                is NetworkResult.Loading -> LibraryUiState.Loading
+                is NetworkResult.Error -> LibraryUiState.Error(libraryResult.message ?: "")
+                is NetworkResult.Success -> {
+                    val sorted = applySorting(libraryResult.data, preferences)
+                    val filtered = applyFiltering(sorted, preferences)
+                    LibraryUiState.Success(filtered, preferences)
+                }
+                null -> LibraryUiState.Initial
+            }
+        }.collect { emit(it) }
+    }
+
+    private fun applySorting(
+        items: List<ArrMedia>,
+        preferences: InstancePreferences
+    ): List<ArrMedia> {
+        val comparator: Comparator<ArrMedia> = when (preferences.sortBy) {
+            SortBy.Title -> compareBy { it.sortTitle }
+            SortBy.Year -> compareBy { it.year }
+            else -> compareBy { it.sortTitle }
+        }
+
+        return if (preferences.sortOrder == SortOrder.Asc) {
+            items.sortedWith(comparator)
+        } else {
+            items.sortedWith(comparator.reversed())
+        }
+    }
+
+    private fun applyFiltering(
+        items: List<ArrMedia>,
+        preferences: InstancePreferences
+    ): List<ArrMedia> = when (preferences.filterBy) {
+        FilterBy.All -> items
+        FilterBy.Monitored -> items.filter { it.monitored }
+        FilterBy.Unmonitored -> items.filterNot { it.monitored }
+        FilterBy.Missing -> items.filter { it.isMissing }
+        FilterBy.Wanted -> items.filter { it.isWanted }
+        FilterBy.Downloaded -> items.filter { it.isDownloaded }
+        FilterBy.EndedOnly -> items.filter { it.isEnded }
+        FilterBy.ContinuingOnly -> items.filter { it.isContinuing }
+    }
+}

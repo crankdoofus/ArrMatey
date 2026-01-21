@@ -3,20 +3,35 @@ package com.dnfapps.arrmatey.database
 import com.dnfapps.arrmatey.database.dao.ConflictField
 import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.database.dao.InstanceDao
-import com.dnfapps.arrmatey.model.Instance
+import com.dnfapps.arrmatey.instances.model.Instance
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class InstanceRepository: KoinComponent {
+class InstanceRepository(
+    private val instanceDao: InstanceDao
+) {
 
-    private val instanceDao: InstanceDao by inject()
+    fun observeAllInstances(): Flow<List<Instance>> =
+        instanceDao.observeAllInstances()
+
+    fun observeInstancesByType(type: InstanceType): Flow<List<Instance>> =
+        instanceDao.observeInstancesByType(type)
+
+    fun observeSelectedInstance(type: InstanceType): Flow<Instance?> =
+        instanceDao.observeSelectedInstance(type)
+
+    suspend fun getInstanceById(id: Long): Instance? =
+        instanceDao.getInstanceById(id)
+
+    suspend fun getInstancesByType(type: InstanceType): List<Instance> =
+        instanceDao.getInstancesOfType(type)
 
     val allInstancesFlow: StateFlow<List<Instance>> = instanceDao.observeAllInstances()
         .stateIn(

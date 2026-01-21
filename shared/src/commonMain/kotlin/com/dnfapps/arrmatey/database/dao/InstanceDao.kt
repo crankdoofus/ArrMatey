@@ -7,8 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.dnfapps.arrmatey.model.Instance
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.Instance
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,16 +26,25 @@ interface InstanceDao {
     @Query("SELECT * FROM instances")
     fun observeAllInstances(): Flow<List<Instance>>
 
+    @Query("SELECT * FROM instances WHERE type = :type")
+    fun observeInstancesByType(type: InstanceType): Flow<List<Instance>>
+
     @Query("SELECT * FROM instances")
     suspend fun getAllInstances(): List<Instance>
+
+    @Query("SELECT * FROM instances WHERE id = :id")
+    suspend fun getInstanceById(id: Long): Instance?
+
+    @Query("SELECT * FROM instances WHERE type = :type AND selected = 1 LIMIT 1")
+    fun observeSelectedInstance(type: InstanceType): Flow<Instance?>
 
     @Query("SELECT * FROM instances WHERE type = :type")
     suspend fun getInstancesOfType(type: InstanceType): List<Instance>
 
-    @Query("UPDATE instances SET selected = false WHERE type = :type")
+    @Query("UPDATE instances SET selected = 0 WHERE type = :type")
     suspend fun unselectAllOf(type: InstanceType)
 
-    @Query("UPDATE instances SET selected = true WHERE id = :id")
+    @Query("UPDATE instances SET selected = 1 WHERE id = :id")
     suspend fun selectInstance(id: Long)
 
     @Transaction

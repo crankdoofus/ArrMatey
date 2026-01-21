@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Card
@@ -30,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,20 +49,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.QueueDownloadState
-import com.dnfapps.arrmatey.api.arr.model.QueueItem
-import com.dnfapps.arrmatey.api.arr.model.RadarrQueueItem
-import com.dnfapps.arrmatey.api.arr.model.SonarrQueueItem
-import com.dnfapps.arrmatey.api.client.ActivityQueue
+import com.dnfapps.arrmatey.arr.api.model.QueueDownloadState
+import com.dnfapps.arrmatey.arr.api.model.QueueItem
+import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
 import com.dnfapps.arrmatey.compose.utils.QueueSortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
-import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
-import com.dnfapps.arrmatey.compose.utils.filterBy
-import com.dnfapps.arrmatey.database.InstanceRepository
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
+import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.utils.format
 import org.koin.compose.koinInject
@@ -69,42 +66,21 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
-fun ActivityTab() {
-    val queueItems by ActivityQueue.items.collectAsStateWithLifecycle()
-
-    var instanceFilterId by remember { mutableStateOf<Long?>(null) }
-    var sortOrder by remember { mutableStateOf(SortOrder.Asc) }
-    var sortBy by remember { mutableStateOf(QueueSortBy.Added) }
+fun ActivityTab(
+    viewModel: ActivityQueueViewModel = koinInject()
+) {
+    val queueItems by viewModel.queueItems.collectAsStateWithLifecycle()
+    val instances by viewModel.instances.collectAsStateWithLifecycle()
+    val uiState by viewModel.activityQueueUiState.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<QueueItem?>(null) }
-
-    val allItems: List<QueueItem> by remember {
-        derivedStateOf {
-            queueItems
-                .flatMap { it.value }
-                .groupBy { it.taskGroup }
-                .map { (_, groupItems) ->
-                    val first = groupItems.first()
-                    if (groupItems.size > 1) {
-                        when (first) {
-                            is SonarrQueueItem -> first.copy(taskGroupCount = groupItems.size)
-                            is RadarrQueueItem -> first.copy(taskGroupCount = groupItems.size)
-                        }
-                    } else {
-                        first
-                    }
-                }
-                .filterBy(instanceFilterId)
-                .applySorting(sortBy, sortOrder)
-        }
-    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    val countText = if (allItems.isNotEmpty()) " (${allItems.size})" else ""
+                    val countText = if (queueItems.isNotEmpty()) " (${queueItems.size})" else ""
                     Text(stringResource(R.string.activity) + countText)
                 },
                 actions = {
@@ -127,9 +103,14 @@ fun ActivityTab() {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(horizontal = 12.dp)
             ) {
-                items(items = allItems) { item ->
+                items(items = queueItems) { item ->
                     ActivityItem(item) {
                         selectedItem = item
+                    }
+                }
+                if (queueItems.isEmpty()) {
+                    item {
+                        EmptyActivityState()
                     }
                 }
             }
@@ -138,12 +119,13 @@ fun ActivityTab() {
         if (showFilterSheet) {
             FilterSheet(
                 onDismiss = { showFilterSheet = false },
-                selectedInstanceId = instanceFilterId,
-                onInstanceChange = { instanceFilterId = it },
-                sortBy = sortBy,
-                onSortByChanged = { sortBy = it },
-                sortOrder = sortOrder,
-                onSortOrderChanged = { sortOrder = it }
+                instances = instances,
+                selectedInstanceId = uiState.instanceId,
+                onInstanceChange = { viewModel.setInstanceId(it) },
+                sortBy = uiState.sortBy,
+                onSortByChanged = { viewModel.setSortBy(it) },
+                sortOrder = uiState.sortOrder,
+                onSortOrderChanged = { viewModel.setSortOrder(it)}
             )
         }
 
@@ -216,16 +198,14 @@ fun ActivityItem(item: QueueItem, onClick: () -> Unit) {
 @Composable
 fun FilterSheet(
     onDismiss: () -> Unit,
+    instances: List<Instance>,
     selectedInstanceId: Long?,
     onInstanceChange: (Long?) -> Unit,
     sortBy: QueueSortBy,
     onSortByChanged: (QueueSortBy) -> Unit,
     sortOrder: SortOrder,
-    onSortOrderChanged: (SortOrder) -> Unit,
-    instanceRepository: InstanceRepository = koinInject<InstanceRepository>()
+    onSortOrderChanged: (SortOrder) -> Unit
 ) {
-    val instances by instanceRepository.allInstancesFlow.collectAsStateWithLifecycle()
-
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -396,5 +376,34 @@ fun QueueItemInfoSheet(
 
             // todo - add options to remove + manual import
         }
+    }
+}
+
+@Composable
+fun EmptyActivityState(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+//        Text(
+//            text = stringResource(R.string.no_activity),
+//            style = MaterialTheme.typography.titleMedium,
+//            color = MaterialTheme.colorScheme.onSurfaceVariant
+//        )
+//        Text(
+//            text = stringResource(R.string.no_activity_description),
+//            style = MaterialTheme.typography.bodyMedium,
+//            color = MaterialTheme.colorScheme.onSurfaceVariant,
+//            textAlign = TextAlign.Center
+//        )
     }
 }

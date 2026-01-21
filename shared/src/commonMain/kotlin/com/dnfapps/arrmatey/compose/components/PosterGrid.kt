@@ -21,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,25 +32,22 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.model.Episode
-import com.dnfapps.arrmatey.api.client.ActivityQueue
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 
 @Composable
 fun <T: ArrMedia> PosterGrid(
     items: List<T>,
     onItemClick: (T) -> Unit,
+    itemIsActive: (T) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    val activityQueue by ActivityQueue.items.collectAsStateWithLifecycle()
-
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Adaptive(minSize = 120.dp),
@@ -59,9 +55,7 @@ fun <T: ArrMedia> PosterGrid(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         items(items) { item ->
-            val isActive by remember { derivedStateOf {
-                activityQueue.flatMap { it.value }.any { it.mediaId == item.id }
-            } }
+            val isActive = itemIsActive(item)
             PosterItem(
                 item = item,
                 onItemClick = onItemClick,

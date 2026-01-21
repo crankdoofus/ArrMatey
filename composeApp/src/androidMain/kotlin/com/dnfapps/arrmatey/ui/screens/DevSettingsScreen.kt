@@ -23,9 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.datastore.PreferencesStore
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import org.koin.compose.koinInject
 

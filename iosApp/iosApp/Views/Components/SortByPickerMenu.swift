@@ -9,9 +9,27 @@ import Shared
 import SwiftUI
 
 struct SortByPickerMenu: View {
-    let type: InstanceType
-    @Binding var sortedBy: SortBy
-    @Binding var sortOrder: Shared.SortOrder
+    private let type: InstanceType
+    
+    private let changeSortBy: (SortBy) -> Void
+    private let changeSortOrder: (Shared.SortOrder) -> Void
+    
+    @State private var sortedBy: SortBy
+    @State private var sortOrder: Shared.SortOrder
+    
+    init(
+        type: InstanceType,
+        sortBy: SortBy,
+        sortOrder: Shared.SortOrder,
+        changeSortBy: @escaping (SortBy) -> Void,
+        changeSortOrder: @escaping (Shared.SortOrder) -> Void
+    ) {
+        self.type = type
+        self.sortedBy = sortBy
+        self.sortOrder = sortOrder
+        self.changeSortBy = changeSortBy
+        self.changeSortOrder = changeSortOrder
+    }
     
     var body: some View {
         Menu {
@@ -44,5 +62,11 @@ struct SortByPickerMenu: View {
             Image(systemName: "arrow.up.arrow.down")
                 .imageScale(.medium)
         }
+        .onChange(of: sortedBy, { _, newValue in
+            changeSortBy(newValue)
+        })
+        .onChange(of: sortOrder, { _, newValue in
+            changeSortOrder(newValue)
+        })
     }
 }

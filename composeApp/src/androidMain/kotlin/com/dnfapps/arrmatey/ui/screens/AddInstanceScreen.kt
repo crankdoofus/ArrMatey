@@ -28,44 +28,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.arr.viewmodel.AddInstanceViewModel
 import com.dnfapps.arrmatey.database.dao.InsertResult
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstanceInfoCard
-import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddInstanceScreen(
+    viewModel: AddInstanceViewModel = koinInject(),
     navigation: SettingsNavigation = koinInject<SettingsNavigation>()
 ) {
     val scope = rememberCoroutineScope()
-
-    val addInstanceViewModel = viewModel<AddInstanceViewModel>()
-
     var selectedInstanceType by remember { mutableStateOf(InstanceType.Sonarr) }
-    val saveButtonEnabled by addInstanceViewModel.saveButtonEnabled.collectAsStateWithLifecycle()
-    val infoCardMap by addInstanceViewModel.infoCardMap.collectAsStateWithLifecycle()
-    val showInfoCard = infoCardMap[selectedInstanceType] ?: false
 
-    val createResult by addInstanceViewModel.createResult.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        addInstanceViewModel.reset()
+        viewModel.reset()
     }
 
     LaunchedEffect(selectedInstanceType) {
-        addInstanceViewModel.reset()
-        addInstanceViewModel.setInstanceLabel(selectedInstanceType.name)
+        viewModel.reset()
+        viewModel.setInstanceLabel(selectedInstanceType.name)
     }
 
-    LaunchedEffect(createResult) {
-        if (createResult is InsertResult.Success) {
+    LaunchedEffect(uiState.createResult) {
+        if (uiState.createResult is InsertResult.Success) {
             navigation.popBackStack()
         }
     }
@@ -88,10 +82,10 @@ fun AddInstanceScreen(
                     Button(
                         onClick = {
                             scope.launch {
-                                addInstanceViewModel.createInstance(selectedInstanceType)
+                                viewModel.createInstance(selectedInstanceType)
                             }
                         },
-                        enabled = saveButtonEnabled,
+                        enabled = uiState.saveButtonEnabled,
                         modifier = Modifier.padding(end = 12.dp)
                     ) {
                         Text(text = stringResource(R.string.save))
@@ -109,9 +103,11 @@ fun AddInstanceScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             AnimatedVisibility(
-                visible = showInfoCard
+                visible = uiState.infoCardMaps[selectedInstanceType] ?: false
             ) {
-                InstanceInfoCard(selectedInstanceType)
+                InstanceInfoCard(selectedInstanceType) {
+                    viewModel.dismissInfoCard(selectedInstanceType)
+                }
             }
 
             DropdownPicker(
@@ -122,7 +118,16 @@ fun AddInstanceScreen(
                 label = { Text(stringResource(R.string.instance_type)) }
             )
 
-            ArrConfigurationScreen(selectedInstanceType)
+            ArrConfigurationScreen(
+                instanceType = selectedInstanceType,
+                uiState = uiState,
+                onApiEndpointChanged = { viewModel.setApiEndpoint(it) },
+                onApiKeyChanged = { viewModel.setApiKey(it) },
+                onInstanceLabelChanged = { viewModel.setInstanceLabel(it) },
+                onIsSlowInstanceChanged = { viewModel.setIsSlowInstance(it) },
+                onCustomTimeoutChanged = { viewModel.setCustomTimeout(it) },
+                onTestConnection = { viewModel.testConnection() }
+            )
         }
     }
 }

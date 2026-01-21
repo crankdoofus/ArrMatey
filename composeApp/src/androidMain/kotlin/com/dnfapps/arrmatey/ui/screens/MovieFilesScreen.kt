@@ -18,9 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,45 +26,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.viewmodel.MovieFilesViewModel
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.ExtraFileCard
-import com.dnfapps.arrmatey.ui.components.HistoryItemView
 import com.dnfapps.arrmatey.ui.components.FileCard
+import com.dnfapps.arrmatey.ui.components.HistoryItemView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.RadarrViewModel
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun MovieFilesScreen(
     movie: ArrMovie,
+    viewModel: MovieFilesViewModel = koinInjectParams(movie.id ?: 0L),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null || arrViewModel !is RadarrViewModel) {
-        navigation.popBackStack()
+    if (movie.id == null) {
+        LaunchedEffect(Unit) {
+            navigation.popBackStack()
+        }
         return
     }
 
-    val movieExtraFileMap by arrViewModel.movieExtraFilesMap.collectAsStateWithLifecycle()
-    val movieExtraFiles = remember(movieExtraFileMap) {
-        movieExtraFileMap[movie.id] ?: emptyList()
-    }
-
-    val itemHistoryRefreshing by arrViewModel.itemHistoryRefreshing.collectAsStateWithLifecycle()
-    val itemHistoryMap by arrViewModel.itemHistoryMap.collectAsStateWithLifecycle()
-    val movieHistoryItems by remember { derivedStateOf {
-        itemHistoryMap[movie.id] ?: emptyList()
-    } }
-
-    LaunchedEffect(movie.id) {
-        movie.id?.let { id ->
-            arrViewModel.getItemHistory(id)
-        }
-    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -86,12 +71,8 @@ fun MovieFilesScreen(
         }
     ) { paddingValues ->
         PullToRefreshBox(
-            isRefreshing = itemHistoryRefreshing,
-            onRefresh = {
-                movie.id?.let { id ->
-                    arrViewModel.getItemHistory(id)
-                }
-            },
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.refreshHistory() },
             modifier = Modifier
                 .padding(paddingValues.copy(bottom = 0.dp))
                 .fillMaxSize()
@@ -112,7 +93,7 @@ fun MovieFilesScreen(
                         FileCard(file)
                     }
                 }
-                items(movieExtraFiles) { extraFile ->
+                items(uiState.extraFiles) { extraFile ->
                     ExtraFileCard(extraFile)
                 }
                 item {
@@ -122,10 +103,10 @@ fun MovieFilesScreen(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                items(movieHistoryItems) { historyItem ->
+                items(uiState.history) { historyItem ->
                     HistoryItemView(historyItem)
                 }
-                if (movieHistoryItems.isEmpty()) {
+                if (uiState.history.isEmpty()) {
                     item {
                         Text(stringResource(R.string.no_history))
                     }

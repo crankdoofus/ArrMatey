@@ -1,11 +1,9 @@
 package com.dnfapps.arrmatey.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.Episode
-import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.Episode
 
 sealed interface HomeTab : NavKey {
     data object SeriesTab : HomeTab

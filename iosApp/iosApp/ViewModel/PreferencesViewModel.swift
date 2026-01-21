@@ -10,8 +10,7 @@ import Shared
 
 @MainActor
 class PreferencesViewModel: ObservableObject {
-
-    private let preferenceStore = PreferencesStore()
+    private let preferenceStore: PreferencesStore
 
     @Published var sortBy: SortBy = .title
     @Published var sortOrder: Shared.SortOrder = .asc
@@ -20,67 +19,25 @@ class PreferencesViewModel: ObservableObject {
     @Published var viewTypeMap: [InstanceType:ViewType] = [:]
     
     init() {
+        self.preferenceStore = KoinBridge.shared.getPreferencesStore()
         observeFlows()
     }
     
     private func observeFlows() {
         Task {
-            for await value in preferenceStore.sortBy {
-                self.sortBy = value
-            }
-        }
-        Task {
-            for await value in preferenceStore.sortOrder {
-                self.sortOrder = value
-            }
-        }
-        Task {
-            for await value in preferenceStore.filterBy {
-                self.filterBy = value
-            }
-        }
-        Task {
             for await map in preferenceStore.showInfoCards {
                 var swiftMap: [InstanceType:Bool] = [:]
                 for (key, value) in map {
-                    if let instanceType = key as? InstanceType {
-                        swiftMap[instanceType] = value.boolValue
-                    }
+                    swiftMap[key] = value.boolValue
                 }
                 self.showInfoCardMap = swiftMap
             }
         }
-        Task {
-            for await map in preferenceStore.viewType {
-                var swiftMap: [InstanceType:ViewType] = [:]
-                for (key, value) in map {
-                    if let instanceType = key as? InstanceType {
-                        swiftMap[instanceType] = value
-                    }
-                }
-                self.viewTypeMap = swiftMap
-            }
-        }
-    }
-    
-    func saveSortBy(_ value: SortBy) {
-        preferenceStore.saveSortBy(sortBy: value)
-    }
-    
-    func saveSortOrder(_ value: Shared.SortOrder) {
-        preferenceStore.saveSortOrder(sortOrder: value)
-    }
-    
-    func saveFilterBy(_ value: FilterBy) {
-        preferenceStore.saveFilterBy(filterBy: value)
     }
     
     func setInfoCardVisibility(type: InstanceType, visible: Bool) {
         preferenceStore.setInfoCardVisibility(type: type, value: visible)
     }
-    
-    func saveViewType(type: InstanceType, viewType: ViewType) {
-        preferenceStore.saveViewType(instanceType: type, viewType: viewType)
-    }
+
     
 }

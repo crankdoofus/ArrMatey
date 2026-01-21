@@ -9,8 +9,21 @@ import Shared
 import SwiftUI
 
 struct FilterByPickerMenu: View {
-    let type: InstanceType
-    @Binding var filteredBy: FilterBy
+    private let type: InstanceType
+    
+    private let changeFilterBy: (FilterBy) -> Void
+    
+    @State private var filteredBy: FilterBy
+    
+    init(
+        type: InstanceType,
+        filterBy: FilterBy,
+        changeFilterBy: @escaping (FilterBy) -> Void
+    ) {
+        self.type = type
+        self.filteredBy = filterBy
+        self.changeFilterBy = changeFilterBy
+    }
     
     var body: some View {
         Menu {
@@ -25,5 +38,8 @@ struct FilterByPickerMenu: View {
             Image(systemName: "line.3.horizontal.decrease")
                 .imageScale(.medium)
         }
+        .onChange(of: filteredBy, { _, newValue in
+            changeFilterBy(newValue)
+        })
     }
 }

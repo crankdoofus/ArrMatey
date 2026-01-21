@@ -8,13 +8,11 @@ struct iOSApp: App {
     }
     
     @StateObject private var navigationManager = NavigationManager()
-    @StateObject private var instanceViewModel = InstanceViewModel()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(navigationManager)
-                .environmentObject(instanceViewModel)
         }
     }
 }

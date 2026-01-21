@@ -55,10 +55,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrRelease
-import com.dnfapps.arrmatey.api.arr.model.ReleaseParams
-import com.dnfapps.arrmatey.api.arr.viewmodel.DownloadState
-import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
+import com.dnfapps.arrmatey.arr.api.model.ArrRelease
+import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
+import com.dnfapps.arrmatey.arr.viewmodel.InteractiveSearchViewModel
+import com.dnfapps.arrmatey.arr.state.DownloadState
+import com.dnfapps.arrmatey.arr.state.LibraryUiState
 import com.dnfapps.arrmatey.compose.components.ProgressBox
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
@@ -67,32 +68,32 @@ import com.dnfapps.arrmatey.compose.utils.applyFiltering
 import com.dnfapps.arrmatey.compose.utils.applySorting
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.singleLanguageLabel
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.extensions.formatAgeMinutes
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InteractiveSearchScreen(
+    instanceType: InstanceType,
     releaseParams: ReleaseParams,
     canFilter: Boolean,
     defaultFilter: ReleaseFilterBy = ReleaseFilterBy.Any,
+    viewModel: InteractiveSearchViewModel = koinInjectParams(instanceType),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null) return
-
     val context = LocalContext.current
 
-    val releaseUiState by arrViewModel.releaseUiState.collectAsStateWithLifecycle()
-    val downloadState by arrViewModel.downloadReleaseState.collectAsStateWithLifecycle(DownloadState.Initial)
+    val releaseUiState by viewModel.releaseUiState.collectAsStateWithLifecycle()
+    val downloadState by viewModel.downloadReleaseState.collectAsStateWithLifecycle()
 
     var confirmRelease by remember { mutableStateOf<ArrRelease?>( null) }
     var showSearch by remember { mutableStateOf(false) }
@@ -106,6 +107,10 @@ fun InteractiveSearchScreen(
     var sortOrder by remember { mutableStateOf(SortOrder.Asc) }
     var filterBy by remember { mutableStateOf(defaultFilter) }
 
+    LaunchedEffect(releaseParams) {
+        viewModel.getRelease(releaseParams)
+    }
+
     LaunchedEffect(downloadState) {
         when(downloadState) {
             is DownloadState.Success -> {
@@ -116,10 +121,6 @@ fun InteractiveSearchScreen(
             }
             else -> {}
         }
-    }
-
-    LaunchedEffect(releaseParams) {
-        arrViewModel.getReleases(releaseParams)
     }
 
     Scaffold(
@@ -225,7 +226,7 @@ fun InteractiveSearchScreen(
                                 item = item,
                                 onItemClick = {
                                     if (item.downloadAllowed) {
-                                        arrViewModel.downloadRelease(item)
+                                        viewModel.downloadRelease(item)
                                     } else {
                                         confirmRelease = item
                                     }
@@ -239,7 +240,7 @@ fun InteractiveSearchScreen(
                     }
                 }
                 is LibraryUiState.Error -> {
-                    Text(state.error.message)
+                    Text(state.message)
                 }
                 else -> {}
             }
@@ -263,7 +264,7 @@ fun InteractiveSearchScreen(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                arrViewModel.downloadRelease(release, force = true)
+                                viewModel.downloadRelease(release, force = true)
                                 confirmRelease = null
                             }
                         ) {

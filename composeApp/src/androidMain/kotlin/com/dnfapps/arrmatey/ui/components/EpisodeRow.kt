@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +28,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.CommandPayload
-import com.dnfapps.arrmatey.api.arr.model.Episode
+import com.dnfapps.arrmatey.arr.api.model.CommandPayload
+import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.extensions.isToday
@@ -36,22 +37,20 @@ import com.dnfapps.arrmatey.extensions.isTodayOrAfter
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
-import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 
 @Composable
 fun EpisodeRow(
     episode: Episode,
     isActive: Boolean,
+    onAutomaticSearch: (Long) -> Unit,
+    onToggleMonitor: (Episode) -> Unit,
+    searchInProgress: (Long) -> Boolean,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     progressLabel: String? = null,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null || arrViewModel !is SonarrViewModel) return
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -136,20 +135,25 @@ fun EpisodeRow(
         }
         IconButton(
             onClick = {
-                val payload = CommandPayload.Episode(listOf(episode.id))
-                arrViewModel.command(payload)
+                onAutomaticSearch(episode.id)
             },
-            enabled = episode.monitored,
+            enabled = episode.monitored && !searchInProgress(episode.id),
             modifier = Modifier.size(24.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-            )
+            if (searchInProgress(episode.id)) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                )
+            }
         }
         IconButton(
             onClick = {
-                arrViewModel.toggleEpisodeMonitor(episode.id)
+                onToggleMonitor(episode)
             },
             modifier = Modifier.size(24.dp)
         ) {

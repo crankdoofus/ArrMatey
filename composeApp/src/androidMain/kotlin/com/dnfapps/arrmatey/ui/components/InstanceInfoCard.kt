@@ -23,17 +23,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.entensions.getDrawableId
 import com.dnfapps.arrmatey.entensions.getString
-import com.dnfapps.arrmatey.model.InstanceType
-import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
+import com.dnfapps.arrmatey.instances.model.InstanceType
 
 @Composable
-fun InstanceInfoCard(instanceType: InstanceType) {
-    val addInstanceViewModel = viewModel<AddInstanceViewModel>()
-
+fun InstanceInfoCard(
+    instanceType: InstanceType,
+    onDismiss: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -60,7 +59,7 @@ fun InstanceInfoCard(instanceType: InstanceType) {
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(
-                    onClick = { addInstanceViewModel.dismissInfoCard(instanceType) }
+                    onClick = onDismiss
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,

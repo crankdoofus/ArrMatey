@@ -1,0 +1,145 @@
+package com.dnfapps.arrmatey.arr.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dnfapps.arrmatey.instances.state.AddInstanceUiState
+import com.dnfapps.arrmatey.instances.usecase.DeleteInstanceUseCase
+import com.dnfapps.arrmatey.instances.usecase.GetInstanceByIdUseCase
+import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
+import com.dnfapps.arrmatey.instances.usecase.UpdateInstanceUseCase
+import com.dnfapps.arrmatey.database.dao.InsertResult
+import com.dnfapps.arrmatey.instances.model.Instance
+import com.dnfapps.arrmatey.utils.isValidUrl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class EditInstanceViewModel(
+    private val instanceId: Long,
+    private val testInstanceConnectionUseCase: TestInstanceConnectionUseCase,
+    private val updateInstanceUseCase: UpdateInstanceUseCase,
+    private val getInstanceByIdUseCase: GetInstanceByIdUseCase,
+    private val deleteInstanceUseCase: DeleteInstanceUseCase
+): ViewModel() {
+
+    private val _uiState = MutableStateFlow(AddInstanceUiState())
+    val uiState: StateFlow<AddInstanceUiState> = _uiState.asStateFlow()
+
+    private var _instance = MutableStateFlow<Instance?>(null)
+    val instance: StateFlow<Instance?> = _instance.asStateFlow()
+
+    init {
+        refreshInstance()
+    }
+
+    private fun refreshInstance() {
+        viewModelScope.launch {
+            getInstanceByIdUseCase(instanceId)?.let { instance ->
+                _instance.value = instance
+                _uiState.update {
+                    it.copy(
+                        apiEndpoint = instance.url,
+                        apiKey = instance.apiKey,
+                        isSlowInstance = instance.slowInstance,
+                        customTimeout = instance.customTimeout,
+                        instanceLabel = instance.label
+                    )
+                }
+            }
+        }
+    }
+
+    fun setApiEndpoint(endpoint: String) {
+        _uiState.update {
+            it.copy(apiEndpoint = endpoint)
+        }
+    }
+
+    fun setApiKey(value: String) {
+        _uiState.update {
+            it.copy(
+                apiKey = value,
+                testing = false,
+                testResult = null,
+                saveButtonEnabled = false
+            )
+        }
+    }
+
+    fun setIsSlowInstance(value: Boolean) {
+        _uiState.update { it.copy(isSlowInstance = value) }
+    }
+
+    fun setCustomTimeout(value: Long?) {
+        _uiState.update { it.copy(customTimeout = value) }
+    }
+
+    fun setInstanceLabel(value: String) {
+        _uiState.update {
+            it.copy(
+                instanceLabel = value,
+                saveButtonEnabled = it.saveButtonEnabled && value.isNotEmpty()
+            )
+        }
+    }
+
+    fun reset() {
+        _uiState.value = AddInstanceUiState()
+    }
+
+    fun testConnection() {
+        val state = _uiState.value
+        if (state.testing) return
+
+        viewModelScope.launch {
+            if (!state.apiEndpoint.isValidUrl()) {
+                _uiState.update { it.copy(endpointError = true, testing = false) }
+                return@launch
+            }
+
+            _uiState.update { it.copy(testing = true, endpointError = false) }
+
+            val success = testInstanceConnectionUseCase(state.apiEndpoint, state.apiKey)
+
+            _uiState.update {
+                it.copy(
+                    testing = false,
+                    testResult = success,
+                    saveButtonEnabled = success &&
+                            it.apiEndpoint.isNotEmpty() &&
+                            it.apiKey.isNotEmpty() &&
+                            it.instanceLabel.isNotEmpty()
+                )
+            }
+        }
+    }
+
+    fun updateInstance() {
+        val s = _uiState.value
+        val updated = instance.value?.copy(
+            label = s.instanceLabel,
+            url = s.apiEndpoint,
+            apiKey = s.apiKey,
+            slowInstance = s.isSlowInstance,
+            customTimeout = if (s.isSlowInstance) s.customTimeout else null
+        ) ?: run {
+            _uiState.update { it.copy(
+                editResult = InsertResult.Error("Instance doesn't exist")
+            ) }
+            return
+        }
+
+        viewModelScope.launch {
+            val result = updateInstanceUseCase(updated)
+            _uiState.update { it.copy(editResult = result) }
+        }
+    }
+
+    fun deleteInstance(instance: Instance) {
+        viewModelScope.launch {
+            deleteInstanceUseCase(instance)
+        }
+    }
+}

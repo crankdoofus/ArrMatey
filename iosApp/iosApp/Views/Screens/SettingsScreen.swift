@@ -11,12 +11,17 @@ import Shared
 struct SettingsScreen: View {
     
     @EnvironmentObject private var navigationManager: NavigationManager
-    @EnvironmentObject private var instanceViewModel: InstanceViewModel
+    
+    @ObservedObject private var viewModel = MoreScreenViewModelS()
+    
+    private var instances: [Instance] {
+        viewModel.instances
+    }
     
     var body: some View {
         Form {
             Section {
-                ForEach(instanceViewModel.instances, id: \.self) { instance in
+                ForEach(instances, id: \.self) { instance in
                     HStack(spacing: 24){
                         SVGImageView(filename: instance.type.iconKey)
                             .frame(width: 32, height: 32)

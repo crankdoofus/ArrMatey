@@ -22,10 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -35,20 +35,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
+import com.dnfapps.arrmatey.arr.state.LibraryUiState
+import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrSearchViewModel
 import com.dnfapps.arrmatey.compose.components.PosterGrid
-import com.dnfapps.arrmatey.compose.utils.SortBy
-import com.dnfapps.arrmatey.compose.utils.SortOrder
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.SortMenuButton
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class,
     ExperimentalMaterial3ExpressiveApi::class
@@ -57,22 +58,29 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun ArrSearchScreen(
     initialQuery: String,
     type: InstanceType,
+    viewModel: ArrSearchViewModel = koinInjectParams(type),
+    activityQueueViewModel: ActivityQueueViewModel = koinInject(),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
-
     var searchQuery by rememberSaveable { mutableStateOf(initialQuery) }
 
-    var sortBy by rememberSaveable { mutableStateOf(SortBy.Relevance) }
-    var sortOrder by rememberSaveable { mutableStateOf(SortOrder.Asc) }
+    val sortBy by viewModel.sortBy.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+
+    val lookupState by viewModel.lookupUiState.collectAsStateWithLifecycle()
+    val queueItems by activityQueueViewModel.queueItems.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         snapshotFlow { searchQuery }
             .debounce(500)
             .distinctUntilChanged()
             .collect { query ->
-                arrViewModel?.performLookup(query)
+                viewModel.performLookup(query)
             }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { viewModel.clearLookup() }
     }
 
     Scaffold(
@@ -93,9 +101,9 @@ fun ArrSearchScreen(
                     SortMenuButton(
                         instanceType = type,
                         sortBy = sortBy,
-                        onSortChanged = { sortBy = it },
+                        onSortChanged = { viewModel.setSortBy(it) },
                         sortOrder = sortOrder,
-                        onOrderChanged = { sortOrder = it },
+                        onOrderChanged = { viewModel.setSortOrder(it) },
                         limitToLookup = true
                     )
                 }
@@ -131,32 +139,25 @@ fun ArrSearchScreen(
                     .fillMaxSize()
                     .padding(horizontal = 12.dp)
                 ) {
-                    arrViewModel?.let { arrViewModel ->
-                        val lookupState by arrViewModel.lookupUiState.collectAsStateWithLifecycle()
+                    when (val state = lookupState) {
+                        is LibraryUiState.Initial -> {}
+                        is LibraryUiState.Loading -> {
+                            LoadingIndicator(
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
 
-                        when (val state = lookupState) {
-                            is LibraryUiState.Initial -> {}
-                            is LibraryUiState.Loading -> {
-                                LoadingIndicator(
-                                    modifier = Modifier
-                                        .size(96.dp)
-                                        .align(Alignment.Center)
+                        is LibraryUiState.Success -> {
+                            if (state.items.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.empty_library),
+                                    modifier = Modifier.align(Alignment.Center)
                                 )
-                            }
-
-                            is LibraryUiState.Success -> {
-                                val sortedItems = remember(state.items, sortBy, sortOrder) {
-                                    val sorted = when (sortBy) {
-                                        SortBy.Relevance -> state.items
-                                        SortBy.Year -> state.items.sortedBy { it.year }
-                                        SortBy.Rating -> state.items.sortedBy { it.ratingScore() }
-                                        else -> state.items
-                                    }
-                                    if (sortOrder == SortOrder.Desc) sorted.reversed() else sorted
-                                }
-
+                            } else {
                                 PosterGrid(
-                                    items = sortedItems,
+                                    items = state.items,
                                     onItemClick = { item ->
                                         val destination = if (item.id == null) {
                                             ArrScreen.Preview(item)
@@ -164,13 +165,14 @@ fun ArrSearchScreen(
                                             ArrScreen.Details(item.id!!)
                                         }
                                         navigation.navigateTo(destination)
-                                    }
+                                    },
+                                    itemIsActive = { item -> queueItems.any { it.mediaId == item.id } }
                                 )
                             }
+                        }
 
-                            is LibraryUiState.Error -> {
-                                Text("An error occurred")
-                            }
+                        is LibraryUiState.Error -> {
+                            Text("An error occurred")
                         }
                     }
                 }

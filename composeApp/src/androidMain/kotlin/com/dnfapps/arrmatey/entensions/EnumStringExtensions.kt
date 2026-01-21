@@ -2,10 +2,10 @@ package com.dnfapps.arrmatey.entensions
 
 import androidx.annotation.StringRes
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.HistoryEventType
-import com.dnfapps.arrmatey.api.arr.model.MediaStatus
-import com.dnfapps.arrmatey.api.arr.model.SeriesMonitorType
-import com.dnfapps.arrmatey.api.arr.model.SeriesType
+import com.dnfapps.arrmatey.arr.api.model.HistoryEventType
+import com.dnfapps.arrmatey.arr.api.model.MediaStatus
+import com.dnfapps.arrmatey.arr.api.model.SeriesMonitorType
+import com.dnfapps.arrmatey.arr.api.model.SeriesType
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
 

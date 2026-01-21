@@ -9,39 +9,20 @@ import SwiftUI
 import Shared
 
 struct InstancePickerMenu: View {
-    let type: InstanceType
-    
-    @EnvironmentObject private var instanceViewModel: InstanceViewModel
-    
-    private var instance: Instance? {
-        instanceViewModel.instances.first {
-            $0.type == type && $0.selected
-        }
-    }
-    
-    private var instances: [Instance] {
-        instanceViewModel.instances.filter {
-            $0.type == type
-        }
-    }
-    
-    private var hasMultipleInstances: Bool {
-        instanceViewModel.instances.count {
-            $0.type == type
-        } > 1
-    }
+    let instances: [Instance]
+    let onChangeInstance: (Instance) -> Void
     
     var body: some View {
-        if hasMultipleInstances {
+        if instances.count > 1 {
             Menu {
                 ForEach(instances, id: \.self) { i in
                     Button(action: {
-                        instanceViewModel.setSelected(i)
+                        onChangeInstance(i)
                     }) {
                         HStack {
                             Text(i.label)
                             Spacer()
-                            if i.id == instance?.id {
+                            if i.selected {
                                 Image(systemName: "checkmark")
                                     .foregroundColor(.accentColor)
                             }

@@ -1,0 +1,166 @@
+package com.dnfapps.arrmatey.arr.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dnfapps.arrmatey.arr.api.model.CommandPayload
+import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.arr.api.model.HistoryItem
+import com.dnfapps.arrmatey.instances.repository.InstanceScopedRepository
+import com.dnfapps.arrmatey.arr.state.MediaDetailsUiState
+import com.dnfapps.arrmatey.instances.usecase.GetInstanceRepositoryUseCase
+import com.dnfapps.arrmatey.arr.usecase.GetMediaDetailsUseCase
+import com.dnfapps.arrmatey.client.OperationStatus
+import com.dnfapps.arrmatey.client.onError
+import com.dnfapps.arrmatey.client.onSuccess
+import com.dnfapps.arrmatey.instances.model.InstanceType
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
+import kotlin.collections.emptySet
+
+class ArrMediaDetailsViewModel(
+    private val mediaId: Long,
+    private val instanceType: InstanceType,
+    private val getInstanceRepositoryUseCase: GetInstanceRepositoryUseCase,
+    private val getMediaDetailsUseCase: GetMediaDetailsUseCase
+): ViewModel() {
+
+    private val _uiState = MutableStateFlow<MediaDetailsUiState>(MediaDetailsUiState.Initial)
+    val uiState: StateFlow<MediaDetailsUiState> = _uiState.asStateFlow()
+
+    private val _history = MutableStateFlow<List<HistoryItem>>(emptyList())
+    val history: StateFlow<List<HistoryItem>> = _history.asStateFlow()
+
+    private val _monitorStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val monitorStatus: StateFlow<OperationStatus> = _monitorStatus.asStateFlow()
+
+    private val _automaticSearchIds = MutableStateFlow<Set<Long>>(emptySet())
+    val automaticSearchIds: StateFlow<Set<Long>> = _automaticSearchIds.asStateFlow()
+
+    private val _lastSearchResult = MutableStateFlow<Boolean?>(null)
+    val lastSearchResult: StateFlow<Boolean?> = _lastSearchResult.asStateFlow()
+
+    private var currentRepository: InstanceScopedRepository? = null
+
+    init {
+        observeSelectedInstance()
+    }
+
+    private fun observeSelectedInstance() {
+        viewModelScope.launch {
+            getInstanceRepositoryUseCase.observeSelected(instanceType)
+                .filterNotNull()
+                .collectLatest { repository ->
+                    currentRepository = repository
+                    loadMediaDetails(repository)
+                    observeMonitorStatus(repository)
+                }
+        }
+    }
+
+    private suspend fun loadMediaDetails(repository: InstanceScopedRepository) {
+        getMediaDetailsUseCase(mediaId, repository.instance.id)
+            .collect { state -> _uiState.value = state }
+
+        repository.getItemHistory(mediaId)
+            .onSuccess { _history.value = it }
+    }
+
+    private suspend fun observeMonitorStatus(repository: InstanceScopedRepository) {
+        repository.monitorStatus.collect { status ->
+            _monitorStatus.value = status
+        }
+    }
+
+    fun refreshDetails() {
+        viewModelScope.launch {
+            currentRepository?.let {
+                loadMediaDetails(it)
+            }
+        }
+    }
+
+    fun toggleMonitored() {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+
+            val currentMonitored = when (val state = _uiState.value) {
+                is MediaDetailsUiState.Success -> state.item.monitored
+                else -> return@launch
+            }
+
+            repository.setMonitorState(mediaId, !currentMonitored)
+        }
+    }
+
+    fun toggleSeasonMonitored(seasonNumber: Int) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            if (instanceType != InstanceType.Sonarr) return@launch
+            repository.toggleSeasonMonitor(mediaId, seasonNumber)
+        }
+    }
+
+    fun toggleEpisodeMonitored(episode: Episode) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            if (instanceType != InstanceType.Sonarr) return@launch
+            repository.toggleEpisodeMonitor(episode)
+        }
+    }
+
+    private suspend fun performAutomaticSearch(
+        id: Long,
+        payload: CommandPayload,
+        repository: InstanceScopedRepository
+    ) {
+        val currentIds = _automaticSearchIds.value.toMutableSet()
+        currentIds.add(id)
+        _automaticSearchIds.value = currentIds
+        repository.executeCommand(payload)
+            .onSuccess {
+                _lastSearchResult.value = true
+            }
+            .onError { _, _, _ ->
+                _lastSearchResult.value = false
+            }
+        val ids = _automaticSearchIds.value.toMutableSet()
+        ids.remove(id)
+        _automaticSearchIds.value = ids
+        _lastSearchResult.value = null
+    }
+
+    fun performEpisodeAutomaticLookup(episodeId: Long) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            if (instanceType != InstanceType.Sonarr) return@launch
+            val payload = CommandPayload.Episode(listOf(episodeId))
+            performAutomaticSearch(episodeId, payload, repository)
+        }
+    }
+
+    fun performSeasonAutomaticLookup(seasonNumber: Int) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            if (instanceType != InstanceType.Sonarr) return@launch
+            val payload = CommandPayload.Season(mediaId, seasonNumber)
+            performAutomaticSearch(mediaId, payload, repository)
+        }
+    }
+
+    fun performMovieAutomaticLookup(movieId: Long) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            if (instanceType != InstanceType.Radarr) return@launch
+            val payload = CommandPayload.Movie(movieIds = listOf(movieId))
+            performAutomaticSearch(movieId, payload, repository)
+        }
+    }
+
+    fun resetMonitorStatus() {
+        _monitorStatus.value = OperationStatus.Idle
+    }
+}

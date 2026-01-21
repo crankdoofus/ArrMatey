@@ -13,19 +13,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.model.CommandPayload
-import com.dnfapps.arrmatey.api.arr.model.Episode
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.arr.viewmodel.EpisodeDetailsViewModel
+import com.dnfapps.arrmatey.client.NetworkResult
+import com.dnfapps.arrmatey.client.OperationStatus
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
 import com.dnfapps.arrmatey.navigation.ArrScreen
@@ -48,34 +50,44 @@ import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.ReleaseDownloadButtons
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.ArrViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.SonarrViewModel
 
 @Composable
 fun EpisodeDetailsScreen(
     series: ArrSeries,
     episode: Episode,
+    viewModel: EpisodeDetailsViewModel = koinInjectParams(series.id, episode),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current,
-    arrViewModel: ArrViewModel? = LocalArrViewModel.current
 ) {
-    if (arrViewModel == null || arrViewModel !is SonarrViewModel) {
-        navigation.popBackStack()
-        return
-    }
-
     val scrollState = rememberScrollState()
 
-    val itemHistoryMap by arrViewModel.itemHistoryMap.collectAsStateWithLifecycle()
-    val episodeHistoryItems by remember { derivedStateOf { itemHistoryMap[episode.id] ?: emptyList() } }
+    val currentEpisode by viewModel.episode.collectAsStateWithLifecycle()
+    val history by viewModel.history.collectAsStateWithLifecycle()
+    val monitorStatus by viewModel.monitorStatus.collectAsStateWithLifecycle()
 
-    var isMonitored by remember { mutableStateOf(episode.monitored) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(episode) {
-        arrViewModel.getItemHistory(episode.id)
+    // Show snackbar for monitor status changes
+    LaunchedEffect(monitorStatus) {
+        when (monitorStatus) {
+            is OperationStatus.Success -> {
+                snackbarHostState.showSnackbar(
+                    (monitorStatus as OperationStatus.Success).message ?: "Updated"
+                )
+                viewModel.resetMonitorStatus()
+            }
+            is OperationStatus.Error -> {
+                snackbarHostState.showSnackbar(
+                    (monitorStatus as OperationStatus.Error).message ?: ""
+                )
+                viewModel.resetMonitorStatus()
+            }
+            else -> {}
+        }
     }
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .padding(paddingValues.copy(top = 0.dp, bottom = 0.dp))
@@ -85,26 +97,25 @@ fun EpisodeDetailsScreen(
                 modifier = Modifier.verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                EpisodeDetailsHeader(episode, series)
+                EpisodeDetailsHeader(currentEpisode, series)
 
                 Column(
                     modifier = Modifier.padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    episode.overview?.let { overview ->
+                    currentEpisode.overview?.let { overview ->
                         ItemDescriptionCard(overview)
                     }
 
                     ReleaseDownloadButtons(
                         onInteractiveClicked = {
-                            val destination = ArrScreen.SeriesRelease(episodeId = episode.id)
+                            val destination = ArrScreen.SeriesRelease(episodeId = currentEpisode.id)
                             navigation.navigateTo(destination)
                         },
                         onAutomaticClicked = {
-                            val payload = CommandPayload.Episode(listOf(episode.id))
-                            arrViewModel.command(payload)
+                            viewModel.executeAutomaticSearch()
                         },
-                        automaticSearchEnabled = episode.monitored
+                        automaticSearchEnabled = currentEpisode.monitored
                     )
 
                     Text(
@@ -112,22 +123,35 @@ fun EpisodeDetailsScreen(
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium
                     )
-                    episode.episodeFile?.let { file ->
+                    currentEpisode.episodeFile?.let { file ->
                         FileCard(file)
                     }
 
-                    Text(
-                        text = stringResource(R.string.history),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    episodeHistoryItems.forEach { historyItem ->
-                        HistoryItemView(historyItem)
+                    when (val historyResult = history) {
+                        is NetworkResult.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        is NetworkResult.Success -> {
+                            if (historyResult.data.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.no_history),
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            } else {
+                                historyResult.data.forEach { historyItem ->
+                                    HistoryItemView(historyItem)
+                                }
+                            }
+                        }
+                        is NetworkResult.Error -> {}
+                        else -> {}
                     }
-                    if (episodeHistoryItems.isEmpty()) {
-                        Text(stringResource(R.string.no_history))
-                    }
-
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -148,14 +172,11 @@ fun EpisodeDetailsScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = {
-                            arrViewModel.toggleEpisodeMonitor(episode.id)
-                            isMonitored = !isMonitored
-                        },
+                        onClick = { viewModel.toggleMonitor() },
                         colors = IconButtonDefaults.headerBarColors()
                     ) {
                         Icon(
-                            imageVector = if (isMonitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            imageVector = if (currentEpisode.monitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                             contentDescription = null
                         )
                     }

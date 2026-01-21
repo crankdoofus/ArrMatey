@@ -28,7 +28,7 @@ import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.entensions.getString
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 
 @Composable
 fun SortMenuButton(

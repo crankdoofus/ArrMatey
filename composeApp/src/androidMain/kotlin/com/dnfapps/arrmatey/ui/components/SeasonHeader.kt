@@ -10,16 +10,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.CommandPayload
-import com.dnfapps.arrmatey.api.arr.model.Episode
-import com.dnfapps.arrmatey.api.arr.model.Season
+import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.arr.api.model.Season
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.extensions.formatAsRuntime
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
@@ -30,11 +28,10 @@ fun SeasonHeader(
     seriesId: Long?,
     season: Season,
     episodes: List<Episode>,
+    onPerformAutomaticSearch: (Int) -> Unit,
+    searchInProgress: (Int) -> Boolean,
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
-    if (arrViewModel == null) return
-
     val tbaLabel = stringResource(R.string.tba)
     val year = remember(episodes) {
         episodes.mapNotNull { it.airDateUtc }.minOrNull()
@@ -64,12 +61,9 @@ fun SeasonHeader(
             }
         },
         onAutomaticClicked = {
-            seriesId?.let { seriesId ->
-                val seasonSearchCommand = CommandPayload.Season(seriesId, season.seasonNumber)
-                arrViewModel.command(seasonSearchCommand)
-            }
+            onPerformAutomaticSearch(season.seasonNumber)
         },
-        automaticSearchInProgress = false,
+        automaticSearchInProgress = searchInProgress(season.seasonNumber),
         modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
         smallSpacing = true,
         automaticSearchEnabled = episodes.any { it.monitored }

@@ -9,21 +9,18 @@ import Shared
 import SwiftUI
 
 struct AddMovieForm: View {
-    @Binding var qualityProfiles: [QualityProfile]
-    @Binding var rootFolders: [RootFolder]
-    let onDismiss: () -> Void
     let movie: ArrMovie
+    let addItemStatus: OperationStatus
+    let qualityProfiles: [QualityProfile]
+    let rootFolders: [RootFolder]
+    let tags: [Tag]
+    let onAddItem: (ArrMedia) -> Void
+    let onDismiss: () -> Void
     
     @State private var isMonitored: Bool = true
     @State private var selectedMinimumAvailability: MediaStatus = .announced
     @State private var selectedQualityProfileId: Int32? = nil
     @State private var selectedRootFolderId: Int32? = nil
-    
-    @State private var addItemUiState: Any = DetailsUiStateInitial()
-    @State private var observationTask: Task<Void, Never>? = nil
-    
-    @EnvironmentObject private var arrTabViewModel: ArrTabViewModel
-    @EnvironmentObject private var navigation: NavigationManager
     
     private let selectableStatuses: [MediaStatus] = [
         .announced,
@@ -31,20 +28,12 @@ struct AddMovieForm: View {
         .released,
     ]
     
-    private var arrViewModel: ArrViewModel? {
-        arrTabViewModel.arrViewModel
-    }
-    
-    private var successItem: ArrMovie? {
-        (addItemUiState as? DetailsUiStateSuccess)?.item
+    private var selectedRootFolderPath: String? {
+        rootFolders.first { $0.id == selectedRootFolderId }?.path
     }
     
     private var isLoading: Bool {
-        addItemUiState is DetailsUiStateLoading
-    }
-    
-    private var selectedRootFolderPath: String? {
-        rootFolders.first { $0.id == selectedRootFolderId }?.path
+        addItemStatus is OperationStatusInProgress
     }
     
     var body: some View {
@@ -61,18 +50,6 @@ struct AddMovieForm: View {
                 .onChange(of: rootFolders, initial: true) {
                     if !rootFolders.isEmpty && selectedRootFolderId == nil {
                         selectedRootFolderId = rootFolders[0].id
-                    }
-                }
-                .task {
-                    await setupViewModel()
-                }
-                .onDisappear {
-                    observationTask?.cancel()
-                }
-                .onChange(of: successItem) { _, newValue in
-                    if let item = newValue, let id = item.id {
-                        onDismiss()
-                        navigation.replaceCurrent(with: .details(id.int64Value), for: .radarr)
                     }
                 }
         }
@@ -129,7 +106,7 @@ struct AddMovieForm: View {
                 Task {
                     if let profileId = selectedQualityProfileId, let path = selectedRootFolderPath {
                         let newMovie = movie.doCopyForCreation(monitored: isMonitored, minimumAvailability: selectedMinimumAvailability, qualityProfileId: profileId, rootFolderPath: path)
-                        await arrViewModel?.addItem(item: newMovie)
+                        onAddItem(newMovie)
                     }
                 }
             } label: {
@@ -143,23 +120,4 @@ struct AddMovieForm: View {
         }
     }
     
-    @MainActor
-    private func setupViewModel() async {
-        observationTask?.cancel()
-        observationTask = Task {
-            await observeAddItemState()
-        }
-    }
-    
-    @MainActor
-    private func observeAddItemState() async {
-        guard let viewModel = arrViewModel else { return }
-        
-        do {
-            let flow = viewModel.getAddItemUiState()
-            for try await value in flow {
-                self.addItemUiState = value
-            }
-        }
-    }
 }

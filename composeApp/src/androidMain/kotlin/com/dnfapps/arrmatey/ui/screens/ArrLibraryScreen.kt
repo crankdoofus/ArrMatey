@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +46,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,31 +62,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dnfapps.arrmatey.PreferencesStore
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrMedia
-import com.dnfapps.arrmatey.api.arr.viewmodel.LibraryUiState
-import com.dnfapps.arrmatey.api.arr.viewmodel.UiErrorType
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.state.LibraryUiState
+import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.InstancesViewModel
+import com.dnfapps.arrmatey.client.ErrorType
 import com.dnfapps.arrmatey.compose.components.MediaList
 import com.dnfapps.arrmatey.compose.components.PosterGrid
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
-import com.dnfapps.arrmatey.compose.utils.applyFiltering
-import com.dnfapps.arrmatey.compose.utils.applySorting
+import com.dnfapps.arrmatey.datastore.InstancePreferences
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
-import com.dnfapps.arrmatey.model.Instance
-import com.dnfapps.arrmatey.model.InstanceType
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstancePicker
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 import com.dnfapps.arrmatey.ui.theme.ViewType
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -96,8 +95,9 @@ import org.koin.compose.koinInject
 @Composable
 fun ArrLibraryScreen(
     type: InstanceType,
-    instanceViewModel: InstanceViewModel,
-    instance: Instance?,
+    arrMediaViewModel: ArrMediaViewModel = koinInjectParams(type),
+    instancesViewModel: InstancesViewModel = koinInjectParams(type),
+    activityQueueViewModel: ActivityQueueViewModel = koinInject(),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
     val scope = rememberCoroutineScope()
@@ -105,12 +105,14 @@ fun ArrLibraryScreen(
 
     val networkViewModel = viewModel<NetworkConnectivityViewModel>()
 
-    val preferenceStore: PreferencesStore = koinInject()
-    val selectedSortOrder by preferenceStore.sortOrder.collectAsState(SortOrder.Asc)
-    val selectedSortOption by preferenceStore.sortBy.collectAsState(SortBy.Title)
-    val selectedFilter by preferenceStore.filterBy.collectAsState(FilterBy.All)
-    val viewTypeMap by preferenceStore.viewType.collectAsState(emptyMap())
-    val selectedViewType = viewTypeMap[type] ?: ViewType.Grid
+    val queueItems by activityQueueViewModel.queueItems.collectAsStateWithLifecycle()
+    val uiState by arrMediaViewModel.uiState.collectAsStateWithLifecycle()
+    val instancesState by instancesViewModel.instancesState.collectAsStateWithLifecycle()
+
+    val preferences = when (val state = uiState) {
+        is LibraryUiState.Success -> state.preferences
+        else -> InstancePreferences()
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     var hasServerConnetivityError by remember { mutableStateOf(false) }
@@ -119,10 +121,6 @@ fun ArrLibraryScreen(
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSearchBar by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-
-    val allInstances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
-    val typeInstances = allInstances.filter { it.type == type }
-    val hasMultiple = typeInstances.size > 1
 
     Scaffold(
         snackbarHost = {
@@ -142,10 +140,9 @@ fun ArrLibraryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         InstancePicker(
-                            currentInstance = instance,
-                            typeInstances = typeInstances,
-                            hasMultipleInstances = hasMultiple,
-                            onInstanceSelected = { instanceViewModel.setSelected(it) }
+                            currentInstance = instancesState.selectedInstance,
+                            typeInstances = instancesState.instances,
+                            onInstanceSelected = { instancesViewModel.setInstanceActive(it) }
                         )
 
                         if (hasServerConnetivityError) {
@@ -155,7 +152,7 @@ fun ArrLibraryScreen(
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.clickable {
                                     scope.launch {
-                                        val message = context.getString(R.string.instance_connect_error, instance?.url ?: "")
+                                        val message = context.getString(R.string.instance_connect_error, instancesState.selectedInstance?.url ?: "")
                                         snackbarHostState.showSnackbarImmediately(message = message)
                                     }
                                 }
@@ -176,7 +173,7 @@ fun ArrLibraryScreen(
                     }
                 },
                 actions = {
-                    instance?.let {
+                    instancesState.selectedInstance?.let {
                         IconButton(
                             onClick = { showSearchBar = !showSearchBar }
                         ) {
@@ -211,143 +208,124 @@ fun ArrLibraryScreen(
         Box(
             modifier = Modifier
                 .padding(paddingValues.copy(bottom = 0.dp))
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            val arrViewModel = LocalArrViewModel.current
-            arrViewModel?.let { arrViewModel ->
-
-                val uiState by arrViewModel.uiState.collectAsStateWithLifecycle()
-                when (val state = uiState) {
-                    is LibraryUiState.Initial,
-                    is LibraryUiState.Loading -> {
-                        LoadingIndicator(
-                            modifier = Modifier
-                                .size(96.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
-
-                    is LibraryUiState.Success -> {
-                        PullToRefreshBox(
-                            isRefreshing = state.isRefreshing,
-                            onRefresh = {
-                                scope.launch {
-                                    arrViewModel.refreshLibrary()
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            val items = state.items
-                                .applyFiltering(type, selectedFilter)
-                                .applySorting(type, selectedSortOption, selectedSortOrder)
-                                .let { lst ->
-                                    if (searchQuery.isNotEmpty()) {
-                                        lst.filter { it.title.contains(searchQuery, ignoreCase = true) }
-                                    } else {
-                                        lst
-                                    }
-                                }
-
-                            if (items.isEmpty()) {
-                                EmptyLibraryView(modifier = Modifier.align(Alignment.Center))
-                            } else {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+            when (val state = uiState) {
+                is LibraryUiState.Initial -> {
+                    NoInstanceView(type)
+                }
+                is LibraryUiState.Loading -> {
+                    LoadingIndicator(
+                        modifier = Modifier.size(96.dp)
+                    )
+                }
+                is LibraryUiState.Success -> {
+                    PullToRefreshBox(
+                        isRefreshing = false,
+                        onRefresh = {
+                            arrMediaViewModel.refresh()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        val items = state.items
+                        if (items.isEmpty()) {
+                            EmptyLibraryView(modifier = Modifier.align(Alignment.Center))
+                        } else {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                AnimatedVisibility(
+                                    visible = showSearchBar,
+                                    enter = expandVertically(),
+                                    exit = shrinkVertically()
                                 ) {
-                                    AnimatedVisibility(
-                                        visible = showSearchBar,
-                                        enter = expandVertically(),
-                                        exit = shrinkVertically()
-                                    ) {
-                                        OutlinedTextField(
-                                            value = searchQuery,
-                                            onValueChange = { searchQuery = it },
-                                            modifier = Modifier
-                                                .padding(horizontal = 18.dp, vertical = 12.dp)
-                                                .fillMaxWidth(),
-                                            trailingIcon = {
-                                                Icon(
-                                                    imageVector = Icons.Default.Close,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.clickable {
-                                                        searchQuery = ""
-                                                        showSearchBar = false
-                                                    }
-                                                )
-                                            },
-                                            placeholder = { Text(stringResource(R.string.search)) },
-                                            shape = RoundedCornerShape(10.dp)
-                                        )
-                                    }
-
-                                    MediaView(
-                                        items = items,
-                                        onItemClick = {
-                                            it.id?.let { id ->
-                                                navigation.navigateTo(
-                                                    ArrScreen.Details(id = id)
-                                                )
-                                            }
+                                    OutlinedTextField(
+                                        value = searchQuery,
+                                        onValueChange = { searchQuery = it },
+                                        modifier = Modifier
+                                            .padding(horizontal = 18.dp, vertical = 12.dp)
+                                            .fillMaxWidth(),
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.Close,
+                                                contentDescription = null,
+                                                modifier = Modifier.clickable {
+                                                    searchQuery = ""
+                                                    showSearchBar = false
+                                                }
+                                            )
                                         },
-                                        viewType = selectedViewType
+                                        placeholder = { Text(stringResource(R.string.search)) },
+                                        shape = RoundedCornerShape(10.dp)
                                     )
                                 }
+
+                                MediaView(
+                                    items = items,
+                                    onItemClick = {
+                                        it.id?.let { id ->
+                                            navigation.navigateTo(
+                                                ArrScreen.Details(id = id)
+                                            )
+                                        }
+                                    },
+                                    viewType = preferences.viewType,
+                                    itemIsActive = { item ->
+                                        queueItems.any { it.mediaId == item.id }
+                                    }
+                                )
                             }
-                        }
-                    }
-
-                    is LibraryUiState.Error -> {
-                        LaunchedEffect(state.error) {
-                            snackbarHostState.showSnackbarImmediately(state.error.message)
-                        }
-
-                        hasServerConnetivityError = state.type == UiErrorType.Network
-
-                        var isRefreshing by remember { mutableStateOf(false) }
-
-                        LaunchedEffect(state) {
-                            isRefreshing = false
-                        }
-
-                        LaunchedEffect(isRefreshing) {
-                            if (isRefreshing) {
-                                scope.launch { arrViewModel.refreshLibrary() }
-                            }
-                        }
-
-                        PullToRefreshBox(
-                            isRefreshing = isRefreshing,
-                            onRefresh = {
-                                isRefreshing = true
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            InstanceErrorView(
-                                onRefresh = { isRefreshing = true },
-                                modifier = Modifier.align(Alignment.Center)
-                            )
                         }
                     }
                 }
-            } ?: run {
-                NoInstanceView(
-                    type = type,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+
+                is LibraryUiState.Error -> {
+                    LaunchedEffect(state.message) {
+                        snackbarHostState.showSnackbarImmediately(state.message)
+                    }
+
+                    hasServerConnetivityError = state.type == ErrorType.Network
+
+                    var isRefreshing by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(state) {
+                        isRefreshing = false
+                    }
+
+                    LaunchedEffect(isRefreshing) {
+                        if (isRefreshing) {
+                            scope.launch { arrMediaViewModel.refresh() }
+                        }
+                    }
+
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            isRefreshing = true
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        InstanceErrorView(
+                            onRefresh = { isRefreshing = true },
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
             }
 
             if (showFilterSheet) {
                 FilterSheet(
                     type = type,
                     onDismiss = { showFilterSheet = false },
-                    selectedViewType = selectedViewType,
-                    onViewTypeChanged = { preferenceStore.saveViewType(type, it) },
-                    selectedFilter = selectedFilter,
-                    onFilterChanged = { preferenceStore.saveFilterBy(it) },
-                    selectedSortOrder = selectedSortOrder,
-                    onSortOrderChanged = { preferenceStore.saveSortOrder(it) },
-                    selectedSortBy = selectedSortOption,
-                    onSortByChanged = { preferenceStore.saveSortBy(it) }
+                    selectedViewType = preferences.viewType,
+                    onViewTypeChanged = { arrMediaViewModel.updateViewType(it) },
+                    selectedFilter = preferences.filterBy,
+                    onFilterChanged = { arrMediaViewModel.updateFilterBy(it) },
+                    selectedSortOrder = preferences.sortOrder,
+                    onSortOrderChanged = { arrMediaViewModel.updateSortOrder(it) },
+                    selectedSortBy = preferences.sortBy,
+                    onSortByChanged = { arrMediaViewModel.updateSortBy(it) }
                 )
             }
         }
@@ -435,12 +413,14 @@ private fun InstanceErrorView(
 fun MediaView(
     items: List<ArrMedia>,
     onItemClick: (ArrMedia) -> Unit,
+    itemIsActive: (ArrMedia) -> Boolean,
     viewType: ViewType
 ) {
     when (viewType) {
         ViewType.List -> MediaList(
             items = items,
             onItemClick = onItemClick,
+            itemIsActive = itemIsActive,
             modifier = Modifier
                 .padding(horizontal = 12.dp)
                 .fillMaxSize()
@@ -448,6 +428,7 @@ fun MediaView(
         ViewType.Grid -> PosterGrid(
             items = items,
             onItemClick = onItemClick,
+            itemIsActive = itemIsActive,
             modifier = Modifier
                 .fillMaxSize()
         )

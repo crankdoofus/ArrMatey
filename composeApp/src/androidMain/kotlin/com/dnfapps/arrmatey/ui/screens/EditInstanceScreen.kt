@@ -31,12 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.arr.viewmodel.EditInstanceViewModel
 import com.dnfapps.arrmatey.database.dao.InsertResult
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
-import com.dnfapps.arrmatey.ui.viewmodel.AddInstanceViewModel
-import com.dnfapps.arrmatey.ui.viewmodel.InstanceViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -44,39 +43,24 @@ import org.koin.compose.koinInject
 @Composable
 fun EditInstanceScreen(
     id: Long,
+    viewModel: EditInstanceViewModel = koinInjectParams(id),
     settingsNav: SettingsNavigation = koinInject<SettingsNavigation>()
 ) {
     val scope = rememberCoroutineScope()
-
-    val editInstanceViewModel = viewModel<AddInstanceViewModel>()
-    val instanceViewModel = viewModel<InstanceViewModel>()
-
-    val instances by instanceViewModel.allInstancesFlow.collectAsStateWithLifecycle()
-    val instance = remember { instances.firstOrNull { it.id == id } }
-
-    val editResult by editInstanceViewModel.editResult.collectAsStateWithLifecycle()
-    val testResult by editInstanceViewModel.result.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val instance by viewModel.instance.collectAsStateWithLifecycle()
 
     var confirmDelete by remember { mutableStateOf(false) }
     var saveClicked by remember { mutableStateOf(false) }
 
-    LaunchedEffect(instance) {
-        editInstanceViewModel.reset()
-        instance?.let {
-            editInstanceViewModel.initialize(it)
+    LaunchedEffect(uiState.testResult) {
+        if (uiState.testResult == true && saveClicked) {
+            viewModel.updateInstance()
         }
     }
 
-    LaunchedEffect(testResult) {
-        if (testResult == true && saveClicked) {
-            instance?.let {
-                editInstanceViewModel.updateInstance(instance)
-            }
-        }
-    }
-
-    LaunchedEffect(editResult) {
-        if (editResult is InsertResult.Success) {
+    LaunchedEffect(uiState.editResult) {
+        if (uiState.editResult is InsertResult.Success) {
             settingsNav.popBackStack()
         }
     }
@@ -115,10 +99,8 @@ fun EditInstanceScreen(
                     Button(
                         onClick = {
                             scope.launch {
-                                instance?.let {
-                                    saveClicked = true
-                                    editInstanceViewModel.testConnection()
-                                }
+                                saveClicked = true
+                                viewModel.testConnection()
                             }
                         },
                         modifier = Modifier.padding(end = 12.dp)
@@ -138,7 +120,16 @@ fun EditInstanceScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             instance?.let { instance ->
-                ArrConfigurationScreen(instance.type)
+                ArrConfigurationScreen(
+                    instanceType = instance.type,
+                    uiState = uiState,
+                    onApiEndpointChanged = { viewModel.setApiEndpoint(it) },
+                    onApiKeyChanged = { viewModel.setApiKey(it) },
+                    onInstanceLabelChanged = { viewModel.setInstanceLabel(it) },
+                    onIsSlowInstanceChanged = { viewModel.setIsSlowInstance(it) },
+                    onCustomTimeoutChanged = { viewModel.setCustomTimeout(it) },
+                    onTestConnection = { viewModel.testConnection() },
+                )
 
                 if (confirmDelete) {
                     AlertDialog(
@@ -147,7 +138,7 @@ fun EditInstanceScreen(
                             TextButton(
                                 onClick = {
                                     scope.launch {
-                                        instanceViewModel.delete(instance)
+                                        viewModel.deleteInstance(instance)
                                         settingsNav.popBackStack()
                                     }
                                 }

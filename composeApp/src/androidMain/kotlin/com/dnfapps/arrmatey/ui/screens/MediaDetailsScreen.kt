@@ -24,23 +24,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.api.arr.model.ArrMovie
-import com.dnfapps.arrmatey.api.arr.model.ArrSeries
-import com.dnfapps.arrmatey.api.arr.viewmodel.DetailsUiState
+import com.dnfapps.arrmatey.arr.api.model.ArrMovie
+import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.state.MediaDetailsUiState
+import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaDetailsViewModel
+import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
+import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrTabNavigation
 import com.dnfapps.arrmatey.ui.components.DetailsHeader
 import com.dnfapps.arrmatey.ui.components.InfoArea
@@ -50,17 +50,22 @@ import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.SeasonsArea
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.tabs.LocalArrTabNavigation
-import com.dnfapps.arrmatey.ui.tabs.LocalArrViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MediaDetailsScreen(
     id: Long,
+    type: InstanceType,
+    mediaDetailsViewModel: ArrMediaDetailsViewModel = koinInjectParams(id, type),
     navigation: ArrTabNavigation = LocalArrTabNavigation.current
 ) {
-    val arrViewModel = LocalArrViewModel.current
+    val uiState by mediaDetailsViewModel.uiState.collectAsStateWithLifecycle()
+    val automaticSearchIds by mediaDetailsViewModel.automaticSearchIds.collectAsStateWithLifecycle()
+    val lastSearchResult by mediaDetailsViewModel.lastSearchResult.collectAsStateWithLifecycle()
 
-    var isMonitored by remember { mutableStateOf(false) }
+    val isMonitored by remember { derivedStateOf {
+        (uiState as? MediaDetailsUiState.Success)?.item?.monitored ?: false
+    } }
 
     val scrollState = rememberScrollState()
 
@@ -70,69 +75,74 @@ fun MediaDetailsScreen(
                 .padding(paddingValues.copy(bottom = 0.dp, top = 0.dp))
                 .fillMaxSize()
         ) {
-            arrViewModel?.let { arrViewModel ->
-                val detailUiState by arrViewModel.detailsUiState.collectAsState()
-                var isRefreshing by remember { mutableStateOf(true) }
-
-                LaunchedEffect(isRefreshing) {
-                    arrViewModel.getDetails(id)
-                    isRefreshing = false
+            when (val state = uiState) {
+                is MediaDetailsUiState.Initial,
+                is MediaDetailsUiState.Loading -> {
+                    LoadingIndicator(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .align(Alignment.Center)
+                    )
                 }
-
-                when (val state = detailUiState) {
-                    is DetailsUiState.Initial,
-                    is DetailsUiState.Loading -> {
-                        LoadingIndicator(
-                            modifier = Modifier
-                                .size(96.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
-                    is DetailsUiState.Error -> {
-                        PullToRefreshBox(
-                            isRefreshing = isRefreshing,
-                            onRefresh = { isRefreshing = true }
+                is MediaDetailsUiState.Error -> {
+                    Text(text = state.message ?: "")
+                }
+                is MediaDetailsUiState.Success -> {
+                    val item = state.item
+                    PullToRefreshBox(
+                        isRefreshing = false,
+                        onRefresh = { mediaDetailsViewModel.refreshDetails() }
+                    ) {
+                        Column(
+                            modifier = Modifier.verticalScroll(scrollState),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(text = state.error.message)
-                        }
-                    }
-                    is DetailsUiState.Success -> {
-                        val item = state.item
+                            DetailsHeader(item)
 
-                        SideEffect {
-                            isMonitored = item.monitored
-                        }
-
-                        PullToRefreshBox(
-                            isRefreshing = isRefreshing,
-                            onRefresh = { isRefreshing = true }
-                        ) {
                             Column(
-                                modifier = Modifier.verticalScroll(scrollState),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                modifier = Modifier.padding(horizontal = 24.dp),
+                                verticalArrangement = Arrangement.spacedBy(24.dp)
                             ) {
-                                DetailsHeader(item)
+                                UpcomingDateView(item)
 
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 24.dp),
-                                    verticalArrangement = Arrangement.spacedBy(24.dp)
-                                ) {
-                                    UpcomingDateView(item)
-
-                                    item.overview?.let { overview ->
-                                        ItemDescriptionCard(overview)
-                                    }
-
-                                    when (item) {
-                                        is ArrSeries -> SeasonsArea(item)
-                                        is ArrMovie -> MovieFileView(item)
-                                    }
-
-                                    InfoArea(item)
+                                item.overview?.let { overview ->
+                                    ItemDescriptionCard(overview)
                                 }
 
-                                Spacer(modifier = Modifier.height(12.dp))
+                                when (item) {
+                                    is ArrSeries -> SeasonsArea(
+                                        series = item,
+                                        episodes = state.episodes,
+                                        searchIds = automaticSearchIds,
+                                        searchResult = lastSearchResult,
+                                        onToggleSeasonMonitor = {
+                                            mediaDetailsViewModel.toggleSeasonMonitored(it)
+                                        },
+                                        onToggleEpisodeMonitor = {
+                                            mediaDetailsViewModel.toggleEpisodeMonitored(it)
+                                        },
+                                        onEpisodeAutomaticSearch = {
+                                            mediaDetailsViewModel.performEpisodeAutomaticLookup(it)
+                                        },
+                                        onSeasonAutomaticSearch = {
+                                            mediaDetailsViewModel.performSeasonAutomaticLookup(it)
+                                        }
+                                    )
+                                    is ArrMovie -> MovieFileView(
+                                        movie = item,
+                                        movieExtraFiles = state.extraFiles,
+                                        searchIds = automaticSearchIds,
+                                        searchResult = lastSearchResult,
+                                        onAutomaticSearch = {
+                                            mediaDetailsViewModel.performMovieAutomaticLookup(it)
+                                        }
+                                    )
+                                }
+
+                                InfoArea(item)
                             }
+
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
                 }
@@ -155,7 +165,7 @@ fun MediaDetailsScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            arrViewModel?.setMonitorStatus(id, !isMonitored)
+                            mediaDetailsViewModel.toggleMonitored()
                         },
                         colors = IconButtonDefaults.headerBarColors()
                     ) {
