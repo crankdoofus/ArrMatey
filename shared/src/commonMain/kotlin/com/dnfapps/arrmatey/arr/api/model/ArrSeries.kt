@@ -96,46 +96,6 @@ data class ArrSeries(
     override val isMissing: Boolean
         get() = episodeCount > episodeFileCount
 
-    // todo - include quality profiles/tags from instance
-//    override val infoItems: Flow<List<Info>>
-//        get() = _infoItems
-
-//    init {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val newInfo = listOf(
-//                    Info(
-//                        label = getString(Res.string.series_type),
-//                        value = seriesType.name
-//                    ),
-//                    Info(
-//                        label = getString(Res.string.root_folder),
-//                        value = rootFolderPath ?: getString(Res.string.unknown)
-//                    ),
-//                    Info(
-//                        label = getString(Res.string.path),
-//                        value = path ?: getString(Res.string.unknown)
-//                    ),
-//                    Info(
-//                        label = getString(Res.string.new_seasons),
-//                        value = if (monitorNewItems == SeriesMonitorNewItems.All) {
-//                            getString(Res.string.monitored)
-//                        } else {
-//                            getString(Res.string.unmonitored)
-//                        }
-//                    ),
-//                    Info(
-//                        label = getString(Res.string.season_folders),
-//                        value = if (seasonFolder) getString(Res.string.yes) else getString(Res.string.no)
-//                    )
-//                )
-//                _infoItems.emit(newInfo)
-//            } catch (e: Exception) {
-//                println(e.message)
-//            }
-//        }
-//    }
-
     fun copyForCreation(
         monitor: SeriesMonitorType,
         qualityProfileId: Int,

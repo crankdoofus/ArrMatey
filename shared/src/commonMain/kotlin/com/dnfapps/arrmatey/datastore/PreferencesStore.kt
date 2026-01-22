@@ -19,6 +19,7 @@ class PreferencesStore(
 
     private val SONARR_INFO_CARD_KEY = booleanPreferencesKey("sonarrInfoCard")
     private val RADARR_INFO_CARD_KEY = booleanPreferencesKey("radarrInfoCard")
+    private val activityPollingKey = booleanPreferencesKey("enableActivityPolling")
 
     private fun infoCardKey(type: InstanceType): Preferences.Key<Boolean> = when (type) {
         InstanceType.Sonarr -> SONARR_INFO_CARD_KEY
@@ -40,6 +41,26 @@ class PreferencesStore(
         scope.launch {
             dataStore.edit { preferences ->
                 preferences[infoCardKey(type)] = value
+            }
+        }
+    }
+
+    private var _isPollingEnabled: Boolean = true
+    val isPollingEnabled: Boolean
+        get() = _isPollingEnabled
+
+    val enableActivityPolling: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            val value = preferences[activityPollingKey] ?: true
+            _isPollingEnabled = value
+            value
+        }
+
+    fun toggleActivityPolling() {
+        scope.launch {
+            dataStore.edit { preferences ->
+                val isPolling = preferences[activityPollingKey] ?: true
+                preferences[activityPollingKey] = !isPolling
             }
         }
     }

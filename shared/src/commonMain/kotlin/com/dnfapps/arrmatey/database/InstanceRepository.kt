@@ -88,6 +88,7 @@ class InstanceRepository(
                 else InsertResult.Error("Failed to update")
             }
         } catch (e: Exception) {
+            println("Error during creation: ${e.message}")
             InsertResult.Error(e.message ?: "An error occurred")
         }
     }

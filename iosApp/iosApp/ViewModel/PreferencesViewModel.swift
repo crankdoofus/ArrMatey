@@ -12,11 +12,8 @@ import Shared
 class PreferencesViewModel: ObservableObject {
     private let preferenceStore: PreferencesStore
 
-    @Published var sortBy: SortBy = .title
-    @Published var sortOrder: Shared.SortOrder = .asc
-    @Published var filterBy: FilterBy = .all
     @Published var showInfoCardMap: [InstanceType:Bool] = [:]
-    @Published var viewTypeMap: [InstanceType:ViewType] = [:]
+    @Published var enableAcitivityPolling: Bool = true
     
     init() {
         self.preferenceStore = KoinBridge.shared.getPreferencesStore()
@@ -27,11 +24,17 @@ class PreferencesViewModel: ObservableObject {
         preferenceStore.showInfoCards.observeAsync {
             self.showInfoCardMap = $0.mapValues(\.boolValue)
         }
+        preferenceStore.enableActivityPolling.observeAsync {
+            self.enableAcitivityPolling = $0.boolValue
+        }
     }
     
     func setInfoCardVisibility(type: InstanceType, visible: Bool) {
         preferenceStore.setInfoCardVisibility(type: type, value: visible)
     }
 
+    func toggleAcitivityPolling() {
+        preferenceStore.toggleActivityPolling()
+    }
     
 }

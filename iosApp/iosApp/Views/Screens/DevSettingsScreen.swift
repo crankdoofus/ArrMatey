@@ -25,6 +25,11 @@ struct DevSettingsScreen: View {
                         }
                     ))
                 }
+                
+                Toggle("Enable activity polling", isOn: Binding(
+                    get: { preferences.enableAcitivityPolling },
+                    set: { _ in preferences.toggleAcitivityPolling() }
+                ))
             }
         }
     }

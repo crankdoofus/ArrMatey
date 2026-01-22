@@ -88,7 +88,7 @@ val repositoryModule = module {
 }
 
 val serviceModule = module {
-    single { ActivityQueueService(get()) }
+    single { ActivityQueueService(get(), get()) }
 }
 
 val useCaseModule = module {

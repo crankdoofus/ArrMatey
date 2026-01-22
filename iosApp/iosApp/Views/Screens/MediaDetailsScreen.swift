@@ -38,6 +38,18 @@ struct MediaDetailsScreen: View {
         } else { false }
     }
     
+    private var qualityProfiles: [QualityProfile] {
+        if let state = uiState as? MediaDetailsUiStateSuccess {
+            state.qualityProfiles
+        } else { [] }
+    }
+    
+    private var tags: [Tag] {
+        if let state = uiState as? MediaDetailsUiStateSuccess {
+            state.tags
+        } else { [] }
+    }
+    
     var body: some View {
         contentForState()
             .toolbar {
@@ -86,7 +98,7 @@ struct MediaDetailsScreen: View {
                         
                         filesArea(for: item, extraFiles, episodes)
                         
-                        MediaInfoArea(item: item)
+                        MediaInfoArea(item: item, qualityProfiles: qualityProfiles, tags: tags)
                         
                         Spacer()
                             .frame(height: 12)

@@ -220,7 +220,8 @@ struct ArrConfigurationView: View {
                 }
             }
             .disabled(uiState.testing || uiState.apiEndpoint.isEmpty || uiState.apiKey.isEmpty)
-            .layoutPriority(2)
+            
+            Spacer()
             
             if let testResult = uiState.testResult {
                 HStack(spacing: 4) {

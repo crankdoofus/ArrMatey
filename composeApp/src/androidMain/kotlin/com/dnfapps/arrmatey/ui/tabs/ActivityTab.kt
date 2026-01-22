@@ -394,16 +394,10 @@ fun EmptyActivityState(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-//        Text(
-//            text = stringResource(R.string.no_activity),
-//            style = MaterialTheme.typography.titleMedium,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant
-//        )
-//        Text(
-//            text = stringResource(R.string.no_activity_description),
-//            style = MaterialTheme.typography.bodyMedium,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//            textAlign = TextAlign.Center
-//        )
+        Text(
+            text = stringResource(R.string.no_activity),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }

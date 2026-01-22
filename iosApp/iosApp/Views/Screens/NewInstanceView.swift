@@ -28,21 +28,13 @@ struct NewInstanceView: View {
         uiState.infoCardMaps[instanceType]?.boolValue ?? false
     }
     
-    private var createError: Bool {
-        uiState.createResult is InsertResultError
-    }
-    
-    private var createSuccess: Bool {
-        uiState.createResult is InsertResultSuccess
-    }
-    
     var body: some View {
         content
             .toolbar { toolbarContent }
             .onChange(of: instanceType) { _, _ in
                 viewModel.setInstanceLabel(instanceType.name)
             }
-            .onChange(of: createSuccess) { _, newValue in
+            .onChange(of: viewModel.createWasSuccessful) { _, newValue in
                 if newValue {
                     dismiss()
                 }

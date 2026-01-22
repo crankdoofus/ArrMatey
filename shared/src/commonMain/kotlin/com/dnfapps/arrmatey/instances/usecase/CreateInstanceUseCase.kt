@@ -8,5 +8,5 @@ class CreateInstanceUseCase(
     private val instanceRepository: InstanceRepository
 ) {
     suspend operator fun invoke(instance: Instance): InsertResult =
-        instanceRepository.updateInstance(instance)
+        instanceRepository.createInstance(instance)
 }

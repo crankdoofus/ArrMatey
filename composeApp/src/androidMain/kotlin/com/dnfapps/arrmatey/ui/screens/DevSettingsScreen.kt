@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
@@ -36,6 +37,7 @@ fun DevSettingsScreen(
     settingsNav: SettingsNavigation = koinInject<SettingsNavigation>()
 ) {
     val showInfoCardMap by preferenceStore.showInfoCards.collectAsState(emptyMap())
+    val activityPollingOn by preferenceStore.enableActivityPolling.collectAsState(true)
 
     Scaffold(
         topBar = {
@@ -78,6 +80,25 @@ fun DevSettingsScreen(
                             onCheckedChange = null
                         )
                     }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = activityPollingOn,
+                            onValueChange = { preferenceStore.toggleActivityPolling() }
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Enable activity polling"
+                    )
+                    Switch(
+                        checked = activityPollingOn,
+                        onCheckedChange = null
+                    )
                 }
             }
         }

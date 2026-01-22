@@ -72,6 +72,14 @@ fun MediaDetailsScreen(
         (uiState as? MediaDetailsUiState.Success)?.item?.monitored ?: false
     } }
 
+    val qualityProfiles by remember { derivedStateOf {
+        (uiState as? MediaDetailsUiState.Success)?.qualityProfiles ?: emptyList()
+    } }
+
+    val tags by remember { derivedStateOf {
+        (uiState as? MediaDetailsUiState.Success)?.tags ?: emptyList()
+    } }
+
     val scrollState = rememberScrollState()
 
     Scaffold { paddingValues ->
@@ -144,7 +152,7 @@ fun MediaDetailsScreen(
                                     )
                                 }
 
-                                InfoArea(item)
+                                InfoArea(item, qualityProfiles, tags)
                             }
 
                             Spacer(modifier = Modifier.height(12.dp))

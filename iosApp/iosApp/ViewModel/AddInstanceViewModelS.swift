@@ -14,6 +14,7 @@ class AddInstanceViewModelS: ObservableObject {
     
     @Published private(set) var uiState: AddInstanceUiState
     @Published var showError: Bool = false
+    @Published var createWasSuccessful: Bool = false
     
     init() {
         self.viewModel = KoinBridge.shared.getAddInstanceViewModel()
@@ -24,7 +25,8 @@ class AddInstanceViewModelS: ObservableObject {
     private func startObserving() {
         viewModel.uiState.observeAsync {
             self.uiState = $0
-            self.showError = $0.createResult is InsertResultSuccess
+            self.showError = $0.createResult is InsertResultError
+            self.createWasSuccessful = $0.createResult is InsertResultSuccess
         }
     }
     
@@ -41,9 +43,10 @@ class AddInstanceViewModelS: ObservableObject {
     }
     
     func setCustomTimeout(_ customTimeout: Int64?) {
-        viewModel.setCustomTimeout(
-            value: customTimeout.map(KotlinLong.init(value:))
-        )
+        let newValue: KotlinLong? = if let timeout = customTimeout {
+            KotlinLong(value: timeout)
+        } else { nil }
+        viewModel.setCustomTimeout(value: newValue)
     }
     
     func setInstanceLabel(_ instanceLabel: String) {

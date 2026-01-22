@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import Shared
-import ToastViewSwift
 
 struct ArrTab: View {
     private let type: InstanceType
@@ -51,7 +50,7 @@ struct ArrTab: View {
     
     var body: some View {
         contentForState()
-            .navigationTitle(instanceState.selectedInstance?.label ?? "")
+            .navigationTitle(instanceState.selectedInstance?.label ?? type.name)
             .toolbar {
                 toolbarContent
             }
@@ -110,9 +109,9 @@ struct ArrTab: View {
                     .imageScale(.medium)
                     .foregroundColor(.red)
                     .onTapGesture {
-                        let errTitle = String(localized: LocalizedStringResource("no_network"))
-                        let toast = Toast.text(errTitle)
-                        toast.show()
+//                        let errTitle = String(localized: LocalizedStringResource("no_network"))
+//                        let toast = Toast.text(errTitle)
+//                        toast.show()
                     }
             }
         }
@@ -124,10 +123,10 @@ struct ArrTab: View {
                         .imageScale(.medium)
                         .foregroundColor(.red)
                         .onTapGesture {
-                            let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
-                            let errSubtitle = "\(instanceState.selectedInstance?.label ?? instanceState.selectedInstance?.type.name ?? "") - \(instanceState.selectedInstance?.url ?? "")"
-                            let toast = Toast.text(errTitle, subtitle: errSubtitle)
-                            toast.show()
+//                            let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
+//                            let errSubtitle = "\(instanceState.selectedInstance?.label ?? instanceState.selectedInstance?.type.name ?? "") - \(instanceState.selectedInstance?.url ?? "")"
+//                            let toast = Toast.text(errTitle, subtitle: errSubtitle)
+//                            toast.show()
                         }
                 }
             }
@@ -237,17 +236,19 @@ struct ArrTab: View {
     
     @ViewBuilder
     private func noInstanceView() -> some View {
-        VStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .center, spacing: 12) {
             Image(systemName: "externaldrive.fill.trianglebadge.exclamationmark")
                 .font(.system(size: 64))
                 .imageScale(.large)
             
-            Text(LocalizedStringResource("no_type_instances \(type.name)"))
-                .font(.system(size: 20, weight: .medium))
-                .multilineTextAlignment(.center)
-
-            Text(LocalizedStringResource("no_type_instances_message \(type.name)"))
-                .multilineTextAlignment(.center)
+            VStack(spacing: 4) {
+                Text(LocalizedStringResource("no_type_instances \(type.name)"))
+                    .font(.system(size: 20, weight: .bold))
+                    .multilineTextAlignment(.center)
+            
+                Text(LocalizedStringResource("no_type_instances_message \(type.name)"))
+                    .multilineTextAlignment(.center)
+            }
             
             Button(action: {
                 navigation.selectedTab = .settings

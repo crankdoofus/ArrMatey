@@ -246,6 +246,10 @@
         en = Upcoming
     [continuing]
         en = Continuing
+    [no_activity]
+        en = Your queue is empty
+    [tags]
+        en = Tags
 
 [[History Event Type]]
     [grabbed]

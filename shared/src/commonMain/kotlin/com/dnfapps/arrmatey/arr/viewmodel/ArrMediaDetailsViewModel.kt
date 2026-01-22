@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.collections.emptySet
 
@@ -62,6 +64,22 @@ class ArrMediaDetailsViewModel(
     }
 
     private suspend fun loadMediaDetails(repository: InstanceScopedRepository) {
+        combine(
+            getMediaDetailsUseCase(mediaId, repository.instance.id),
+            repository.qualityProfiles,
+            repository.tags
+        ) { details, qualityProfiles, tags ->
+            when (details) {
+                is MediaDetailsUiState.Success -> {
+                    details.copy(
+                        qualityProfiles = qualityProfiles,
+                        tags = tags
+                    )
+                }
+                else -> details
+            }
+        }.collect { state -> _uiState.value = state }
+
         getMediaDetailsUseCase(mediaId, repository.instance.id)
             .collect { state -> _uiState.value = state }
 

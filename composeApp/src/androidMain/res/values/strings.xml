@@ -127,6 +127,8 @@
     <string name="ended">Ended</string>
     <string name="upcoming">Upcoming</string>
     <string name="continuing">Continuing</string>
+    <string name="no_activity">Your queue is empty</string>
+    <string name="tags">Tags</string>
 
     <!-- History Event Type -->
     <string name="grabbed">Grabbed</string>
