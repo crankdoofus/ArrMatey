@@ -74,7 +74,7 @@ struct AddMovieForm: View {
                 
                 Picker("minimum_availability", selection: $selectedMinimumAvailability) {
                     ForEach(selectableStatuses, id: \.self) { status in
-                        Text(String(localized: LocalizedStringResource(stringLiteral: status.label()))).tag(status)
+                        Text(status.label()).tag(status)
                     }
                 }
                 

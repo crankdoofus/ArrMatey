@@ -44,6 +44,7 @@ enum MediaRoute: Hashable {
     case details(Int64)
     case search(String)
     case preview(String)
+    case movieFiles(String)
 }
 
 enum SettingsRoute : Hashable {

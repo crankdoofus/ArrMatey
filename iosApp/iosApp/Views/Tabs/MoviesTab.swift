@@ -30,6 +30,8 @@ struct MoviesTab: View {
             MediaSearchScreen(query: query, type: .radarr)
         case .preview(let json):
             MediaPreviewScreen(json: json, type: .radarr)
+        case .movieFiles(let json):
+            MovieFilesScreen(json: json)
         }
     }
 }

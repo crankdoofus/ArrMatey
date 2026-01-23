@@ -15,6 +15,8 @@ struct MovieFilesView: View {
     let searchResult: Bool?
     let onAutomaticSearch: () -> Void
     
+    @EnvironmentObject private var navigation: NavigationManager
+    
     var body: some View {
         Section {
             ReleaseDownloadButtons(onInteractiveClicked: {
@@ -22,10 +24,10 @@ struct MovieFilesView: View {
             }, automaticSearchEnabled: movie.monitored, onAutomaticClicked: onAutomaticSearch, automaticSearchInProgress: searchIds.contains(movie.id as! Int64))
             
             if let file = movie.movieFile {
-                fileArea(file)
+                MovieFileCard(file: file)
             }
             
-            extraFilesArea
+            MovieExtraFilesView(extraFiles: movieExtraFiles)
             
             if movie.movieFile == nil && movieExtraFiles.isEmpty {
                 Text(String(localized: LocalizedStringResource("no_files")))
@@ -43,61 +45,14 @@ struct MovieFilesView: View {
                 Text(String(localized: LocalizedStringResource("history")))
                     .font(.system(size: 16))
                     .foregroundColor(.accentColor)
+                    .onTapGesture {
+                        let json = movie.toJson()
+                        navigation.go(to: .movieFiles(json), of: .radarr)
+                    }
             }
             .frame(maxWidth: .infinity)
         }
             
-    }
-    
-    @ViewBuilder
-    private func fileArea(_ file: MovieFile) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(file.relativePath)
-                .font(.system(size: 18, weight: .medium))
-            
-            Text(fileInfoLine(file: file))
-                .font(.system(size: 14))
-            
-            if let dateAdded = file.dateAdded?.format(pattern: "MMM d, yyyy") {
-                Text(String(localized: LocalizedStringResource("added_on \(dateAdded)")))
-                    .font(.system(size: 14))
-            }
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(.systemGroupedBackground))
-        )
-    }
-    
-    private var extraFilesArea: some View {
-        ForEach(movieExtraFiles, id: \.id) { extraFile in
-            VStack(alignment: .leading, spacing: 4) {
-                Text(extraFile.relativePath)
-                    .font(.system(size: 16, weight: .medium))
-                
-                Text(extraFile.type.name)
-                    .font(.system(size: 14))
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(.systemGroupedBackground))
-            )
-        }
-    }
-    
-    private func fileInfoLine(file: MovieFile) -> String {
-        let languageName = file.languages.first?.name ?? ""
-        let sizeString = file.size.bytesAsFileSizeString()
-        let qualityName = file.quality?.quality.name ?? ""
-        return [languageName, sizeString, qualityName]
-            .filter { !$0.isEmpty }
-            .joined(separator: " • ")
     }
     
 }

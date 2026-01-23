@@ -6,9 +6,10 @@
 //
 
 import Shared
+import SwiftUI
 
 extension MediaStatus {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .tba: "tba"
         case .deleted: "deleted"
@@ -23,7 +24,7 @@ extension MediaStatus {
 }
 
 extension SeriesMonitorType {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .unknown: "unknown"
         case .all: "all"
@@ -44,7 +45,7 @@ extension SeriesMonitorType {
 }
 
 extension SeriesType {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .standard: "standard"
         case .daily: "daily"
@@ -54,7 +55,7 @@ extension SeriesType {
 }
 
 extension ReleaseSortBy {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .age: "age"
         case .weight: "weight"
@@ -67,7 +68,7 @@ extension ReleaseSortBy {
 }
 
 extension ReleaseFilterBy {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .any: "any"
         case .seasonPack: "season_pack"
@@ -77,7 +78,7 @@ extension ReleaseFilterBy {
 }
 
 extension HistoryEventType {
-    func label() -> String {
+    func label() -> LocalizedStringKey {
         switch self {
         case .unknown: "unknown"
         case .grabbed: "grabbed"

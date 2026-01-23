@@ -61,7 +61,7 @@ struct AddSeriesForm: View {
             Section {
                 Picker("monitor", selection: $monitorType) {
                     ForEach(selectableMonitorTypes, id: \.self) { type in
-                        Text(String(localized: LocalizedStringResource(stringLiteral: type.label()))).tag(type)
+                        Text(type.label()).tag(type)
                     }
                 }
                 
@@ -79,7 +79,7 @@ struct AddSeriesForm: View {
                 
                 Picker("series_type", selection: $selectedSeriesType) {
                     ForEach(SeriesType.companion.allEntries(), id: \.self) { seriesType in
-                        Text(String(localized: LocalizedStringResource(stringLiteral: seriesType.label()))).tag(seriesType)
+                        Text(seriesType.label()).tag(seriesType)
                     }
                 }
                 

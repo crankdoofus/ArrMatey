@@ -27,6 +27,8 @@ struct SeriesTab: View {
             MediaSearchScreen(query: query, type: .sonarr)
         case .preview(let json):
             MediaPreviewScreen(json: json, type: .sonarr)
+        case .movieFiles(_):
+            EmptyView()
         }
     }
 }
