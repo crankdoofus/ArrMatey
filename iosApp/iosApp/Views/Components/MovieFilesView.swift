@@ -13,10 +13,14 @@ struct MovieFilesView: View {
     let movieExtraFiles: [ExtraFile]
     let searchIds: Set<Int64>
     let searchResult: Bool?
-    let onAutomaticSearch: (Int64) -> Void
+    let onAutomaticSearch: () -> Void
     
     var body: some View {
         Section {
+            ReleaseDownloadButtons(onInteractiveClicked: {
+                //todo
+            }, automaticSearchEnabled: movie.monitored, onAutomaticClicked: onAutomaticSearch, automaticSearchInProgress: searchIds.contains(movie.id as! Int64))
+            
             if let file = movie.movieFile {
                 fileArea(file)
             }

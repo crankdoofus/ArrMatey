@@ -16,6 +16,15 @@ class ArrMediaViewModelS: ObservableObject {
     @Published private(set) var uiState: LibraryUiState = LibraryUiStateInitial()
     @Published private(set) var instanceData: InstanceData?
     @Published private(set) var addItemStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var preferences: InstancePreferences = InstancePreferences.companion.empty()
+    @Published private(set) var hasServerConnectivityError: Bool = false
+    @Published private(set) var errorMessage: String? = nil
+    
+    @Published var searchQuery: String = "" {
+        didSet {
+            updateSearchQuery(searchQuery)
+        }
+    }
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -28,6 +37,10 @@ class ArrMediaViewModelS: ObservableObject {
         viewModel.uiState.observeAsync { self.uiState = $0 }
         viewModel.instanceData.observeAsync { self.instanceData = $0 }
         viewModel.addItemStatus.observeAsync { self.addItemStatus = $0 }
+        viewModel.searchQuery.observeAsync {self.searchQuery = $0 }
+        viewModel.preferences.observeAsync { self.preferences = $0 }
+        viewModel.hasServerConnectivityError.observeAsync { self.hasServerConnectivityError = $0.boolValue }
+        viewModel.errorMessage.observeAsync { self.errorMessage = $0 }
     }
     
     func executeAutomaticSearch(_ seriesId: Int64) {
@@ -48,6 +61,10 @@ class ArrMediaViewModelS: ObservableObject {
     
     func updateFilterBy(_ filterBy: FilterBy) {
         viewModel.updateFilterBy(filterBy: filterBy)
+    }
+    
+    func updateSearchQuery(_ query: String) {
+        viewModel.updateSearchQuery(query: query)
     }
     
     func refresh() {

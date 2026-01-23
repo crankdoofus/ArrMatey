@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.state.LibraryUiState
 import com.dnfapps.arrmatey.arr.usecase.GetLibraryUseCase
+import com.dnfapps.arrmatey.client.ErrorType
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.compose.utils.SortBy
@@ -23,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ArrMediaViewModel(
@@ -40,6 +43,18 @@ class ArrMediaViewModel(
 
     private val _addItemStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
     val addItemStatus: StateFlow<OperationStatus> = _addItemStatus.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _preferences = MutableStateFlow(InstancePreferences())
+    val preferences: StateFlow<InstancePreferences> = _preferences.asStateFlow()
+
+    private val _hasServerConnectivityError = MutableStateFlow(false)
+    val hasServerConnectivityError: StateFlow<Boolean> = _hasServerConnectivityError.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     private var currentRepository: InstanceScopedRepository? = null
 
@@ -63,12 +78,34 @@ class ArrMediaViewModel(
     }
 
     private fun observeLibrary(instanceId: Long) {
-        viewModelScope.launch {
-            getLibraryUseCase(instanceId)
-                .collect { state ->
-                    _uiState.value = state
+        getLibraryUseCase(instanceId)
+            .combine(_searchQuery) { state, query ->
+                when (state) {
+                    is LibraryUiState.Success<ArrMedia> -> {
+                        _preferences.value = state.preferences
+                        filterSuccessState(state, query)
+                    }
+                    is LibraryUiState.Error -> {
+                        handleErrorState(state)
+                        state
+                    }
+                    else -> state
                 }
-        }
+            }
+            .onEach { _uiState.value = it }
+            .launchIn(viewModelScope)
+    }
+
+    private fun filterSuccessState(state: LibraryUiState.Success<ArrMedia>, query: String) =
+        state.copy(
+            items = state.items.filter {
+                it.sortTitle?.contains(query, ignoreCase = true) == true
+            }
+        )
+
+    private fun handleErrorState(state: LibraryUiState.Error) {
+        _errorMessage.value = state.message
+        _hasServerConnectivityError.value = (state.type == ErrorType.Network)
     }
 
     private fun observeInstanceData(repository: InstanceScopedRepository) {
@@ -76,7 +113,7 @@ class ArrMediaViewModel(
             combine(
                 repository.qualityProfiles,
                 repository.rootFolders,
-                repository.tags
+                repository.tags,
             ) { profiles, folders, tags ->
                 InstanceData(
                     qualityProfiles = profiles,
@@ -109,6 +146,11 @@ class ArrMediaViewModel(
 
     fun updateFilterBy(filterBy: FilterBy) {
         safeSavePreference { it.copy(filterBy = filterBy) }
+    }
+
+    fun updateSearchQuery(query: String) {
+        println("new query $query")
+        _searchQuery.value = query
     }
 
     private fun safeSavePreference(transform: (InstancePreferences) -> InstancePreferences) {

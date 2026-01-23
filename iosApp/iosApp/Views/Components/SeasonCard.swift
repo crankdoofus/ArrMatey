@@ -26,6 +26,12 @@ struct SeasonCard: View {
             if expanded {
                 seasonDetails
                 
+                ReleaseDownloadButtons(onInteractiveClicked: {
+                    //todo
+                }, automaticSearchEnabled: episodes.contains(where: { $0.monitored }), onAutomaticClicked: {
+                    onSeasonAutomaticSearch(season.seasonNumber)
+                }, automaticSearchInProgress: false)
+                
                 ForEach(episodes, id: \.self) { episode in
                     EpisodeRow(episode: episode, onToggleEpisodeMonitor: { ep in
                         onToggleEpisodeMonitor(ep)

@@ -116,24 +116,19 @@ fun ArrLibraryScreen(
     val queueItems by activityQueueViewModel.queueItems.collectAsStateWithLifecycle()
     val uiState by arrMediaViewModel.uiState.collectAsStateWithLifecycle()
     val instancesState by instancesViewModel.instancesState.collectAsStateWithLifecycle()
-
-    val preferences = when (val state = uiState) {
-        is LibraryUiState.Success -> state.preferences
-        else -> InstancePreferences()
-    }
+    val preferences by arrMediaViewModel.preferences.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val hasServerConnectivityError by remember { derivedStateOf {
-        (uiState as? LibraryUiState.Error)?.type == ErrorType.Network
-    } }
+    val hasServerConnectivityError by arrMediaViewModel.hasServerConnectivityError.collectAsStateWithLifecycle()
     val hasNetworkConnection by networkViewModel.isConnected.collectAsStateWithLifecycle()
+    val errorMessage by arrMediaViewModel.errorMessage.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSearchBar by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    val searchQuery by arrMediaViewModel.searchQuery.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState) {
-        (uiState as? LibraryUiState.Error)?.message?.let { message ->
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
             snackbarHostState.showSnackbarImmediately(message)
         }
     }
@@ -269,7 +264,7 @@ fun ArrLibraryScreen(
                                     ) {
                                         OutlinedTextField(
                                             value = searchQuery,
-                                            onValueChange = { searchQuery = it },
+                                            onValueChange = { arrMediaViewModel.updateSearchQuery(it) },
                                             modifier = Modifier
                                                 .padding(horizontal = 18.dp, vertical = 12.dp)
                                                 .fillMaxWidth(),
@@ -278,7 +273,7 @@ fun ArrLibraryScreen(
                                                     imageVector = Icons.Default.Close,
                                                     contentDescription = null,
                                                     modifier = Modifier.clickable {
-                                                        searchQuery = ""
+                                                        arrMediaViewModel.updateSearchQuery("")
                                                         showSearchBar = false
                                                     }
                                                 )

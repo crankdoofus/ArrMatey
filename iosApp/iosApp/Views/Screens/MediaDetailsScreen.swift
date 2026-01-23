@@ -168,8 +168,8 @@ struct MediaDetailsScreen: View {
                 movieExtraFiles: extraFiles,
                 searchIds: automaticSearchIds,
                 searchResult: lastSearchResult,
-                onAutomaticSearch: { id in
-                    viewModel.performMovieAutomaticLookup(movieId: id)
+                onAutomaticSearch: {
+                    viewModel.performMovieAutomaticLookup(movieId: movie.id as! Int64)
                 }
             )
         } else {

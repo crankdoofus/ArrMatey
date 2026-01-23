@@ -32,7 +32,7 @@ struct PosterGridView: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        // left empty
+        // left blank
     }
     
     func sizeThatFits(_ proposal: ProposedViewSize, uiViewController: UIViewControllerType, context: Context) -> CGSize? {

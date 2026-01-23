@@ -24,7 +24,6 @@ struct ArrLibraryView: View {
     
     var body: some View {
         if let items = state.items as? [ArrMedia] {
-            
             if items.isEmpty {
                 VStack {
                     EmptyLibraryView()
@@ -58,6 +57,7 @@ struct ArrLibraryView: View {
                     queueItems.contains(where: { $0.mediaId == item.id })
                 }
             )
+            .id(items.count)
             .ignoresSafeArea(edges: .bottom)
         )
         

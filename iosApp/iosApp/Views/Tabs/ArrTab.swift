@@ -19,7 +19,6 @@ struct ArrTab: View {
     
     @EnvironmentObject private var navigation: NavigationManager
     
-    @State private var searchQuery: String = ""
     @State private var searchPresented: Bool = false
     
     private var uiState: LibraryUiState {
@@ -35,12 +34,9 @@ struct ArrTab: View {
     }
     
     private var preferences: InstancePreferences {
-        if let success = arrMediaViewModel.uiState as? LibraryUiStateSuccess<ArrMedia> {
-            success.preferences
-        } else {
-            InstancePreferences.companion.empty()
-        }
+        arrMediaViewModel.preferences
     }
+    
     
     init(type: InstanceType) {
         self.type = type
@@ -49,7 +45,7 @@ struct ArrTab: View {
     }
     
     var body: some View {
-        contentForState()
+        contentForState
             .navigationTitle(instanceState.selectedInstance?.label ?? type.name)
             .toolbar {
                 toolbarContent
@@ -70,7 +66,7 @@ struct ArrTab: View {
     }
     
     @ViewBuilder
-    private func contentForState() -> some View {
+    private var contentForState: some View {
         if instanceState.selectedInstance == nil {
             VStack {
                 noInstanceView()
@@ -87,7 +83,7 @@ struct ArrTab: View {
                     .progressViewStyle(.circular)
             }
         } else if let success = uiState as? LibraryUiStateSuccess<AnyObject> {
-            ArrLibraryView(type: type, state: success, searchQuery: $searchQuery, searchPresented: $searchPresented)
+            ArrLibraryView(type: type, state: success, searchQuery: $arrMediaViewModel.searchQuery, searchPresented: $searchPresented)
         } else if uiState is LibraryUiStateError {
             ZStack {
                 errorView()
