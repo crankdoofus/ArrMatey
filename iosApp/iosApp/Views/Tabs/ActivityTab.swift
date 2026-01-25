@@ -25,8 +25,29 @@ struct ActivityTab: View {
             .toolbar {
                 if viewModel.isPolling {
                     ToolbarItem(placement: .primaryAction) {
-                        ProgressView().progressViewStyle(.circular)
+                        ProgressView()
+                            .progressViewStyle(.circular)
                     }
+                }
+                
+                if #available(iOS 26, *) {
+                    ToolbarSpacer()
+                }
+            
+                ToolbarItem(placement: .primaryAction) {
+                    QueueSortPickerMenu(sortBy: Binding(
+                        get: { viewModel.uiState.sortBy },
+                        set: { viewModel.setSortBy($0) }
+                    ), sortOrder: Binding(
+                        get: { viewModel.uiState.sortOrder },
+                        set: { viewModel.setSortOrder($0) }
+                    ))
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    QueueFilterMenu(instances: viewModel.instances, instanceId: Binding(
+                        get: { viewModel.uiState.instanceId?.int64Value },
+                        set: { viewModel.setInstanceId($0) }
+                    ))
                 }
             }
             .sheet(item: $selectedItem) { wrapper in

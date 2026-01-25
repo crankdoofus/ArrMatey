@@ -7,4 +7,8 @@ data class ActivityQueueUiState(
     val instanceId: Long? = null,
     val sortBy: QueueSortBy = QueueSortBy.Added,
     val sortOrder: SortOrder = SortOrder.Asc
-)
+) {
+    companion object {
+        fun empty() = ActivityQueueUiState()
+    }
+}

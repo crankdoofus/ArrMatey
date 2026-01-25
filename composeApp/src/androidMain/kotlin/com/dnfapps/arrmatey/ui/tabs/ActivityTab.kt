@@ -58,6 +58,7 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
+import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.utils.format
@@ -235,7 +236,7 @@ fun FilterSheet(
                     selectedOption = sortBy,
                     onOptionSelected = onSortByChanged,
                     label = { Text(stringResource(R.string.sort_by)) },
-                    getOptionLabel = { it.name },
+                    getOptionLabel = { stringResource(it.stringResource()) },
                     modifier = Modifier.weight(1f)
                 )
                 DropdownPicker(

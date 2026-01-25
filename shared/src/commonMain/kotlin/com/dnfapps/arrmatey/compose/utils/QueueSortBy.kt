@@ -4,7 +4,11 @@ import com.dnfapps.arrmatey.arr.api.model.QueueItem
 
 enum class QueueSortBy {
     Title,
-    Added
+    Added;
+
+    companion object {
+        fun allEntries() = entries.toList()
+    }
 }
 
 fun List<QueueItem>.applySorting(sortBy: QueueSortBy, sortOrder: SortOrder) = when(sortBy) {

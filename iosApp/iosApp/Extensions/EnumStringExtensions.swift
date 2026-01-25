@@ -94,3 +94,12 @@ extension HistoryEventType {
         }
     }
 }
+
+extension QueueSortBy {
+    func label() -> LocalizedStringKey {
+        switch self {
+        case .added: "added"
+        case .title: "title"
+        }
+    }
+}

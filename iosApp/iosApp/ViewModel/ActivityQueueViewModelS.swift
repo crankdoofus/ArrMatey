@@ -15,7 +15,8 @@ class ActivityQueueViewModelS: ObservableObject {
     @Published private(set) var queueItems: [QueueItem] = []
     @Published private(set) var tasksWithIssues: Int = 0
     @Published private(set) var isPolling: Bool = false
-    @Published private(set) var instance: [Instance] = []
+    @Published private(set) var instances: [Instance] = []
+    @Published private(set) var uiState: ActivityQueueUiState = ActivityQueueUiState.companion.empty()
     
     init() {
         self.viewModel = KoinBridge.shared.getActivityQueueViewModel()
@@ -26,7 +27,8 @@ class ActivityQueueViewModelS: ObservableObject {
         viewModel.queueItems.observeAsync { self.queueItems = $0 }
         viewModel.tasksWithIssues.observeAsync { self.tasksWithIssues = $0.intValue }
         viewModel.isPolling.observeAsync { self.isPolling = $0.boolValue }
-        viewModel.instances.observeAsync { self.instance = $0 }
+        viewModel.instances.observeAsync { self.instances = $0 }
+        viewModel.activityQueueUiState.observeAsync { self.uiState = $0 }
     }
     
     func startPolling() {

@@ -6,6 +6,7 @@ import com.dnfapps.arrmatey.arr.api.model.HistoryEventType
 import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.arr.api.model.SeriesMonitorType
 import com.dnfapps.arrmatey.arr.api.model.SeriesType
+import com.dnfapps.arrmatey.compose.utils.QueueSortBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
 
@@ -76,4 +77,10 @@ fun HistoryEventType.stringResource() = when (this) {
     HistoryEventType.EpisodeFileRenamed -> R.string.episode_file_renamed
     HistoryEventType.EpisodeFileDeleted -> R.string.episode_file_deleted
     HistoryEventType.SeriesFolderImported -> R.string.series_folder_imported
+}
+
+@StringRes
+fun QueueSortBy.stringResource() = when (this) {
+    QueueSortBy.Added -> R.string.added
+    QueueSortBy.Title -> R.string.title
 }

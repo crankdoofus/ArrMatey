@@ -63,12 +63,12 @@ class ActivityQueueService(
                     repo.activityTasks.value
                 }
             }.awaitAll().flatten()
-            _isPolling.value = false
 
             _allActivityTasks.value = allTasks
 
             val issueCount = allTasks.count { task -> task.hasIssue }
             _tasksWithIssues.value = issueCount
+            _isPolling.value = false
         }
     }
 
