@@ -12,8 +12,12 @@ import com.dnfapps.arrmatey.arr.api.model.QualityProfile
 import com.dnfapps.arrmatey.arr.api.model.RootFolder
 import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.arr.state.MediaDetailsUiState
+import com.dnfapps.arrmatey.arr.usecase.DeleteMediaUseCase
 import com.dnfapps.arrmatey.arr.usecase.DeleteSeasonFilesUseCase
 import com.dnfapps.arrmatey.arr.usecase.GetMediaDetailsUseCase
+import com.dnfapps.arrmatey.arr.usecase.PerformAutomaticSearchUseCase
+import com.dnfapps.arrmatey.arr.usecase.ToggleMonitorUseCase
+import com.dnfapps.arrmatey.arr.usecase.UpdateMediaUseCase
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.client.onError
 import com.dnfapps.arrmatey.client.onSuccess
@@ -33,6 +37,10 @@ class ArrMediaDetailsViewModel(
     private val instanceType: InstanceType,
     private val getInstanceRepositoryUseCase: GetInstanceRepositoryUseCase,
     private val getMediaDetailsUseCase: GetMediaDetailsUseCase,
+    private val toggleMonitorUseCase: ToggleMonitorUseCase,
+    private val performAutomaticSearchUseCase: PerformAutomaticSearchUseCase,
+    private val updateMediaUseCase: UpdateMediaUseCase,
+    private val deleteMediaUseCase: DeleteMediaUseCase,
     private val deleteSeasonFilesUseCase: DeleteSeasonFilesUseCase
 ): ViewModel() {
 
@@ -54,6 +62,13 @@ class ArrMediaDetailsViewModel(
     private val _lastSearchResult = MutableStateFlow<Boolean?>(null)
     val lastSearchResult: StateFlow<Boolean?> = _lastSearchResult.asStateFlow()
 
+    private val _deleteStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val deleteStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
+
+    private val _deleteSeasonStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val deleteSeasonStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
+
+
     private val _qualityProfiles = MutableStateFlow<List<QualityProfile>>(emptyList())
     val qualityProfiles: StateFlow<List<QualityProfile>> = _qualityProfiles.asStateFlow()
 
@@ -62,12 +77,6 @@ class ArrMediaDetailsViewModel(
 
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags.asStateFlow()
-
-    private val _deleteStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
-    val deleteStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
-
-    private val _deleteSeasonStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
-    val deleteSeasonStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
 
     private var currentRepository: InstanceScopedRepository? = null
 
@@ -81,17 +90,18 @@ class ArrMediaDetailsViewModel(
                 .filterNotNull()
                 .collectLatest { repository ->
                     currentRepository = repository
-                    loadMediaDetails(repository)
-                    observeMonitorStatus(repository)
-                    observeQualityProfiles(repository)
-                    observeRootFolders(repository)
-                    observeTags(repository)
-                    repository.refreshAllMetadata()
+                    loadData(repository)
+//                    loadMediaDetails(repository)
+//                    observeMonitorStatus(repository)
+//                    observeQualityProfiles(repository)
+//                    observeRootFolders(repository)
+//                    observeTags(repository)
+//                    repository.refreshAllMetadata()
                 }
         }
     }
 
-    private fun loadMediaDetails(repository: InstanceScopedRepository) {
+    private fun loadData(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             getMediaDetailsUseCase(mediaId, repository.instance.id)
                 .collect { state ->
@@ -100,37 +110,27 @@ class ArrMediaDetailsViewModel(
                         _isMonitored.value = state.item.monitored
                     }
                 }
+        }
 
+        viewModelScope.launch {
             repository.getItemHistory(mediaId)
                 .onSuccess { _history.value = it }
         }
-    }
-
-    private fun observeMonitorStatus(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.monitorStatus.collect { status ->
                 _monitorStatus.value = status
             }
         }
-    }
-
-    private fun observeQualityProfiles(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.qualityProfiles.collect { profiles ->
                 _qualityProfiles.value = profiles
             }
         }
-    }
-
-    private fun observeRootFolders(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.rootFolders.collect { folders ->
                 _rootFolders.value = folders
             }
         }
-    }
-
-    private fun observeTags(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.tags.collect { tags ->
                 _tags.value = tags
@@ -139,110 +139,46 @@ class ArrMediaDetailsViewModel(
     }
 
     fun refreshDetails() {
-        viewModelScope.launch {
-            currentRepository?.let {
-                loadMediaDetails(it)
-            }
+        currentRepository?.let {
+            loadData(it)
         }
     }
 
     fun updateItem(item: ArrMedia) {
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
-            repository.updateMediaItem(item)
+            updateMediaUseCase(item, repository)
         }
     }
 
     fun toggleMonitored() {
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
-            val state = _uiState.value as? MediaDetailsUiState.Success ?: return@launch
-
-            val currentMonitored = state.item.monitored
-            val updatedItem = when (val item = state.item) {
-                is ArrSeries -> item.copy(monitored = !currentMonitored)
-                is ArrMovie -> item.copy(monitored = !currentMonitored)
-            }
-
-            repository.updateMediaItem(updatedItem)
+            val item = (uiState.value as? MediaDetailsUiState.Success)?.item ?: return@launch
+            toggleMonitorUseCase.toggleMedia(item, repository)
         }
     }
 
     fun toggleSeasonMonitored(seasonNumber: Int) {
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
-            if (instanceType != InstanceType.Sonarr) return@launch
-            repository.toggleSeasonMonitor(mediaId, seasonNumber)
+            toggleMonitorUseCase.toggleSeason(mediaId, seasonNumber, repository)
         }
     }
 
     fun toggleEpisodeMonitored(episode: Episode) {
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
-            if (instanceType != InstanceType.Sonarr) return@launch
-            repository.toggleEpisodeMonitor(episode)
-        }
-    }
-
-    private suspend fun performAutomaticSearch(
-        id: Long,
-        payload: CommandPayload,
-        repository: InstanceScopedRepository
-    ) {
-        val currentIds = _automaticSearchIds.value.toMutableSet()
-        currentIds.add(id)
-        _automaticSearchIds.value = currentIds
-        repository.executeCommand(payload)
-            .onSuccess {
-                _lastSearchResult.value = true
-            }
-            .onError { _, _, _ ->
-                _lastSearchResult.value = false
-            }
-        val ids = _automaticSearchIds.value.toMutableSet()
-        ids.remove(id)
-        _automaticSearchIds.value = ids
-        _lastSearchResult.value = null
-    }
-
-    fun performEpisodeAutomaticLookup(episodeId: Long) {
-        viewModelScope.launch {
-            val repository = currentRepository ?: return@launch
-            if (instanceType != InstanceType.Sonarr) return@launch
-            val payload = CommandPayload.Episode(listOf(episodeId))
-            performAutomaticSearch(episodeId, payload, repository)
-        }
-    }
-
-    fun performSeasonAutomaticLookup(seasonNumber: Int) {
-        viewModelScope.launch {
-            val repository = currentRepository ?: return@launch
-            if (instanceType != InstanceType.Sonarr) return@launch
-            val payload = CommandPayload.Season(mediaId, seasonNumber)
-            performAutomaticSearch(mediaId, payload, repository)
-        }
-    }
-
-    fun performMovieAutomaticLookup(movieId: Long) {
-        viewModelScope.launch {
-            val repository = currentRepository ?: return@launch
-            if (instanceType != InstanceType.Radarr) return@launch
-            val payload = CommandPayload.Movie(movieIds = listOf(movieId))
-            performAutomaticSearch(movieId, payload, repository)
+            toggleMonitorUseCase.toggleEpisode(episode, repository)
         }
     }
 
     fun deleteMedia(deleteFiles: Boolean, addImportExclusion: Boolean) {
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
-            _deleteStatus.value = OperationStatus.InProgress
-
-            repository.delete(mediaId, deleteFiles, addImportExclusion)
-                .onSuccess {
-                    _deleteStatus.value = OperationStatus.Success("Deleted successfully")
-                }
-                .onError { code, message, cause ->
-                    _deleteStatus.value = OperationStatus.Error(code, message, cause)
+            deleteMediaUseCase(mediaId, deleteFiles, addImportExclusion, repository)
+                .collect { status ->
+                    _deleteStatus.value = status
                 }
         }
     }
@@ -257,7 +193,39 @@ class ArrMediaDetailsViewModel(
         }
     }
 
-    fun resetMonitorStatus() {
-        _monitorStatus.value = OperationStatus.Idle
+    fun performEpisodeAutomaticLookup(episodeId: Long) {
+        runSearch(episodeId, episodeId)
+    }
+
+    fun performSeasonAutomaticLookup(seasonNumber: Int) {
+        runSearch(mediaId, seasonNumber = seasonNumber)
+    }
+
+    fun performMovieAutomaticLookup(movieId: Long) {
+        runSearch(movieId)
+    }
+
+    private fun runSearch(
+        trackingId: Long,
+        episodeId: Long? = null,
+        seasonNumber: Int? = null
+    ) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            updateSearchIds(trackingId, add = true)
+
+            performAutomaticSearchUseCase(mediaId, instanceType, repository, episodeId, seasonNumber)
+                .onSuccess { _lastSearchResult.value = true }
+                .onError { _, _, _ -> _lastSearchResult.value = false }
+
+            updateSearchIds(trackingId, add = false)
+            _lastSearchResult.value = null
+        }
+    }
+
+    private fun updateSearchIds(id: Long, add: Boolean) {
+        _automaticSearchIds.update { current ->
+            if (add) current + id else current - id
+        }
     }
 }

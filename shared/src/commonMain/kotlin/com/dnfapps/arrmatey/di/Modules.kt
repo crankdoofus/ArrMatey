@@ -40,7 +40,11 @@ import com.dnfapps.arrmatey.arr.viewmodel.MovieFilesViewModel
 import com.dnfapps.arrmatey.arr.service.ActivityQueueService
 import com.dnfapps.arrmatey.arr.api.client.HttpClientFactory
 import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.arr.usecase.DeleteMediaUseCase
 import com.dnfapps.arrmatey.arr.usecase.DeleteSeasonFilesUseCase
+import com.dnfapps.arrmatey.arr.usecase.PerformAutomaticSearchUseCase
+import com.dnfapps.arrmatey.arr.usecase.ToggleMonitorUseCase
+import com.dnfapps.arrmatey.arr.usecase.UpdateMediaUseCase
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.database.ArrMateyDatabase
 import com.dnfapps.arrmatey.database.InstanceRepository
@@ -121,6 +125,10 @@ val useCaseModule = module {
     factory { GetInstanceByIdUseCase(get()) }
     factory { DeleteInstanceUseCase(get()) }
     factory { DeleteSeasonFilesUseCase() }
+    factory { ToggleMonitorUseCase() }
+    factory { PerformAutomaticSearchUseCase() }
+    factory { UpdateMediaUseCase() }
+    factory { DeleteMediaUseCase() }
 }
 
 val viewModelModule = module {
@@ -129,7 +137,7 @@ val viewModelModule = module {
         ArrMediaViewModel(type, get(), get(), get())
     }
     factory { (id: Long, type: InstanceType) ->
-        ArrMediaDetailsViewModel(id, type, get(), get(), get())
+        ArrMediaDetailsViewModel(id, type, get(), get(), get(), get(), get(), get(), get())
     }
     factory { (type: InstanceType) ->
         InstancesViewModel(type, get(), get(), get())
