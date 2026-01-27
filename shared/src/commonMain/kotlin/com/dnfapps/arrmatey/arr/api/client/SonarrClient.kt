@@ -4,6 +4,7 @@ import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.CommandResponse
+import com.dnfapps.arrmatey.arr.api.model.DeleteEpisodeBody
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.api.model.MonitoredResponse
 import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
@@ -102,5 +103,11 @@ class SonarrClient(
             if (includeEpisodeFile) put("includeEpisodeFile", true)
             if (includeImages) put("includeImages", true)
         })
+
+    suspend fun deleteEpisodes(fileIds: List<Long>): NetworkResult<Unit> =
+        delete(
+            endpoint = "episodefile/bulk",
+            body = DeleteEpisodeBody(fileIds)
+        )
 
 }

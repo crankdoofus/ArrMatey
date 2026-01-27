@@ -111,4 +111,20 @@ data class ArrSeries(
         rootFolderPath = rootFolderPath
     )
 
+    fun copyForEdit(
+        monitored: Boolean,
+        monitorNewSeasons: SeriesMonitorNewItems,
+        qualityProfileId: Int,
+        seriesType: SeriesType,
+        seasonFolder: Boolean,
+        rootFolderPath: String?
+    ) = copy(
+        monitored = monitored,
+        monitorNewItems = monitorNewSeasons,
+        qualityProfileId = qualityProfileId,
+        seriesType = seriesType,
+        seasonFolder = seasonFolder,
+        rootFolderPath = rootFolderPath
+    )
+
 }

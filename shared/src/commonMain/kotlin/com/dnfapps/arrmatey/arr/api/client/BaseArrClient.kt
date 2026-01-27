@@ -90,6 +90,20 @@ abstract class BaseArrClient(
             setBody(body)
         }
 
+    protected suspend inline fun <reified T, reified R> delete(
+        endpoint: String,
+        body: T,
+        params: Map<String, Any> = emptyMap(),
+    ): NetworkResult<R> =
+        httpClient.safeDelete("$baseUrl/$endpoint") {
+            url {
+                params.forEach { (key, value) ->
+                    parameters.append(key, value.toString())
+                }
+            }
+            setBody(body)
+        }
+
     protected suspend inline fun <reified T> delete(
         endpoint: String,
         params: Map<String, Any> = emptyMap()

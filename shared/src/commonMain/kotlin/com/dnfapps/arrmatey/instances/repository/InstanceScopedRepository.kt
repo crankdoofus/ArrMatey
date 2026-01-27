@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -466,6 +467,30 @@ class InstanceScopedRepository(
                 .onSuccess { episodes ->
                     val currentMap = _episodes.value.toMutableMap()
                     currentMap[seriesId] = episodes
+                    _episodes.value = currentMap
+                }
+        }
+
+    suspend fun deleteSeasonFiles(
+        seriesId: Long,
+        seasonNumber: Int
+    ): NetworkResult<Unit> =
+        safePerformSonarr { client ->
+            val episodes = _episodes.value[seriesId]?.filter { it.seasonNumber == seasonNumber } ?: emptyList()
+            deleteEpisodes(seriesId, episodes)
+        }
+
+    suspend fun deleteEpisodes(
+        seriesId: Long,
+        episodes: List<Episode>
+    ): NetworkResult<Unit> =
+        safePerformSonarr { client ->
+            val fileIds = episodes.mapNotNull { it.episodeFileId }
+            client.deleteEpisodes(fileIds)
+                .onSuccess {
+                    val currentMap = _episodes.value.toMutableMap()
+                    val currentEpisodes = currentMap[seriesId] ?: emptyList()
+                    currentMap[seriesId] = currentEpisodes.filter { !fileIds.contains(it.id) }
                     _episodes.value = currentMap
                 }
         }

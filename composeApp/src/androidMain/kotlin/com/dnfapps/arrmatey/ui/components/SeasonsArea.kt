@@ -59,6 +59,8 @@ fun SeasonsArea(
     onToggleEpisodeMonitor: (Episode) -> Unit,
     onEpisodeAutomaticSearch: (Long) -> Unit,
     onSeasonAutomaticSearch: (Int) -> Unit,
+    deleteSeasonFiles: (Int) -> Unit,
+    seasonDeleteInProgress: Boolean,
     activityQueueViewModel: ActivityQueueViewModel = koinInject(),
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.series()
@@ -153,7 +155,9 @@ fun SeasonsArea(
                             season = season,
                             episodes = seasonEpisodes,
                             onPerformAutomaticSearch = onSeasonAutomaticSearch,
-                            searchInProgress = { searchIds.contains(it.toLong()) }
+                            searchInProgress = { searchIds.contains(it.toLong()) },
+                            onDeleteSeason = { deleteSeasonFiles(season.seasonNumber) },
+                            deleteInProgress = seasonDeleteInProgress
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         seasonEpisodes.forEachIndexed { index, episode ->

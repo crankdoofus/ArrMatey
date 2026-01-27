@@ -254,6 +254,8 @@
         en = Your queue is empty
     [tags]
         en = Tags
+    [monitor_new_seasons]
+        en = Monitor New Seasons
 
 [[History Event Type]]
     [grabbed]

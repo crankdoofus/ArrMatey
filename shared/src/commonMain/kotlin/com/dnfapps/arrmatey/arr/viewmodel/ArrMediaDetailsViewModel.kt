@@ -9,32 +9,31 @@ import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.api.model.HistoryItem
 import com.dnfapps.arrmatey.arr.api.model.QualityProfile
+import com.dnfapps.arrmatey.arr.api.model.RootFolder
 import com.dnfapps.arrmatey.arr.api.model.Tag
-import com.dnfapps.arrmatey.instances.repository.InstanceScopedRepository
 import com.dnfapps.arrmatey.arr.state.MediaDetailsUiState
-import com.dnfapps.arrmatey.instances.usecase.GetInstanceRepositoryUseCase
+import com.dnfapps.arrmatey.arr.usecase.DeleteSeasonFilesUseCase
 import com.dnfapps.arrmatey.arr.usecase.GetMediaDetailsUseCase
-import com.dnfapps.arrmatey.client.NetworkResult
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.client.onError
 import com.dnfapps.arrmatey.client.onSuccess
-import com.dnfapps.arrmatey.di.repositoryModule
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.instances.repository.InstanceScopedRepository
+import com.dnfapps.arrmatey.instances.usecase.GetInstanceRepositoryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.emptySet
 
 class ArrMediaDetailsViewModel(
     private val mediaId: Long,
     private val instanceType: InstanceType,
     private val getInstanceRepositoryUseCase: GetInstanceRepositoryUseCase,
-    private val getMediaDetailsUseCase: GetMediaDetailsUseCase
+    private val getMediaDetailsUseCase: GetMediaDetailsUseCase,
+    private val deleteSeasonFilesUseCase: DeleteSeasonFilesUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<MediaDetailsUiState>(MediaDetailsUiState.Initial)
@@ -58,11 +57,17 @@ class ArrMediaDetailsViewModel(
     private val _qualityProfiles = MutableStateFlow<List<QualityProfile>>(emptyList())
     val qualityProfiles: StateFlow<List<QualityProfile>> = _qualityProfiles.asStateFlow()
 
+    private val _rootFolders = MutableStateFlow<List<RootFolder>>(emptyList())
+    val rootFolders: StateFlow<List<RootFolder>> = _rootFolders.asStateFlow()
+
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags.asStateFlow()
 
     private val _deleteStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
     val deleteStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
+
+    private val _deleteSeasonStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val deleteSeasonStatus: StateFlow<OperationStatus> = _deleteStatus.asStateFlow()
 
     private var currentRepository: InstanceScopedRepository? = null
 
@@ -79,39 +84,57 @@ class ArrMediaDetailsViewModel(
                     loadMediaDetails(repository)
                     observeMonitorStatus(repository)
                     observeQualityProfiles(repository)
+                    observeRootFolders(repository)
                     observeTags(repository)
+                    repository.refreshAllMetadata()
                 }
         }
     }
 
-    private suspend fun loadMediaDetails(repository: InstanceScopedRepository) {
-        getMediaDetailsUseCase(mediaId, repository.instance.id)
-            .collect { state ->
-                _uiState.value = state
-                if (state is MediaDetailsUiState.Success) {
-                    _isMonitored.value = state.item.monitored
+    private fun loadMediaDetails(repository: InstanceScopedRepository) {
+        viewModelScope.launch {
+            getMediaDetailsUseCase(mediaId, repository.instance.id)
+                .collect { state ->
+                    _uiState.value = state
+                    if (state is MediaDetailsUiState.Success) {
+                        _isMonitored.value = state.item.monitored
+                    }
                 }
+
+            repository.getItemHistory(mediaId)
+                .onSuccess { _history.value = it }
+        }
+    }
+
+    private fun observeMonitorStatus(repository: InstanceScopedRepository) {
+        viewModelScope.launch {
+            repository.monitorStatus.collect { status ->
+                _monitorStatus.value = status
             }
-
-        repository.getItemHistory(mediaId)
-            .onSuccess { _history.value = it }
-    }
-
-    private suspend fun observeMonitorStatus(repository: InstanceScopedRepository) {
-        repository.monitorStatus.collect { status ->
-            _monitorStatus.value = status
         }
     }
 
-    private suspend fun observeQualityProfiles(repository: InstanceScopedRepository) {
-        repository.qualityProfiles.collect { profiles ->
-            _qualityProfiles.value = profiles
+    private fun observeQualityProfiles(repository: InstanceScopedRepository) {
+        viewModelScope.launch {
+            repository.qualityProfiles.collect { profiles ->
+                _qualityProfiles.value = profiles
+            }
         }
     }
 
-    private suspend fun observeTags(repository: InstanceScopedRepository) {
-        repository.tags.collect { tags ->
-            _tags.value = tags
+    private fun observeRootFolders(repository: InstanceScopedRepository) {
+        viewModelScope.launch {
+            repository.rootFolders.collect { folders ->
+                _rootFolders.value = folders
+            }
+        }
+    }
+
+    private fun observeTags(repository: InstanceScopedRepository) {
+        viewModelScope.launch {
+            repository.tags.collect { tags ->
+                _tags.value = tags
+            }
         }
     }
 
@@ -120,6 +143,13 @@ class ArrMediaDetailsViewModel(
             currentRepository?.let {
                 loadMediaDetails(it)
             }
+        }
+    }
+
+    fun updateItem(item: ArrMedia) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            repository.updateMediaItem(item)
         }
     }
 
@@ -213,6 +243,16 @@ class ArrMediaDetailsViewModel(
                 }
                 .onError { code, message, cause ->
                     _deleteStatus.value = OperationStatus.Error(code, message, cause)
+                }
+        }
+    }
+
+    fun deleteSeasonFiles(seasonNumber: Int) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            deleteSeasonFilesUseCase(mediaId, seasonNumber, repository)
+                .collect { status ->
+                    _deleteSeasonStatus.value = status
                 }
         }
     }

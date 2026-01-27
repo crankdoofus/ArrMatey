@@ -1,7 +1,22 @@
 package com.dnfapps.arrmatey.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -31,6 +46,8 @@ fun SeasonHeader(
     episodes: List<Episode>,
     onPerformAutomaticSearch: (Int) -> Unit,
     searchInProgress: (Int) -> Boolean,
+    onDeleteSeason: () -> Unit,
+    deleteInProgress: Boolean,
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.series()
 ) {
@@ -55,19 +72,46 @@ fun SeasonHeader(
         text = infoString,
         fontSize = 16.sp
     )
-    ReleaseDownloadButtons(
-        onInteractiveClicked = {
-            seriesId?.let { seriesId ->
-                val destination = ArrScreen.SeriesRelease(seriesId = seriesId, seasonNumber = season.seasonNumber)
-                navigation.navigateTo(destination)
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
+    ) {
+        IconButton (
+            onClick = onDeleteSeason,
+            shape = RoundedCornerShape(10.dp),
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+            enabled = !deleteInProgress
+        ) {
+            if (deleteInProgress) {
+                CircularProgressIndicator(Modifier.size(24.dp))
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete)
+                )
             }
-        },
-        onAutomaticClicked = {
-            onPerformAutomaticSearch(season.seasonNumber)
-        },
-        automaticSearchInProgress = searchInProgress(season.seasonNumber),
-        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-        smallSpacing = true,
-        automaticSearchEnabled = episodes.any { it.monitored }
-    )
+        }
+
+        ReleaseDownloadButtons(
+            onInteractiveClicked = {
+                seriesId?.let { seriesId ->
+                    val destination = ArrScreen.SeriesRelease(
+                        seriesId = seriesId,
+                        seasonNumber = season.seasonNumber
+                    )
+                    navigation.navigateTo(destination)
+                }
+            },
+            onAutomaticClicked = {
+                onPerformAutomaticSearch(season.seasonNumber)
+            },
+            automaticSearchInProgress = searchInProgress(season.seasonNumber),
+            modifier = Modifier.weight(1f),
+            smallSpacing = true,
+            automaticSearchEnabled = episodes.any { it.monitored }
+        )
+    }
 }

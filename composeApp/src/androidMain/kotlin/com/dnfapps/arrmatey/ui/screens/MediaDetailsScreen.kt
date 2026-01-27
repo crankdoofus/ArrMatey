@@ -17,9 +17,6 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,12 +32,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,8 +45,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.QualityProfile
+import com.dnfapps.arrmatey.arr.api.model.RootFolder
+import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.arr.state.MediaDetailsUiState
 import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaDetailsViewModel
 import com.dnfapps.arrmatey.client.OperationStatus
@@ -70,6 +69,8 @@ import com.dnfapps.arrmatey.ui.components.MovieFileView
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.SeasonsArea
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
+import com.dnfapps.arrmatey.ui.sheets.EditMovieSheet
+import com.dnfapps.arrmatey.ui.sheets.EditSeriesSheet
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -87,8 +88,12 @@ fun MediaDetailsScreen(
 
     val isMonitored by mediaDetailsViewModel.isMonitored.collectAsStateWithLifecycle()
     val qualityProfiles by mediaDetailsViewModel.qualityProfiles.collectAsStateWithLifecycle()
+    val rootFolders by mediaDetailsViewModel.rootFolders.collectAsStateWithLifecycle()
     val tags by mediaDetailsViewModel.tags.collectAsStateWithLifecycle()
     val deleteStatus by mediaDetailsViewModel.deleteStatus.collectAsStateWithLifecycle()
+
+    val monitorStatus by mediaDetailsViewModel.monitorStatus.collectAsStateWithLifecycle()
+    val seasonDeleteStatus by mediaDetailsViewModel.deleteSeasonStatus.collectAsStateWithLifecycle()
 
     LaunchedEffect(deleteStatus) {
         when (deleteStatus) {
@@ -101,6 +106,7 @@ fun MediaDetailsScreen(
     val scrollState = rememberScrollState()
 
     var confirmDelete by remember { mutableStateOf(false) }
+    var showEditSheet by remember { mutableStateOf(false) }
 
     Scaffold { paddingValues ->
         Box(
@@ -159,7 +165,11 @@ fun MediaDetailsScreen(
                                         },
                                         onSeasonAutomaticSearch = {
                                             mediaDetailsViewModel.performSeasonAutomaticLookup(it)
-                                        }
+                                        },
+                                        deleteSeasonFiles = { seasonNumber ->
+                                            mediaDetailsViewModel.deleteSeasonFiles(seasonNumber)
+                                        },
+                                        seasonDeleteInProgress = seasonDeleteStatus is OperationStatus.InProgress
                                     )
                                     is ArrMovie -> MovieFileView(
                                         movie = item,
@@ -208,66 +218,124 @@ fun MediaDetailsScreen(
                         )
                     }
                     MenuButton(
-                        onEdit = {
-
-                        },
-                        onDelete = {
-                            confirmDelete = true
-                        }
+                        onEdit = { showEditSheet = true },
+                        onDelete = { confirmDelete = true }
                     )
                 }
             )
 
             if (confirmDelete) {
-                var addExclusion by remember { mutableStateOf(false) }
-                var deleteFiles by remember { mutableStateOf(false) }
-                ModalBottomSheet(
-                    onDismissRequest = { confirmDelete = false }
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 24.dp)
-                            .padding(bottom = 24.dp)
-                    ) {
-                        LabelledSwitch(
-                            label = stringResource(R.string.add_exclusion),
-                            sublabel = stringResource(R.string.add_exclusion_description),
-                            checked = addExclusion,
-                            onCheckedChange = { addExclusion = !addExclusion }
-                        )
-                        LabelledSwitch(
-                            label = stringResource(R.string.delete_files),
-                            sublabel = stringResource(R.string.delete_files_description),
-                            checked = deleteFiles,
-                            onCheckedChange = { deleteFiles = !deleteFiles }
-                        )
-                        Button(
-                            onClick = {
-                                mediaDetailsViewModel.deleteMedia(deleteFiles, addExclusion)
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
-                            ),
-                            enabled = deleteStatus !is OperationStatus.InProgress
-                        ) {
-                            if (deleteStatus is OperationStatus.InProgress) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null
-                                )
-                                Text(text = stringResource(R.string.delete))
-                            }
-                        }
+                ConfirmDeleteAlert(
+                    deleteInProgress = deleteStatus is OperationStatus.InProgress,
+                    onDismiss = { confirmDelete = false },
+                    onDelete = { deleteFiles, addExclusion ->
+                        mediaDetailsViewModel.deleteMedia(deleteFiles, addExclusion)
                     }
+                )
+            }
+
+            (uiState as? MediaDetailsUiState.Success)?.let { success ->
+                if (showEditSheet) {
+                    EditMediaSheet(
+                        item = success.item,
+                        qualityProfiles = qualityProfiles,
+                        rootFolders = rootFolders,
+                        tags = tags,
+                        editInProgress = monitorStatus is OperationStatus.InProgress,
+                        onEditItem = {
+                            mediaDetailsViewModel.updateItem(it)
+                        },
+                        onDismiss = { showEditSheet = false }
+                    )
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ConfirmDeleteAlert(
+    deleteInProgress: Boolean,
+    onDismiss: () -> Unit,
+    onDelete: (Boolean, Boolean) -> Unit
+) {
+    var addExclusion by remember { mutableStateOf(false) }
+    var deleteFiles by remember { mutableStateOf(false) }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            LabelledSwitch(
+                label = stringResource(R.string.add_exclusion),
+                sublabel = stringResource(R.string.add_exclusion_description),
+                checked = addExclusion,
+                onCheckedChange = { addExclusion = !addExclusion }
+            )
+            LabelledSwitch(
+                label = stringResource(R.string.delete_files),
+                sublabel = stringResource(R.string.delete_files_description),
+                checked = deleteFiles,
+                onCheckedChange = { deleteFiles = !deleteFiles }
+            )
+            Button(
+                onClick = { onDelete(deleteFiles, addExclusion) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                enabled = deleteInProgress
+            ) {
+                if (deleteInProgress) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null
+                    )
+                    Text(text = stringResource(R.string.delete))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditMediaSheet(
+    item: ArrMedia,
+    qualityProfiles: List<QualityProfile>,
+    rootFolders: List<RootFolder>,
+    tags: List<Tag>,
+    editInProgress: Boolean,
+    onEditItem: (ArrMedia) -> Unit,
+    onDismiss: () -> Unit
+) {
+    when (item) {
+        is ArrMovie -> EditMovieSheet(
+            item = item,
+            qualityProfiles = qualityProfiles,
+            rootFolders = rootFolders,
+            tags = tags,
+            editInProgress = editInProgress,
+            onEditItem = onEditItem,
+            onDismiss = onDismiss,
+        )
+        is ArrSeries -> EditSeriesSheet(
+            item = item,
+            qualityProfiles = qualityProfiles,
+            rootFolders = rootFolders,
+            tags = tags,
+            editInProgress = editInProgress,
+            onEditItem = onEditItem,
+            onDismiss = onDismiss
+        )
     }
 }
 

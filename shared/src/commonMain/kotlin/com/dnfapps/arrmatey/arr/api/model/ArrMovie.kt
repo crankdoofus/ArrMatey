@@ -121,4 +121,16 @@ data class ArrMovie(
         rootFolderPath = rootFolderPath
     )
 
+    fun copyForUpdate(
+        monitored: Boolean,
+        minimumAvailability: MediaStatus,
+        qualityProfileId: Int,
+        rootFolderPath: String
+    ) = copy(
+        monitored = monitored,
+        minimumAvailability = minimumAvailability,
+        qualityProfileId = qualityProfileId,
+        rootFolderPath = rootFolderPath
+    )
+
 }
