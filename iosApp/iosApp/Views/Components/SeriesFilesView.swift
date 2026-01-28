@@ -17,6 +17,8 @@ struct SeriesFilesView: View {
     let onToggleEpisodeMonitor: (Episode) -> Void
     let onEpisodeAutomaticSearch: (Int64) -> Void
     let onSeasonAutomaticSearch: (Int32) -> Void
+    let onDeleteSeasonFiles: (Int32) -> Void
+    let seasonDeleteInProgress: Bool
     
     @ObservedObject private var activityQueueViewModel = ActivityQueueViewModelS()
     
@@ -40,7 +42,9 @@ struct SeriesFilesView: View {
                     onToggleEpisodeMonitor: onToggleEpisodeMonitor,
                     onEpisodeAutomaticSearch: onEpisodeAutomaticSearch,
                     onSeasonAutomaticSearch: onSeasonAutomaticSearch,
-                    automaticSearchIds: searchIds
+                    automaticSearchIds: searchIds,
+                    onDeleteSeason: { onDeleteSeasonFiles(season.seasonNumber) },
+                    seasonDeleteInProgress: seasonDeleteInProgress
                 )
             }
         } header : {

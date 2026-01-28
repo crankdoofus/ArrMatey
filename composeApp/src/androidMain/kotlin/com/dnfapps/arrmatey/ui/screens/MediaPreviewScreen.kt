@@ -87,7 +87,6 @@ fun MediaPreviewScreen(
             }
             else -> {}
         }
-        viewModel.resetAddStatus()
     }
 
     LaunchedEffect(lastAddedItemId) {
@@ -95,7 +94,6 @@ fun MediaPreviewScreen(
             showBottomSheet = false
             val newScreen = ArrScreen.Details(id)
             navigation.replaceCurrent(newScreen)
-            viewModel.clearLastAddedItemId()
         }
     }
 

@@ -30,12 +30,13 @@ struct EpisodeRow: View {
                         Text("\(episode.episodeNumber). ")
                             .font(.system(size: 16))
                             .fontWeight(.medium)
-                            .foregroundColor(.accentColor)
+                            .tint(.primary)
                         
                         Text(episode.title ?? "")
                             .font(.system(size: 16))
                             .fontWeight(.medium)
                             .lineLimit(1)
+                            .tint(.primary)
                         
                         if let finaleType = episode.finaleType {
                             Text(" • \(finaleType.label)")
@@ -71,17 +72,20 @@ struct EpisodeRow: View {
                         let route: MediaRoute = .seriesReleases(episodeId: episode.id)
                         navigation.go(to: route, of: .sonarr)
                     }
+                    .tint(.primary)
                 
                 Image(systemName: "magnifyingglass")
                     .onTapGesture {
                         onAutomaticSearch()
                     }
                     .disabled(automaticSearchDisabled)
+                    .tint(.primary)
                 
                 Image(systemName: episode.monitored ? "bookmark.fill" : "bookmark")
                     .onTapGesture {
                         onToggleEpisodeMonitor(episode)
                     }
+                    .tint(.primary)
             }
         }
     }

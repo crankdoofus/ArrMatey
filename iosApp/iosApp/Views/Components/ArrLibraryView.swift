@@ -58,7 +58,7 @@ struct ArrLibraryView: View {
             .searchable(
                 text: $searchQuery,
                 isPresented: $searchPresented,
-                placement: .navigationBarDrawer
+                placement: .toolbarPrincipal
             )
     }
     

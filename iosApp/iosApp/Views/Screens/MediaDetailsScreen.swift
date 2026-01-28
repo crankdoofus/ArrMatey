@@ -17,6 +17,9 @@ struct MediaDetailsScreen: View {
     @ObservedObject private var viewModel: ArrMediaDetailsViewModelS
     
     @State private var showConfirmSheet: Bool = false
+    @State private var showEditSheet: Bool = false
+    @State private var confirmDeleteSeason: Int32? = nil
+//    @State private var
     
     init(id: Int64, type: InstanceType) {
         self.id = id
@@ -91,6 +94,29 @@ struct MediaDetailsScreen: View {
                 if success {
                     dismiss()
                 }
+            }
+            .onChange(of: viewModel.editItemSucceeded) { _, success in
+                if success {
+                    showEditSheet = false
+                }
+            }
+            .alert(
+                "Delete season \(confirmDeleteSeason ?? 0)?",
+                isPresented: Binding(
+                    get: { confirmDeleteSeason != nil },
+                    set: { if !$0 { confirmDeleteSeason = nil } }
+                ),
+                presenting: confirmDeleteSeason
+            ) { season in
+                Button("delete", role: .destructive) {
+                    viewModel.deleteSeasonFiles(season)
+                    confirmDeleteSeason = nil
+                }
+                Button("cancel", role: .cancel) {
+                    confirmDeleteSeason = nil
+                }
+            } message: { season in
+                Text("Are you sure you want to remove all the files for season \(season)? This action cannot be undone.")
             }
     }
     
@@ -188,7 +214,11 @@ struct MediaDetailsScreen: View {
                 },
                 onSeasonAutomaticSearch: { sn in
                     viewModel.performSeasonAutomaticLookup(seasonNumber: sn)
-                }
+                },
+                onDeleteSeasonFiles: { seasonNumber in
+                    confirmDeleteSeason = seasonNumber
+                },
+                seasonDeleteInProgress: false
             )
         } else if let movie = item as? ArrMovie {
             MovieFilesView(

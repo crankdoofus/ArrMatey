@@ -101,14 +101,9 @@ class MediaPreviewViewModel(
                 .collect { state ->
                     _addItemStatus.value = state
                 }
+                .also {
+                    _addItemStatus.value = OperationStatus.Idle
+                }
         }
-    }
-
-    fun resetAddStatus() {
-        _addItemStatus.value = OperationStatus.Idle
-    }
-
-    fun clearLastAddedItemId() {
-        _lastAddedItemId.value = null
     }
 }

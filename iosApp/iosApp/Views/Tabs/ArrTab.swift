@@ -133,6 +133,10 @@ struct ArrTab: View {
             toolbarViewOptions
         }
         
+        if #available(iOS 26, *) {
+            ToolbarSpacer(.flexible, placement: .navigation)
+        }
+        
         ToolbarItem(placement: .navigation) {
             InstancePickerMenu(
                 instances: instanceState.instances,

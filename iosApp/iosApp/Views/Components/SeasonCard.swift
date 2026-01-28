@@ -17,6 +17,8 @@ struct SeasonCard: View {
     let onEpisodeAutomaticSearch: (Int64) -> Void
     let onSeasonAutomaticSearch: (Int32) -> Void
     let automaticSearchIds: Set<Int64>
+    let onDeleteSeason: () -> Void
+    let seasonDeleteInProgress: Bool
     
     @State private var expanded: Bool = false
     
@@ -29,14 +31,27 @@ struct SeasonCard: View {
             if expanded {
                 seasonDetails
                 
-                ReleaseDownloadButtons(onInteractiveClicked: {
-                    if let id = series.id?.int64Value {
-                        let route: MediaRoute = .seriesReleases(seriesId: id, seasonNumber: season.seasonNumber)
-                        navigation.go(to: route, of: .sonarr)
+                HStack(spacing: 6) {
+                    Button(action: onDeleteSeason) {
+                        if seasonDeleteInProgress {
+                            ProgressView().progressViewStyle(.circular)
+                        } else {
+                            Image(systemName: "trash")
+                        }
                     }
-                }, automaticSearchEnabled: episodes.contains(where: { $0.monitored }), onAutomaticClicked: {
-                    onSeasonAutomaticSearch(season.seasonNumber)
-                }, automaticSearchInProgress: false)
+                    .tint(.red)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                    
+                    ReleaseDownloadButtons(onInteractiveClicked: {
+                        if let id = series.id?.int64Value {
+                            let route: MediaRoute = .seriesReleases(seriesId: id, seasonNumber: season.seasonNumber)
+                            navigation.go(to: route, of: .sonarr)
+                        }
+                    }, automaticSearchEnabled: episodes.contains(where: { $0.monitored }), onAutomaticClicked: {
+                        onSeasonAutomaticSearch(season.seasonNumber)
+                    }, automaticSearchInProgress: false)
+                }
                 
                 ForEach(episodes, id: \.self) { episode in
                     EpisodeRow(episode: episode, onToggleEpisodeMonitor: { ep in

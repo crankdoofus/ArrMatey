@@ -189,6 +189,7 @@ class InstanceScopedRepository(
             }
             .also {
                 _addItemStatus.value = OperationStatus.Idle
+                _lastAddedItemId.value = null
             }
     }
 

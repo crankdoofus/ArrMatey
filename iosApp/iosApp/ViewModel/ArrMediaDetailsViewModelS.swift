@@ -12,16 +12,33 @@ import SwiftUI
 class ArrMediaDetailsViewModelS: ObservableObject {
     private let viewModel: ArrMediaDetailsViewModel
     
+//    @Published private(set) var uiState: MediaDetailsUiState = MediaDetailsUiStateInitial()
+//    @Published private(set) var history: [HistoryItem] = []
+//    @Published private(set) var monitorStatus: OperationStatus = OperationStatusIdle()
+//    @Published private(set) var isMonitored: Bool = false
+//    @Published private(set) var automaticSearchIds: Set<Int64> = Set()
+//    @Published private(set) var lastSearchResult: Bool? = nil
+//    @Published private(set) var qualityProfiles: [QualityProfile] = []
+//    @Published private(set) var tags: [Tag] = []
+//    @Published private(set) var deleteStatus: OperationStatus = OperationStatusIdle()
+//    @Published private(set) var deleteSucceeded: Bool = false
+    
     @Published private(set) var uiState: MediaDetailsUiState = MediaDetailsUiStateInitial()
     @Published private(set) var history: [HistoryItem] = []
     @Published private(set) var monitorStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var editItemStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var editItemSucceeded: Bool = false
     @Published private(set) var isMonitored: Bool = false
     @Published private(set) var automaticSearchIds: Set<Int64> = Set()
     @Published private(set) var lastSearchResult: Bool? = nil
-    @Published private(set) var qualityProfiles: [QualityProfile] = []
-    @Published private(set) var tags: [Tag] = []
     @Published private(set) var deleteStatus: OperationStatus = OperationStatusIdle()
     @Published private(set) var deleteSucceeded: Bool = false
+    @Published private(set) var deleteSeasonStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var deleteSeasonSucceeded: Bool = false
+    
+    @Published private(set) var qualityProfiles: [QualityProfile] = []
+    @Published private(set) var rootFolders: [RootFolder] = []
+    @Published private(set) var tags: [Tag] = []
     
     init(id: Int64, type: InstanceType) {
         self.viewModel = KoinBridge.shared.getArrMediaDetailsViewModel(id: id, type: type)
@@ -32,19 +49,37 @@ class ArrMediaDetailsViewModelS: ObservableObject {
         viewModel.uiState.observeAsync { self.uiState = $0 }
         viewModel.history.observeAsync { self.history = $0 }
         viewModel.monitorStatus.observeAsync { self.monitorStatus = $0 }
+        viewModel.editItemStatus.observeAsync {
+            self.editItemStatus = $0
+            self.editItemSucceeded = $0 is OperationStatusSuccess
+        }
         viewModel.isMonitored.observeAsync { self.isMonitored = $0.boolValue }
         viewModel.automaticSearchIds.observeAsync { self.automaticSearchIds = Set($0.map { $0.int64Value }) }
         viewModel.lastSearchResult.observeAsync { self.lastSearchResult = $0?.boolValue }
-        viewModel.qualityProfiles.observeAsync { self.qualityProfiles = $0 }
-        viewModel.tags.observeAsync { self.tags = $0 }
         viewModel.deleteStatus.observeAsync {
             self.deleteStatus = $0
             self.deleteSucceeded = $0 is OperationStatusSuccess
         }
+        viewModel.deleteSeasonStatus.observeAsync {
+            self.deleteSeasonStatus = $0
+            self.deleteSeasonSucceeded = $0 is OperationStatusSuccess
+        }
+        
+        viewModel.qualityProfiles.observeAsync { self.qualityProfiles = $0 }
+        viewModel.rootFolders.observeAsync { self.rootFolders = $0 }
+        viewModel.tags.observeAsync { self.tags = $0 }
     }
     
     func refreshDetails() {
         viewModel.refreshDetails()
+    }
+    
+    func updateItem(_ item: ArrMedia) {
+        viewModel.updateItem(item: item)
+    }
+    
+    func editItem(_ item: ArrMedia, moveFiles: Bool = false) {
+        viewModel.editItem(item: item, moveFiles: moveFiles)
     }
     
     func toggleMonitor() {
@@ -57,6 +92,14 @@ class ArrMediaDetailsViewModelS: ObservableObject {
     
     func toggleEpisodeMonitor(episode: Episode) {
         viewModel.toggleEpisodeMonitored(episode: episode)
+    }
+    
+    func deleteMedia(deleteFiles: Bool, addImportExclusion: Bool) {
+        viewModel.deleteMedia(deleteFiles: deleteFiles, addImportExclusion: addImportExclusion)
+    }
+    
+    func deleteSeasonFiles(_ seasonNumber: Int32) {
+        viewModel.deleteSeasonFiles(seasonNumber: seasonNumber)
     }
     
     func performEpisodeAutomaticLookup(episodeId: Int64) {

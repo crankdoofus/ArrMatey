@@ -14,7 +14,7 @@ struct ReleaseDownloadButtons: View {
     var automaticSearchInProgress: Bool = false
     
     var body: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 6) {
             Button(action: onInteractiveClicked) {
                 Label(
                     title: { Text("interactive") },
@@ -24,7 +24,7 @@ struct ReleaseDownloadButtons: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(.accentColor)
-            .controlSize(.large)
+            .controlSize(.regular)
             
             Button(action: onAutomaticClicked) {
                 Group {
@@ -41,7 +41,7 @@ struct ReleaseDownloadButtons: View {
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .controlSize(.regular)
             .disabled(!automaticSearchEnabled || automaticSearchInProgress)
         }
     }
