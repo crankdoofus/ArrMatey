@@ -6,6 +6,7 @@ import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.CommandResponse
 import com.dnfapps.arrmatey.arr.api.model.ExtraFile
 import com.dnfapps.arrmatey.arr.api.model.MonitoredResponse
+import com.dnfapps.arrmatey.arr.api.model.MovieEditorBody
 import com.dnfapps.arrmatey.arr.api.model.MovieRelease
 import com.dnfapps.arrmatey.arr.api.model.RadarrHistoryItem
 import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
@@ -26,6 +27,24 @@ class RadarrClient(
 
     override suspend fun update(item: ArrMedia): NetworkResult<ArrMovie> =
         put("movie/${item.id}", item)
+
+    override suspend fun edit(item: ArrMedia, moveFiles: Boolean): NetworkResult<Unit> {
+        val movie = item as? ArrMovie
+            ?: return NetworkResult.Error(message = "Item must be an ArrMovie")
+        val id = item.id
+            ?: return NetworkResult.Error(message = "Id must not be null")
+        val body = MovieEditorBody(
+            movieIds = listOf(id),
+            monitored = movie.monitored,
+            qualityProfileId = movie.qualityProfileId,
+            minimumAvailability = movie.minimumAvailability,
+            rootFolderPath = movie.rootFolderPath,
+            tags = movie.tags,
+            applyTags = "replace",
+            moveFiles = moveFiles,
+        )
+        return put("movie/editor", body = body)
+    }
 
     override suspend fun delete(
         id: Long,

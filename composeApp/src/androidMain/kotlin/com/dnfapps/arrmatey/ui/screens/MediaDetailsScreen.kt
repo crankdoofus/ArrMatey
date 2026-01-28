@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,6 +102,7 @@ fun MediaDetailsScreen(
 
     val monitorStatus by mediaDetailsViewModel.monitorStatus.collectAsStateWithLifecycle()
     val seasonDeleteStatus by mediaDetailsViewModel.deleteSeasonStatus.collectAsStateWithLifecycle()
+    val editStatus by mediaDetailsViewModel.editItemStatus.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -129,6 +132,20 @@ fun MediaDetailsScreen(
 
     var confirmDelete by remember { mutableStateOf(false) }
     var showEditSheet by remember { mutableStateOf(false) }
+    var moveFilesItem by remember { mutableStateOf<ArrMedia?>(null) }
+
+    LaunchedEffect(editStatus) {
+        when (val status = editStatus) {
+            is OperationStatus.Success -> {
+                snackbarHostState.showSnackbarImmediately("Item edited successfully")
+                showEditSheet = false
+            }
+            is OperationStatus.Error -> {
+                snackbarHostState.showErrorImmediately("Error editing item")
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -267,13 +284,46 @@ fun MediaDetailsScreen(
                         qualityProfiles = qualityProfiles,
                         rootFolders = rootFolders,
                         tags = tags,
-                        editInProgress = monitorStatus is OperationStatus.InProgress,
+                        editInProgress = editStatus is OperationStatus.InProgress,
                         onEditItem = {
-                            mediaDetailsViewModel.updateItem(it)
+                            if (success.item.rootFolderPath != it.rootFolderPath) {
+                                moveFilesItem = it
+                            } else {
+                                mediaDetailsViewModel.updateItem(it)
+                            }
                         },
                         onDismiss = { showEditSheet = false }
                     )
                 }
+            }
+
+            moveFilesItem?.let { item ->
+                AlertDialog(
+                    onDismissRequest = { moveFilesItem = null },
+                    title = {
+                        Text("Movie files to ${item.rootFolderPath}?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                mediaDetailsViewModel.editItem(item, moveFiles = true)
+                                moveFilesItem = null
+                            }
+                        ) {
+                            Text(stringResource(R.string.yes))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                mediaDetailsViewModel.editItem(item)
+                                moveFilesItem = null
+                            }
+                        ) {
+                            Text(stringResource(R.string.no))
+                        }
+                    }
+                )
             }
         }
     }

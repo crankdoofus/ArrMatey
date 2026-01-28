@@ -81,6 +81,9 @@ class InstanceScopedRepository(
     private val _addItemStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
     val addItemStatus: StateFlow<OperationStatus> = _addItemStatus.asStateFlow()
 
+    private val _editItemStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val editItemStatus: StateFlow<OperationStatus> = _editItemStatus.asStateFlow()
+
     private val _searchStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
     val searchStatus: StateFlow<OperationStatus> = _searchStatus.asStateFlow()
 
@@ -252,6 +255,26 @@ class InstanceScopedRepository(
             }
             .also {
                 _historyStatus.value = OperationStatus.Idle
+            }
+    }
+
+    suspend fun editMediaItem(item: ArrMedia, moveFiles: Boolean): NetworkResult<Unit> {
+        _editItemStatus.value = OperationStatus.InProgress
+        return client.edit(item, moveFiles)
+            .onSuccess {
+                val id = item.id ?: return@onSuccess
+                val currentCache = _mediaDetailsCache.value.toMutableMap()
+                currentCache[id] = item
+                _mediaDetailsCache.value = currentCache
+
+                updateItemInLibraryCache(item)
+                _editItemStatus.value = OperationStatus.Success("Item edited successfully")
+            }
+            .onError { code, message, cause ->
+                _editItemStatus.value = OperationStatus.Error(code, message, cause)
+            }
+            .also {
+                _editItemStatus.value = OperationStatus.Idle
             }
     }
 

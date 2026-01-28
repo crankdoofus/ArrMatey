@@ -3,9 +3,6 @@ package com.dnfapps.arrmatey.arr.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
-import com.dnfapps.arrmatey.arr.api.model.ArrMovie
-import com.dnfapps.arrmatey.arr.api.model.ArrSeries
-import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.api.model.HistoryItem
 import com.dnfapps.arrmatey.arr.api.model.QualityProfile
@@ -52,6 +49,9 @@ class ArrMediaDetailsViewModel(
 
     private val _monitorStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
     val monitorStatus: StateFlow<OperationStatus> = _monitorStatus.asStateFlow()
+
+    private val _editItemStatus = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val editItemStatus: StateFlow<OperationStatus> = _editItemStatus.asStateFlow()
 
     private val _isMonitored = MutableStateFlow(false)
     val isMonitored: StateFlow<Boolean> = _isMonitored.asStateFlow()
@@ -130,6 +130,11 @@ class ArrMediaDetailsViewModel(
                 _tags.value = tags
             }
         }
+        viewModelScope.launch {
+            repository.editItemStatus.collect { status ->
+                _editItemStatus.value = status
+            }
+        }
     }
 
     fun refreshDetails() {
@@ -142,6 +147,13 @@ class ArrMediaDetailsViewModel(
         viewModelScope.launch {
             val repository = currentRepository ?: return@launch
             updateMediaUseCase(item, repository)
+        }
+    }
+
+    fun editItem(item: ArrMedia, moveFiles: Boolean = false) {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            updateMediaUseCase.edit(item, moveFiles, repository)
         }
     }
 

@@ -11,4 +11,12 @@ class UpdateMediaUseCase {
     ): NetworkResult<ArrMedia> {
         return repository.updateMediaItem(item)
     }
+
+    suspend fun edit(
+        item: ArrMedia,
+        moveFiles: Boolean,
+        repository: InstanceScopedRepository
+    ): NetworkResult<Unit> {
+        return repository.editMediaItem(item, moveFiles)
+    }
 }

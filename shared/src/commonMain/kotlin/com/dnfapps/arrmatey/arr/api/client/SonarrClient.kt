@@ -8,6 +8,7 @@ import com.dnfapps.arrmatey.arr.api.model.DeleteEpisodeBody
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.api.model.MonitoredResponse
 import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
+import com.dnfapps.arrmatey.arr.api.model.SeriesEditorBody
 import com.dnfapps.arrmatey.arr.api.model.SeriesRelease
 import com.dnfapps.arrmatey.arr.api.model.SonarrHistoryItem
 import com.dnfapps.arrmatey.arr.api.model.SonarrHistoryResponse
@@ -28,6 +29,26 @@ class SonarrClient(
 
     override suspend fun update(item: ArrMedia): NetworkResult<ArrSeries> =
         put("series/${item.id}", item)
+
+    override suspend fun edit(item: ArrMedia, moveFiles: Boolean): NetworkResult<Unit> {
+        val series = item as? ArrSeries
+            ?: return NetworkResult.Error(message = "Item must be an ArrSeries")
+        val id = series.id
+            ?: return NetworkResult.Error(message = "Item id cannot be null")
+        val body = SeriesEditorBody(
+            seriesIds = listOf(id),
+            monitored = series.monitored,
+            monitorNewItems = series.monitorNewItems,
+            seriesType = series.seriesType,
+            seasonFolder = series.seasonFolder,
+            qualityProfileId = series.qualityProfileId,
+            rootFolderPath = series.rootFolderPath,
+            tags = series.tags,
+            applyTags = "replace",
+            moveFiles = moveFiles,
+        )
+        return put("series/editor", body = body)
+    }
 
     override suspend fun delete(
         id: Long,
