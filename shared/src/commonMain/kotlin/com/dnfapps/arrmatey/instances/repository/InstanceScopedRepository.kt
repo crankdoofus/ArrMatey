@@ -222,6 +222,14 @@ class InstanceScopedRepository(
             }
     }
 
+    suspend fun deleteActivityTask(
+        releaseId: Int,
+        removeFromClient: Boolean,
+        addToBlocklist: Boolean
+    ): NetworkResult<Unit> {
+        return client.deleteActivityTask(releaseId, removeFromClient, addToBlocklist)
+    }
+
     suspend fun executeAutomaticSearch(itemId: Long) {
         _searchStatus.value = OperationStatus.InProgress
 

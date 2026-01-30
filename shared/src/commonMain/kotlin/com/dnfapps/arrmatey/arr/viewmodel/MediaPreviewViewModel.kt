@@ -13,6 +13,7 @@ import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -100,9 +101,6 @@ class MediaPreviewViewModel(
             addMediaUseCase(instanceType, item)
                 .collect { state ->
                     _addItemStatus.value = state
-                }
-                .also {
-                    _addItemStatus.value = OperationStatus.Idle
                 }
         }
     }

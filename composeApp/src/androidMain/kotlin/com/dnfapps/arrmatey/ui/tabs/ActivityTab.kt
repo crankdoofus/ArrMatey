@@ -22,15 +22,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Train
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -38,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +66,7 @@ import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.QueueDownloadState
 import com.dnfapps.arrmatey.arr.api.model.QueueItem
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
+import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.compose.utils.QueueSortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
@@ -68,6 +76,7 @@ import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.ui.components.LabelledSwitch
 import com.dnfapps.arrmatey.utils.format
 import org.koin.compose.koinInject
 import kotlin.time.ExperimentalTime
@@ -80,9 +89,19 @@ fun ActivityTab(
     val queueItems by viewModel.queueItems.collectAsStateWithLifecycle()
     val instances by viewModel.instances.collectAsStateWithLifecycle()
     val uiState by viewModel.activityQueueUiState.collectAsStateWithLifecycle()
+    val removeItemStatus by viewModel.removeItemState.collectAsStateWithLifecycle()
 
+    var showConfirmRemove by remember { mutableStateOf(false) }
     var showFilterSheet by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<QueueItem?>(null) }
+
+    LaunchedEffect(removeItemStatus) {
+        if (removeItemStatus is OperationStatus.Success) {
+            selectedItem = null
+            showConfirmRemove = false
+            viewModel.refresh()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -149,7 +168,18 @@ fun ActivityTab(
         selectedItem?.let { item ->
             QueueItemInfoSheet(
                 item = item,
-                onDismiss = { selectedItem = null }
+                onDismiss = { selectedItem = null },
+                onRemove = { showConfirmRemove = true }
+            )
+        }
+
+        if (showConfirmRemove && selectedItem != null) {
+            ConfirmDeleteItemSheet(
+                onDismiss = { showConfirmRemove = false },
+                deleteInProgress = removeItemStatus is OperationStatus.InProgress,
+                onDelete = { clientRemove, blocklist ->
+                    viewModel.removeQueueItem(selectedItem!!, clientRemove, blocklist)
+                }
             )
         }
     }
@@ -191,6 +221,7 @@ fun ActivityItem(item: QueueItem, onClick: () -> Unit) {
                         item.remainingTimeLabel?.let { remainingTimeLabel ->
                             bullet()
                             append(remainingTimeLabel)
+                            append(" left")
                         }
                     }
                 }
@@ -273,6 +304,7 @@ fun FilterSheet(
 @Composable
 fun QueueItemInfoSheet(
     onDismiss: () -> Unit,
+    onRemove: () -> Unit,
     item: QueueItem
 ) {
     ModalBottomSheet(
@@ -310,7 +342,31 @@ fun QueueItemInfoSheet(
                 append(item.size.toLong().bytesAsFileSizeString())
             }
 
-            Text(text = statusRow)
+            Text(text = statusRow, modifier = Modifier.padding(vertical = 4.dp))
+
+            item.remainingTimeLabel?.let { remainingTime ->
+                Column(
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "$remainingTime left",
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = item.progressLabel,
+                            fontSize = 12.sp
+                        )
+                    }
+                    LinearProgressIndicator(
+                        progress = { item.progressPercent / 100f },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
 
             val chipItems = listOfNotNull(
                 item.scoreLabel
@@ -340,12 +396,18 @@ fun QueueItemInfoSheet(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    ),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                 ) {
-                    Text(errorMessage)
+                    Text(errorMessage, modifier = Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    ))
                 }
             } ?: item.statusMessages.forEach { status ->
-                Card {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                ) {
                     Column(
                         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
                     ) {
@@ -391,7 +453,44 @@ fun QueueItemInfoSheet(
                 }
             }
 
-            // todo - add options to remove + manual import
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onRemove,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null
+                    )
+                    Text(
+                        text = "Remove"
+                    )
+                }
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (item.needsManualImport) {
+                        Button(
+                            onClick = {
+
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Download,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = "Manual Import"
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -416,5 +515,63 @@ fun EmptyActivityState(
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConfirmDeleteItemSheet(
+    onDismiss: () -> Unit,
+    deleteInProgress: Boolean,
+    onDelete: (Boolean, Boolean) -> Unit
+) {
+    var removeFromClient by remember { mutableStateOf(false) }
+    var blocklistRelease by remember { mutableStateOf(false) }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            LabelledSwitch(
+                label = "Remove From Client",
+                sublabel = "Whether to ignore the download, or remove it and its file(s) from the download client.",
+                checked = removeFromClient,
+                onCheckedChange = { removeFromClient = it }
+            )
+            LabelledSwitch(
+                label = "Blocklist Release",
+                sublabel = "Block this release from being redownloaded via Automatic Search or RSS",
+                checked = blocklistRelease,
+                onCheckedChange = { blocklistRelease = it }
+            )
+            Button(
+                onClick = {
+                    onDelete(removeFromClient, blocklistRelease)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                enabled = !deleteInProgress
+            ) {
+                if (deleteInProgress) {
+                    CircularProgressIndicator(Modifier.size(24.dp))
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null
+                    )
+                    Text(
+                        text = "Remove"
+                    )
+                }
+            }
+        }
     }
 }

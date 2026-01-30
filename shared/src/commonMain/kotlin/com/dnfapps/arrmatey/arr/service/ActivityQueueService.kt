@@ -76,4 +76,8 @@ class ActivityQueueService(
         stopPolling()
         scope.cancel()
     }
+
+    suspend fun manualRefresh() {
+        pollActivityTasks()
+    }
 }

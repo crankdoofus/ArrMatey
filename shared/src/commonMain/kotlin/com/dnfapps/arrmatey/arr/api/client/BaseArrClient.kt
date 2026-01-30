@@ -56,6 +56,16 @@ abstract class BaseArrClient(
     ): NetworkResult<Any> =
         post("release", payload)
 
+    override suspend fun deleteActivityTask(
+        id: Int,
+        removeFromClient: Boolean,
+        blocklist: Boolean
+    ): NetworkResult<Unit> =
+        delete("queue/$id", mapOf(
+            "removeFromClient" to removeFromClient,
+            "blocklist" to blocklist
+        ))
+
     /**
      * Helpers
      */

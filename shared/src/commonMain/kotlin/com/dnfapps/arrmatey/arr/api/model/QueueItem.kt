@@ -1,6 +1,7 @@
 package com.dnfapps.arrmatey.arr.api.model
 
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.formatToOneDecimal
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -67,19 +68,33 @@ sealed interface QueueItem {
             else -> status!!.name
         }
 
-    val progressLabel: String
+    val progressPercent: Float
         get() = if (sizeleft > 0f) {
-            (((size - sizeleft) / size)*100).toInt().toString() + "%"
+            (((size - sizeleft) / size) * 100)
         } else {
-            "0%"
+            0f
         }
+
+    val progressLabel: String
+        get() = "${progressPercent.formatToOneDecimal()}%"
 
     val remainingTimeLabel: String?
         get() {
             if (trackedDownloadState != QueueDownloadState.Downloading) return null
             val time = estimatedCompletionTime ?: return null
-            if (time <= Clock.System.now()) return null
-            return time.format()
+            val timeDiff = time - Clock.System.now()
+            if (timeDiff.isNegative()) return null
+            return timeDiff.toComponents { hours, minutes, seconds, _ ->
+                buildString {
+                    if (hours > 0) {
+                        append("${hours}h ")
+                    }
+                    if (minutes > 0 || hours > 0) {
+                        append("${minutes}m ")
+                    }
+                    append("${seconds}s")
+                }
+            }
         }
 
     val scoreLabel: String?

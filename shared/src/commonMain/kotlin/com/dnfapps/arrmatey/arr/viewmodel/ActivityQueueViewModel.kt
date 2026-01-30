@@ -9,6 +9,8 @@ import com.dnfapps.arrmatey.arr.api.model.SonarrQueueItem
 import com.dnfapps.arrmatey.arr.usecase.GetActivityTasksUseCase
 import com.dnfapps.arrmatey.arr.service.ActivityQueueService
 import com.dnfapps.arrmatey.arr.state.ActivityQueueUiState
+import com.dnfapps.arrmatey.arr.usecase.DeleteQueueItemUseCase
+import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.compose.utils.QueueSortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.applySorting
@@ -19,11 +21,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class ActivityQueueViewModel(
     private val activityQueueService: ActivityQueueService,
     getActivityTasksUseCase: GetActivityTasksUseCase,
-    instanceRepository: InstanceRepository
+    instanceRepository: InstanceRepository,
+    private val deleteQueueItemUseCase: DeleteQueueItemUseCase
 ): ViewModel() {
 
     val activityTasks = getActivityTasksUseCase()
@@ -56,6 +60,9 @@ class ActivityQueueViewModel(
 
     private val _activityQueueUiState = MutableStateFlow(ActivityQueueUiState())
     val activityQueueUiState: StateFlow<ActivityQueueUiState> = _activityQueueUiState.asStateFlow()
+
+    private val _removeItemState = MutableStateFlow<OperationStatus>(OperationStatus.Idle)
+    val removeItemState: StateFlow<OperationStatus> = _removeItemState.asStateFlow()
 
     val queueItems: StateFlow<List<QueueItem>> = combine(
         activityTasks,
@@ -108,6 +115,21 @@ class ActivityQueueViewModel(
             it.calcSeriesId == episode.seriesId &&
                 it.seasonNumber == episode.seasonNumber &&
                 it.calcEpisodeId == null
+        }
+    }
+
+    fun removeQueueItem(item: QueueItem, removeFromClient: Boolean, addToBlocklist: Boolean) {
+        viewModelScope.launch {
+            deleteQueueItemUseCase(item, removeFromClient, addToBlocklist)
+                .collect { state ->
+                    _removeItemState.value = state
+                }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            activityQueueService.manualRefresh()
         }
     }
 
