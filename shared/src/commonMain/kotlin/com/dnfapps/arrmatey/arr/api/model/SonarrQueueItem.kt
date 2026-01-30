@@ -8,6 +8,7 @@ import kotlin.time.Instant
 data class SonarrQueueItem(
     override val id: Int,
     override var instanceId: Long? = null,
+    override var instanceName: String? = null,
     override val downloadId: String? = null,
     override val downloadClient: String? = null,
     override val title: String? = null,

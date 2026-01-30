@@ -6,6 +6,7 @@ import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.client.onError
 import com.dnfapps.arrmatey.client.onSuccess
 import com.dnfapps.arrmatey.instances.repository.InstanceManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -34,11 +35,12 @@ class DeleteQueueItemUseCase(
         )
             .onSuccess {
                 emit(OperationStatus.Success("Queue item removed successfully"))
+                delay(100)
+                emit(OperationStatus.Idle)
             }
             .onError { code, message, cause ->
                 emit(OperationStatus.Error(code, message, cause))
-            }
-            .also {
+                delay(100)
                 emit(OperationStatus.Idle)
             }
     }

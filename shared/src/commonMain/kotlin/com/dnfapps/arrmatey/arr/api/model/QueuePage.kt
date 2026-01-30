@@ -9,9 +9,12 @@ data class QueuePage(
     val totalRecords: Int,
     val records: List<QueueItem>
 ) {
-    fun setInstanceId(id: Long) = copy(
+    fun setInstance(id: Long, name: String) = copy(
         records = records.apply {
-            forEach { r -> r.instanceId = id }
+            forEach { r ->
+                r.instanceId = id
+                r.instanceName = name
+            }
         }
     )
 }

@@ -49,7 +49,7 @@ abstract class BaseArrClient(
             "includeMovie" to true,
             "includeSeries" to true,
             "includeEpisode" to true
-        )).map { it.setInstanceId(instance.id) }
+        )).map { it.setInstance(instance.id, instance.label) }
 
     override suspend fun downloadRelease(
         payload: DownloadReleasePayload

@@ -19,7 +19,6 @@ struct MediaDetailsScreen: View {
     @State private var showConfirmSheet: Bool = false
     @State private var showEditSheet: Bool = false
     @State private var confirmDeleteSeason: Int32? = nil
-//    @State private var
     
     init(id: Int64, type: InstanceType) {
         self.id = id

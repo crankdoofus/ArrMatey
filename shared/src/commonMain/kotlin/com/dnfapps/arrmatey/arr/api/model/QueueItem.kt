@@ -18,6 +18,7 @@ sealed interface QueueItem {
      */
     val id: Int
     var instanceId: Long?
+    var instanceName: String?
     val downloadId: String?
     val downloadClient: String?
     val title: String?

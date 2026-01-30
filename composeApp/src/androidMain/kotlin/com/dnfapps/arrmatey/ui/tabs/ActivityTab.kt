@@ -186,7 +186,10 @@ fun ActivityTab(
 }
 
 @Composable
-fun ActivityItem(item: QueueItem, onClick: () -> Unit) {
+fun ActivityItem(
+    item: QueueItem,
+    onClick: () -> Unit
+) {
     val colors = if (item.hasIssue) {
         CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -228,6 +231,11 @@ fun ActivityItem(item: QueueItem, onClick: () -> Unit) {
                 Text(
                     text = statusRow,
                     fontSize = 14.sp
+                )
+
+                Text(
+                    text = item.instanceName ?: "",
+                    fontSize = 12.sp
                 )
             }
 
