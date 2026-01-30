@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -61,7 +62,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -277,20 +283,27 @@ fun ArrLibraryScreen(
                                         )
                                     }
 
-                                    MediaView(
-                                        items = items,
-                                        onItemClick = {
-                                            it.id?.let { id ->
-                                                navigation.navigateTo(
-                                                    ArrScreen.Details(id = id)
-                                                )
+                                    if (items.isNotEmpty()) {
+                                        MediaView(
+                                            items = items,
+                                            onItemClick = {
+                                                it.id?.let { id ->
+                                                    navigation.navigateTo(
+                                                        ArrScreen.Details(id = id)
+                                                    )
+                                                }
+                                            },
+                                            viewType = preferences.viewType,
+                                            itemIsActive = { item ->
+                                                queueItems.any { it.mediaId == item.id }
                                             }
-                                        },
-                                        viewType = preferences.viewType,
-                                        itemIsActive = { item ->
-                                            queueItems.any { it.mediaId == item.id }
+                                        )
+                                    } else {
+                                        EmptySearchResultsView(type, searchQuery) {
+                                            val destination = ArrScreen.Search(searchQuery)
+                                            navigation.navigateTo(destination)
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -313,6 +326,47 @@ fun ArrLibraryScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun EmptySearchResultsView(
+    type: InstanceType,
+    query: String,
+    onShouldSearch: () -> Unit
+) {
+    val mediaType = when (type) {
+        InstanceType.Sonarr -> "series"
+        InstanceType.Radarr -> "movie"
+    }
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 16.dp)
+            .fillMaxSize()
+    ) {
+        Text(
+            "No results for \"$query\" in your library",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = buildAnnotatedString {
+                append("Check your spelling or ")
+                withLink(
+                    link = LinkAnnotation.Clickable(tag = "new_entry") {
+                        onShouldSearch()
+                    }
+                ) {
+                    withStyle(SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )) {
+                        append("add a new $mediaType")
+                    }
+                }
+            }
+        )
     }
 }
 
