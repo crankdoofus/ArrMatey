@@ -21,7 +21,7 @@ struct MediaSearchScreen: View {
     @State private var searchPresented: Bool = false
     
     init(query: String, type: InstanceType) {
-        self._searchQuery = .init(initialValue: query)
+        self.searchQuery = query
         self.type = type
         self.viewModel = ArrSearchViewModelS(type: type)
     }
@@ -40,7 +40,7 @@ struct MediaSearchScreen: View {
                 try? await Task.sleep(nanoseconds: 500_000_000)
                 searchPresented = true
             }
-            .onDebounceSearch(searchQuery) { query in
+            .onDebounceSearch(searchQuery, initial: true) { query in
                 guard !query.isEmpty else { return }
                 viewModel.performLookup(query)
             }
@@ -48,6 +48,7 @@ struct MediaSearchScreen: View {
                 toolbarContent
             }
             .searchable(text: $searchQuery, isPresented: $searchPresented, placement: .navigationBarDrawer)
+            .ignoresSafeArea(edges: .bottom)
             
     }
     

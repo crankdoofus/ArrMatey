@@ -23,7 +23,7 @@ struct ArrLibraryView: View {
     }
     
     var body: some View {
-        if state.items.isEmpty {
+        if state.items.isEmpty && searchQuery.isEmpty {
             VStack {
                 EmptyLibraryView()
             }
@@ -37,29 +37,34 @@ struct ArrLibraryView: View {
         items: [ArrMedia],
         prefs: InstancePreferences
     ) -> some View {
-        let base: AnyView = AnyView(
-            mediaView(
-                viewType: prefs.viewType,
-                items: items,
-                onItemClicked: { media in
-                    if let id = media.id as? Int64 {
-                        navigation.go(to: .details(id), of: type)
+        VStack(spacing: 0) {
+            if items.isEmpty {
+                EmptySearchResultsView(type: type, query: searchQuery, onShouldSearch: {
+                    navigation.go(to: .search(searchQuery), of: type)
+                })
+            } else {
+                mediaView(
+                    viewType: prefs.viewType,
+                    items: items,
+                    onItemClicked: { media in
+                        if let id = media.id as? Int64 {
+                            navigation.go(to: .details(id), of: type)
+                        }
+                    },
+                    itemIsActive: { item in
+                        queueItems.contains(where: { $0.mediaId == item.id })
                     }
-                },
-                itemIsActive: { item in
-                    queueItems.contains(where: { $0.mediaId == item.id })
-                }
-            )
-            .id(items.count)
-            .ignoresSafeArea(edges: .bottom)
+                )
+                .ignoresSafeArea(edges: .bottom)
+                Spacer(minLength: 24)
+            }
+        }
+        .id(items.count)
+        .searchable(
+            text: $searchQuery,
+            isPresented: $searchPresented,
+            placement: .automatic
         )
-        
-        return base
-            .searchable(
-                text: $searchQuery,
-                isPresented: $searchPresented,
-                placement: .toolbarPrincipal
-            )
     }
     
     @ViewBuilder
