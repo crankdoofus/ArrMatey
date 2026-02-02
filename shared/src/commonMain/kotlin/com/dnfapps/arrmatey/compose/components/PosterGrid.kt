@@ -39,6 +39,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.Episode
+import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 
 @Composable
@@ -92,20 +93,6 @@ fun <T: ArrMedia> PosterItem(
     var imageLoaded by remember { mutableStateOf(false) }
 
     val url = item.getPoster()?.remoteUrl
-    val model = ImageRequest.Builder(LocalPlatformContext.current)
-        .data(url)
-        .diskCacheKey(url)
-        .networkCachePolicy(CachePolicy.ENABLED)
-        .memoryCachePolicy(CachePolicy.ENABLED)
-        .crossfade(true)
-        .listener(
-            onError = { _, err ->
-                println(err.throwable.message)
-                imageLoadError = true
-            },
-            onSuccess = { _, _ -> imageLoaded = true }
-        )
-        .build()
 
     val shadowModifier = if (elevation > 0.dp) {
         Modifier.shadow(
@@ -129,7 +116,14 @@ fun <T: ArrMedia> PosterItem(
             )
     ) {
         AsyncImage(
-            model = model,
+            model = rememberRemoteUrlData(
+                url = url,
+                onError = { _, err ->
+                    println(err.throwable.message)
+                    imageLoadError = true
+                },
+                onSuccess = { _, _ -> imageLoaded = true }
+            ),
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
@@ -150,21 +144,13 @@ fun <T: ArrMedia> PosterItem(
 @Composable
 fun EpisodePosterItem(episode: Episode) {
     val url = episode.getPoster()?.remoteUrl
-    val model = ImageRequest.Builder(LocalPlatformContext.current)
-        .data(url)
-        .diskCacheKey(url)
-        .networkCachePolicy(CachePolicy.ENABLED)
-        .memoryCachePolicy(CachePolicy.ENABLED)
-        .crossfade(true)
-        .build()
-
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
             .height(100.dp)
     ) {
         AsyncImage(
-            model = model,
+            model = rememberRemoteUrlData(url),
             contentDescription = null,
             contentScale = ContentScale.FillHeight
         )

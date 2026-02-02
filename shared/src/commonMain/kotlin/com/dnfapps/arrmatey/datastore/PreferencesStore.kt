@@ -25,6 +25,7 @@ class PreferencesStore(
     private val activityPollingKey = booleanPreferencesKey("enableActivityPolling")
     private val httpLogLevelKey = stringPreferencesKey("httpLogLevel")
     private val useDynamicThemeKey = booleanPreferencesKey("useDynamicTheme")
+    private val useClearLogoKey = booleanPreferencesKey("useClearLogo")
 
     private fun infoCardKey(type: InstanceType): Preferences.Key<Boolean> = when (type) {
         InstanceType.Sonarr -> sonarrInfoCardKey
@@ -61,6 +62,11 @@ class PreferencesStore(
             preferences[useDynamicThemeKey] ?: true
         }
 
+    val useClearLogo: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[useClearLogoKey] ?: true
+        }
+
     fun dismissInfoCard(type: InstanceType) {
         setInfoCardVisibility(type, false)
     }
@@ -95,6 +101,15 @@ class PreferencesStore(
             dataStore.edit { preferences ->
                 val current = preferences[useDynamicThemeKey] ?: true
                 preferences[useDynamicThemeKey] = !current
+            }
+        }
+    }
+
+    fun toggleUseClearLogo() {
+        scope.launch {
+            dataStore.edit { preferences ->
+                val current = preferences[useClearLogoKey] ?: true
+                preferences[useClearLogoKey] = !current
             }
         }
     }

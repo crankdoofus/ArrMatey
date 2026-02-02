@@ -49,6 +49,7 @@ import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
+import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 import com.dnfapps.arrmatey.extensions.pxToDp
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
@@ -109,15 +110,8 @@ fun <T: ArrMedia> MediaItem(
                 },
             ) {
                 val posterUrl = item.getPoster()?.remoteUrl
-                val model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(posterUrl)
-                    .diskCacheKey(posterUrl)
-                    .networkCachePolicy(CachePolicy.ENABLED)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .crossfade(true)
-                    .build()
                 AsyncImage(
-                    model = model,
+                    model = rememberRemoteUrlData(posterUrl),
                     contentDescription = null,
                     modifier = Modifier
                         .height(defaultHeight)
@@ -218,15 +212,8 @@ fun BannerView(
 ) {
     val banner = item.getBanner()?.remoteUrl
     banner?.let { bannerUrl ->
-        val bannerModel = ImageRequest.Builder(LocalPlatformContext.current)
-            .data(bannerUrl)
-            .diskCacheKey(bannerUrl)
-            .networkCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .crossfade(true)
-            .build()
         AsyncImage(
-            model = bannerModel,
+            model = rememberRemoteUrlData(bannerUrl),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = modifier.cloudy()

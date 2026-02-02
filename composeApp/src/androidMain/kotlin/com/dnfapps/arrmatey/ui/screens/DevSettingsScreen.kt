@@ -31,6 +31,7 @@ import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.ui.components.LabelledSwitch
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +44,7 @@ fun DevSettingsScreen(
     val activityPollingOn by preferenceStore.enableActivityPolling.collectAsState(true)
     val logLevel by preferenceStore.httpLogLevel.collectAsState(LoggerLevel.Headers)
     val useDynamicTheme by preferenceStore.useDynamicTheme.collectAsStateWithLifecycle(true)
+    val useClearLogo by preferenceStore.useClearLogo.collectAsStateWithLifecycle(true)
 
     Scaffold(
         topBar = {
@@ -134,6 +136,12 @@ fun DevSettingsScreen(
                         )
                     }
                 }
+
+//                LabelledSwitch(
+//                    label = "Use clear logo",
+//                    checked = useClearLogo,
+//                    onCheckedChange = { preferenceStore.toggleUseClearLogo() }
+//                )
             }
         }
     }

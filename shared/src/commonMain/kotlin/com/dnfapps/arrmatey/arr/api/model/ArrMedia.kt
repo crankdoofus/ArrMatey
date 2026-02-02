@@ -82,6 +82,10 @@ sealed interface ArrMedia {
             ?: images.firstOrNull { it.coverType == CoverType.Banner }
             ?: images.firstOrNull { it.coverType == CoverType.Poster }
     }
+
+    fun getClearLogo(): ArrImage? {
+        return images.firstOrNull { it.coverType == CoverType.ClearLogo }
+    }
     fun setMonitored(monitored: Boolean): ArrMedia
 
     fun formatTags(availableTags: List<Tag>): String? = when {

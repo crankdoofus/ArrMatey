@@ -18,6 +18,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 
 @Composable
 fun DetailHeaderBanner(
@@ -33,16 +34,8 @@ fun DetailHeaderBanner(
             .background(MaterialTheme.colorScheme.background)
             .clipToBounds()
     ) {
-        val bannerModel = ImageRequest.Builder(context)
-            .data(bannerUrl)
-            .diskCacheKey(bannerUrl)
-            .networkCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .crossfade(true)
-            .build()
-
         AsyncImage(
-            model = bannerModel,
+            model = rememberRemoteUrlData(bannerUrl),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()

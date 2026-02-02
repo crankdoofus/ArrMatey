@@ -55,10 +55,9 @@ struct ArrLibraryView: View {
                         queueItems.contains(where: { $0.mediaId == item.id })
                     }
                 )
-                .ignoresSafeArea(edges: .bottom)
-                Spacer(minLength: 24)
             }
         }
+        .ignoresSafeArea(edges: .bottom)
         .id(items.count)
         .searchable(
             text: $searchQuery,
