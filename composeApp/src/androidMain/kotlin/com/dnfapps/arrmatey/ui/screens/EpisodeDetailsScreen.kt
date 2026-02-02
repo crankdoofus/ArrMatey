@@ -244,8 +244,8 @@ fun EpisodeDetailsScreen(
         if (confirmDelete) {
             AlertDialog(
                 onDismissRequest = { confirmDelete = false },
-                title = { Text("Are you sure?") },
-                text = { Text("This files will be deleted permanently") },
+                title = { Text(stringResource(R.string.are_you_sure)) },
+                text = { Text(stringResource(R.string.episode_delete_message)) },
                 dismissButton = {
                     TextButton(
                         onClick = { confirmDelete = false }

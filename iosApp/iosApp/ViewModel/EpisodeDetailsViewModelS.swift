@@ -15,6 +15,7 @@ class EpisodeDetailsViewModelS: ObservableObject {
     @Published private(set) var episode: Episode
     @Published private(set) var history: HistoryState = HistoryStateInitial()
     @Published private(set) var monitorStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var deleteStatus: OperationStatus = OperationStatusIdle()
     
     init(seriesId: Int64, episode: Episode) {
         self.episode = episode
@@ -26,6 +27,7 @@ class EpisodeDetailsViewModelS: ObservableObject {
         viewModel.episode.observeAsync { self.episode = $0 }
         viewModel.history.observeAsync { self.history = $0 }
         viewModel.monitorStatus.observeAsync { self.monitorStatus = $0 }
+        viewModel.deleteStatus.observeAsync{ self.deleteStatus = $0 }
     }
     
     func toggleMonitor() {
@@ -38,6 +40,10 @@ class EpisodeDetailsViewModelS: ObservableObject {
     
     func refreshHistory() {
         viewModel.refreshHistory()
+    }
+    
+    func deleteEpisode() {
+        viewModel.deleteEpisode()
     }
     
     func resetMonitorStatus() {

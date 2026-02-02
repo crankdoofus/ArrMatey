@@ -10,30 +10,38 @@ import Shared
 
 struct EpisodeDetailsScreen: View {
     private let series: ArrSeries
-    private let episode: Episode
     
     @ObservedObject private var viewModel: EpisodeDetailsViewModelS
     
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var navigation: NavigationManager
     
+    @State private var confirmDelete: Bool = false
+    
+    private var episode: Episode {
+        viewModel.episode
+    }
+    
     init(seriesJson: String, episodeJson: String) {
         self.series = ArrMediaCompanion().fromJson(value: seriesJson) as! ArrSeries
-        self.episode = Episode.companion.fromJson(json: episodeJson)
         
+        let episode = Episode.companion.fromJson(json: episodeJson)
         self.viewModel = EpisodeDetailsViewModelS(seriesId: series.id as! Int64, episode: episode)
     }
     
     var body: some View {
         contentForState()
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Image(systemName: viewModel.episode.monitored ? "bookmark.fill" : "bookmark")
-                        .imageScale(.medium)
-                        .onTapGesture {
-                            viewModel.toggleMonitor()
-                        }
+            .toolbar { toolbarContent }
+            .alert(LocalizedStringResource("are_you_sure"), isPresented: $confirmDelete) {
+                Button("yes", role: .destructive) {
+                    viewModel.deleteEpisode()
+                    confirmDelete = false
                 }
+                Button("no", role: .cancel) {
+                    confirmDelete = false
+                }
+            } message: {
+                Text(LocalizedStringResource("episode_delete_message"))
             }
     }
     
@@ -71,6 +79,8 @@ struct EpisodeDetailsScreen: View {
                             Text("no_history")
                                 .font(.system(size: 22, weight: .medium))
                         } else {
+                            Text("history")
+                                .font(.system(size: 20, weight: .bold))
                             ForEach(success.items, id: \.id) { historyItem in
                                 HistoryItemView(item: historyItem)
                             }
@@ -87,5 +97,24 @@ struct EpisodeDetailsScreen: View {
             .frame(alignment: .top)
         }
         .ignoresSafeArea(edges: .top)
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Image(systemName: viewModel.episode.monitored ? "bookmark.fill" : "bookmark")
+                .imageScale(.medium)
+                .onTapGesture {
+                    viewModel.toggleMonitor()
+                }
+        }
+        ToolbarItem(placement: .primaryAction) {
+            Image(systemName: "trash")
+                .imageScale(.medium)
+                .tint(.red)
+                .onTapGesture {
+                    confirmDelete = true
+                }
+        }
     }
 }

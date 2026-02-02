@@ -34,6 +34,10 @@
         en = You don't have any %@ instances added yet
     [empty_library_message]
         en = Try adding something to your library
+    [are_you_sure]
+        en = Are you sure?
+    [episode_delete_message]
+        en = This episode file will be deleted permanently.
 
 [[Actions]]
     [close]
