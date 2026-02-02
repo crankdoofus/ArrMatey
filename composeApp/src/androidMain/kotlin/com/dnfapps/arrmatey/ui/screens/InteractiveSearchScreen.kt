@@ -183,65 +183,70 @@ fun InteractiveSearchScreen(
                     )
                 }
                 is ReleaseLibrary.Success -> {
-                    LazyColumn(
+                    Column(
                         modifier = Modifier
                             .padding(horizontal = 18.dp)
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        item {
-                            AnimatedVisibility(
-                                visible = showSearch,
-                                enter = expandVertically(),
-                                exit = shrinkVertically()
-                            ) {
-                                OutlinedTextField(
-                                    value = searchQuery,
-                                    onValueChange = { viewModel.updateSearchQuery(it) },
-                                    modifier = Modifier
-                                        .padding(vertical = 12.dp)
-                                        .fillMaxWidth(),
-                                    trailingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = null,
-                                            modifier = Modifier.clickable {
-                                                viewModel.updateSearchQuery("")
-                                                showSearch = false
-                                            }
-                                        )
-                                    },
-                                    placeholder = { Text(stringResource(R.string.search)) },
-                                    shape = RoundedCornerShape(10.dp),
-                                    singleLine = true
-                                )
-                            }
-                        }
-                        items(state.items) { item ->
-                            val shouldAnimate = (downloadState as? DownloadState.Loading)?.guid == item.guid
-                            ReleaseItem(
-                                item = item,
-                                onItemClick = {
-                                    if (item.downloadAllowed) {
-                                        viewModel.downloadRelease(item)
-                                    } else {
-                                        confirmRelease = item
-                                    }
+                        AnimatedVisibility(
+                            visible = showSearch,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { viewModel.updateSearchQuery(it) },
+                                modifier = Modifier
+                                    .padding(vertical = 12.dp)
+                                    .fillMaxWidth(),
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.clickable {
+                                            viewModel.updateSearchQuery("")
+                                            showSearch = false
+                                        }
+                                    )
                                 },
-                                animate = shouldAnimate
+                                placeholder = { Text(stringResource(R.string.search)) },
+                                shape = RoundedCornerShape(10.dp),
+                                singleLine = true
                             )
                         }
-                        if (state.items.isEmpty()) {
-                            item {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = "No results found"
-                                    )
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(18.dp)
+                        ) {
+                            items(state.items) { item ->
+                                val shouldAnimate =
+                                    (downloadState as? DownloadState.Loading)?.guid == item.guid
+                                ReleaseItem(
+                                    item = item,
+                                    onItemClick = {
+                                        if (item.downloadAllowed) {
+                                            viewModel.downloadRelease(item)
+                                        } else {
+                                            confirmRelease = item
+                                        }
+                                    },
+                                    animate = shouldAnimate
+                                )
+                            }
+                            if (state.items.isEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "No results found"
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        item {
-                            Spacer(modifier = Modifier.height(0.dp))
+                            item {
+                                Spacer(modifier = Modifier.height(0.dp))
+                            }
                         }
                     }
                 }

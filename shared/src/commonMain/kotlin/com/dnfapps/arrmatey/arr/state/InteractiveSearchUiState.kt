@@ -6,7 +6,7 @@ import com.dnfapps.arrmatey.compose.utils.SortOrder
 
 data class InteractiveSearchUiState(
     val sortBy: ReleaseSortBy = ReleaseSortBy.Weight,
-    val sortOrder: SortOrder = SortOrder.Asc,
+    val sortOrder: SortOrder = SortOrder.Desc,
     val filterBy: ReleaseFilterBy = ReleaseFilterBy.Any
 ) {
     companion object {

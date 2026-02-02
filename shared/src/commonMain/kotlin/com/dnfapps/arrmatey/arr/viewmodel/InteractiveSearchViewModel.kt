@@ -100,16 +100,15 @@ class InteractiveSearchViewModel(
     ): List<T> {
         if (items.isEmpty()) return items
 
-        return when {
-            T::class == SeriesRelease::class -> {
+        return when (items.first()) {
+            is SeriesRelease -> {
                 @Suppress("UNCHECKED_CAST")
                 seriesFiltering(items as List<SeriesRelease>, filter, query) as List<T>
             }
-            T::class == MovieRelease::class -> {
+            is MovieRelease -> {
                 @Suppress("UNCHECKED_CAST")
                 movieFiltering(items as List<MovieRelease>, query) as List<T>
             }
-            else -> items
         }
     }
 
