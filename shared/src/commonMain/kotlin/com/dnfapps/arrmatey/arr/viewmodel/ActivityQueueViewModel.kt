@@ -118,9 +118,14 @@ class ActivityQueueViewModel(
         }
     }
 
-    fun removeQueueItem(item: QueueItem, removeFromClient: Boolean, addToBlocklist: Boolean) {
+    fun removeQueueItem(
+        item: QueueItem,
+        removeFromClient: Boolean,
+        addToBlocklist: Boolean,
+        skipRedownload: Boolean
+    ) {
         viewModelScope.launch {
-            deleteQueueItemUseCase(item, removeFromClient, addToBlocklist)
+            deleteQueueItemUseCase(item, removeFromClient, addToBlocklist, skipRedownload)
                 .collect { state ->
                     _removeItemState.value = state
                 }

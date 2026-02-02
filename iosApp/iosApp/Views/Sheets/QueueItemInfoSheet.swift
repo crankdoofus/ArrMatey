@@ -11,70 +11,117 @@ import Flow
 
 struct QueueItemInfoSheet: View {
     let item: QueueItem
+    let deleteInProgress: Bool
+    let onDelete: (Bool, Bool, Bool) -> Void
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Spacer(minLength: 12)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.titleLabel)
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.accentColor)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Spacer(minLength: 12)
                     
-                    Text(item.title ?? String(localized: "unknown"))
-                        .font(.system(size: 18, weight: .semibold))
-                }
-                
-                HStack(spacing: 4) {
-                    Text(item.statusLabel)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.titleLabel)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.accentColor)
+                        
+                        Text(item.title ?? String(localized: "unknown"))
+                            .font(.system(size: 18, weight: .semibold))
+                    }
                     
-                    Text("• \(item.quality.qualityLabel) • \(formatBytes(item.size))")
-                }
-                .font(.subheadline)
-                
-                let chipItems = ([item.scoreLabel].compactMap { $0 }) + item.customFormats.map { $0.name }
-                HFlow {
-                    ForEach(chipItems, id: \.self) { chip in
-                        Text(chip)
-                            .font(.system(size: 12))
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 6)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .stroke(.secondary.opacity(0.3), lineWidth: 1))
+                    HStack(spacing: 4) {
+                        Text(item.statusLabel)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        
+                        Text("• \(item.quality.qualityLabel) • \(formatBytes(item.size))")
                     }
-                }
-                .padding(.bottom, 2)
-                
-                if let errorMessage = item.errorMessage {
-                    errorCard(errorMessage)
-                } else {
-                    ForEach(item.statusMessages, id: \.self) { status in
-                        statusCard(status)
+                    .font(.subheadline)
+                    
+                    let chipItems = ([item.scoreLabel].compactMap { $0 }) + item.customFormats.map { $0.name }
+                    HFlow {
+                        ForEach(chipItems, id: \.self) { chip in
+                            Text(chip)
+                                .font(.system(size: 12))
+                                .padding(.vertical, 2)
+                                .padding(.horizontal, 6)
+                                .overlay(RoundedRectangle(cornerRadius: 8)
+                                    .stroke(.secondary.opacity(0.3), lineWidth: 1))
+                        }
                     }
-                }
-                
-                Divider().padding(.vertical, 8)
-                
-                let infoItems = getInfoItems()
-                LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], spacing: 12) {
-                    ForEach(infoItems, id: \.key) { key, value in
-                        if let value = value {
-                            Text(LocalizedStringKey(key))
-                                .font(.system(size: 14, weight: .semibold))
-                            Text(value)
-                                .font(.system(size: 14))
-                                .foregroundColor(.secondary)
+                    .padding(.bottom, 2)
+                    
+                    if let errorMessage = item.errorMessage {
+                        errorCard(errorMessage)
+                    } else {
+                        ForEach(item.statusMessages, id: \.self) { status in
+                            statusCard(status)
+                        }
+                    }
+                    
+                    Divider().padding(.vertical, 8)
+                    
+                    let infoItems = getInfoItems()
+                    LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], spacing: 12) {
+                        ForEach(infoItems, id: \.key) { key, value in
+                            if let value = value {
+                                Text(LocalizedStringKey(key))
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text(value)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    
+                    HStack(spacing: 24) {
+                        NavigationLink {
+                            RemoveQueueItemView(deleteInProgress: deleteInProgress, onDelete: onDelete)
+                        } label: {
+                            Label {
+                                Text("remove")
+                                    .font(.callout)
+                            } icon: {
+                                Image(systemName: "trash")
+                                    .imageScale(.medium)
+                            }
+                            .lineLimit(1)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
+                            .padding(.vertical, 6)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        
+                        if item.needsManualImport {
+                            NavigationLink {
+                                //
+                            } label : {
+                                Label {
+                                    Text("manual_import")
+                                        .font(.callout)
+                                } icon: {
+                                    Image(systemName: "square.and.arrow.down")
+                                        .imageScale(.medium)
+                                }
+                                .lineLimit(1)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                                .padding(.vertical, 6)
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                        } else {
+                            Spacer()
+                                .frame(maxWidth: .infinity)
                         }
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .presentationDragIndicator(.visible)
         }
-        .presentationDragIndicator(.visible)
     }
     
     @ViewBuilder

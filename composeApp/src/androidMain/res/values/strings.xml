@@ -21,6 +21,12 @@
     <string name="empty_library_message">Try adding something to your library</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="episode_delete_message">This episode file will be deleted permanently.</string>
+    <string name="client_remove_title">Remove From Client</string>
+    <string name="client_remove_message">Whether to ignore the download, or remove it and its file(s) from the download client.</string>
+    <string name="blocklist_title">Blocklist Release</string>
+    <string name="blocklist_message">Block this release from being redownloaded via Automatic Search or RSS</string>
+    <string name="skip_redownload_title">Skip Redownload</string>
+    <string name="skip_redownload_message">Whether to search for this release again or not</string>
 
     <!-- Actions -->
     <string name="close">Close</string>
@@ -36,6 +42,8 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
+    <string name="manual_import">Manual Import</string>
 
     <!-- Labels -->
     <string name="label">Label</string>

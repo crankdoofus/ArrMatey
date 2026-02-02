@@ -51,8 +51,16 @@ struct ActivityTab: View {
                 }
             }
             .sheet(item: $selectedItem) { wrapper in
-                QueueItemInfoSheet(item: wrapper.item)
+                QueueItemInfoSheet(item: wrapper.item, deleteInProgress: viewModel.removeInProgress, onDelete: { remove, block, skip in
+                    viewModel.removeQueueItem(wrapper.item, remove, block, skip)
+                })
                     .presentationDetents([.fraction(0.7)])
+            }
+            .onChange(of: viewModel.removeSuccesss) { _, newValue in
+                if newValue {
+                    selectedItem = nil
+                    viewModel.refresh()
+                }
             }
     }
     

@@ -17,6 +17,9 @@ class ActivityQueueViewModelS: ObservableObject {
     @Published private(set) var isPolling: Bool = false
     @Published private(set) var instances: [Instance] = []
     @Published private(set) var uiState: ActivityQueueUiState = ActivityQueueUiState.companion.empty()
+    @Published private(set) var removeItemStatus: OperationStatus = OperationStatusIdle()
+    @Published private(set) var removeInProgress: Bool = false
+    @Published private(set) var removeSuccesss: Bool = false
     
     init() {
         self.viewModel = KoinBridge.shared.getActivityQueueViewModel()
@@ -29,6 +32,11 @@ class ActivityQueueViewModelS: ObservableObject {
         viewModel.isPolling.observeAsync { self.isPolling = $0.boolValue }
         viewModel.instances.observeAsync { self.instances = $0 }
         viewModel.activityQueueUiState.observeAsync { self.uiState = $0 }
+        viewModel.removeItemState.observeAsync {
+            self.removeItemStatus = $0
+            self.removeInProgress = $0 is OperationStatusInProgress
+            self.removeSuccesss = $0 is OperationStatusSuccess
+        }
     }
     
     func startPolling() {
@@ -49,6 +57,18 @@ class ActivityQueueViewModelS: ObservableObject {
     
     func setSortOrder(_ order: Shared.SortOrder) {
         viewModel.setSortOrder(order: order)
+    }
+    
+    func getQueueItemForEpisode(_ episode: Episode) -> SonarrQueueItem? {
+        return viewModel.getQueueItemForEpisode(episode: episode)
+    }
+    
+    func removeQueueItem(_ item: QueueItem, _ removeFromClient: Bool, _ addToBlocklist: Bool, _ skipRedownload: Bool) {
+        viewModel.removeQueueItem(item: item, removeFromClient: removeFromClient, addToBlocklist: addToBlocklist, skipRedownload: skipRedownload)
+    }
+    
+    func refresh() {
+        viewModel.refresh()
     }
     
 }

@@ -59,11 +59,13 @@ abstract class BaseArrClient(
     override suspend fun deleteActivityTask(
         id: Int,
         removeFromClient: Boolean,
-        blocklist: Boolean
+        blocklist: Boolean,
+        skipRedownload: Boolean
     ): NetworkResult<Unit> =
         delete("queue/$id", mapOf(
             "removeFromClient" to removeFromClient,
-            "blocklist" to blocklist
+            "blocklist" to blocklist,
+            "skipRedownload" to skipRedownload
         ))
 
     /**

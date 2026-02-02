@@ -225,9 +225,10 @@ class InstanceScopedRepository(
     suspend fun deleteActivityTask(
         releaseId: Int,
         removeFromClient: Boolean,
-        addToBlocklist: Boolean
+        addToBlocklist: Boolean,
+        skipRedownload: Boolean
     ): NetworkResult<Unit> {
-        return client.deleteActivityTask(releaseId, removeFromClient, addToBlocklist)
+        return client.deleteActivityTask(releaseId, removeFromClient, addToBlocklist, skipRedownload)
     }
 
     suspend fun executeAutomaticSearch(itemId: Long) {

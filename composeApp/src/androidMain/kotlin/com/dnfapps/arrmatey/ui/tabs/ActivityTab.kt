@@ -36,6 +36,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Label
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -177,8 +178,8 @@ fun ActivityTab(
             ConfirmDeleteItemSheet(
                 onDismiss = { showConfirmRemove = false },
                 deleteInProgress = removeItemStatus is OperationStatus.InProgress,
-                onDelete = { clientRemove, blocklist ->
-                    viewModel.removeQueueItem(selectedItem!!, clientRemove, blocklist)
+                onDelete = { clientRemove, blocklist, skipRedownload ->
+                    viewModel.removeQueueItem(selectedItem!!, clientRemove, blocklist, skipRedownload)
                 }
             )
         }
@@ -474,7 +475,7 @@ fun QueueItemInfoSheet(
                         contentDescription = null
                     )
                     Text(
-                        text = "Remove"
+                        text = stringResource(R.string.remove)
                     )
                 }
 
@@ -493,7 +494,7 @@ fun QueueItemInfoSheet(
                                 contentDescription = null
                             )
                             Text(
-                                text = "Manual Import"
+                                text = stringResource(R.string.manual_import)
                             )
                         }
                     }
@@ -531,10 +532,12 @@ fun EmptyActivityState(
 fun ConfirmDeleteItemSheet(
     onDismiss: () -> Unit,
     deleteInProgress: Boolean,
-    onDelete: (Boolean, Boolean) -> Unit
+    onDelete: (Boolean, Boolean, Boolean) -> Unit
 ) {
     var removeFromClient by remember { mutableStateOf(false) }
     var blocklistRelease by remember { mutableStateOf(false) }
+    var skipRedownload by remember { mutableStateOf(true) }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -547,20 +550,28 @@ fun ConfirmDeleteItemSheet(
                 .padding(bottom = 24.dp)
         ) {
             LabelledSwitch(
-                label = "Remove From Client",
-                sublabel = "Whether to ignore the download, or remove it and its file(s) from the download client.",
+                label = stringResource(R.string.client_remove_title),
+                sublabel = stringResource(R.string.client_remove_message),
                 checked = removeFromClient,
                 onCheckedChange = { removeFromClient = it }
             )
             LabelledSwitch(
-                label = "Blocklist Release",
-                sublabel = "Block this release from being redownloaded via Automatic Search or RSS",
+                label = stringResource(R.string.blocklist_title),
+                sublabel = stringResource(R.string.blocklist_message),
                 checked = blocklistRelease,
                 onCheckedChange = { blocklistRelease = it }
             )
+            if (blocklistRelease) {
+                LabelledSwitch(
+                    label = stringResource(R.string.skip_redownload_title),
+                    sublabel = stringResource(R.string.skip_redownload_message),
+                    checked = skipRedownload,
+                    onCheckedChange = { skipRedownload = it }
+                )
+            }
             Button(
                 onClick = {
-                    onDelete(removeFromClient, blocklistRelease)
+                    onDelete(removeFromClient, blocklistRelease, blocklistRelease && skipRedownload)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -576,7 +587,7 @@ fun ConfirmDeleteItemSheet(
                         contentDescription = null
                     )
                     Text(
-                        text = "Remove"
+                        text = stringResource(R.string.remove)
                     )
                 }
             }

@@ -1,7 +1,6 @@
 package com.dnfapps.arrmatey.arr.usecase
 
 import com.dnfapps.arrmatey.arr.api.model.QueueItem
-import com.dnfapps.arrmatey.client.NetworkResult
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.client.onError
 import com.dnfapps.arrmatey.client.onSuccess
@@ -16,7 +15,8 @@ class DeleteQueueItemUseCase(
     operator fun invoke(
         queueItem: QueueItem,
         removeFromClient: Boolean,
-        addToBlocklist: Boolean
+        addToBlocklist: Boolean,
+        skipRedownload: Boolean
     ): Flow<OperationStatus> = flow {
         val instanceId = queueItem.instanceId ?: run {
             emit(OperationStatus.Error(message = "Queue item is not linked to any instance"))
@@ -31,7 +31,8 @@ class DeleteQueueItemUseCase(
         repository.deleteActivityTask(
             queueItem.id,
             removeFromClient,
-            addToBlocklist
+            addToBlocklist,
+            skipRedownload
         )
             .onSuccess {
                 emit(OperationStatus.Success("Queue item removed successfully"))
