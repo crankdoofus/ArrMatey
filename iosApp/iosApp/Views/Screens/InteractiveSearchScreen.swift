@@ -9,8 +9,7 @@ import Shared
 import SwiftUI
 
 struct InteractiveSearchScreen: View {
-    
-    private let canFilter: Bool
+    private let type: InstanceType
     private let releaseParams: ReleaseParams
     
     @ObservedObject private var viewModel: InteractiveSearchViewModelS
@@ -20,10 +19,44 @@ struct InteractiveSearchScreen: View {
     @State private var searchPresented: Bool = false
     @State private var confirmRelease: ArrRelease? = nil
     
-    init(type: InstanceType, canFilter: Bool, releaseParams: ReleaseParams, defaultFilter: ReleaseFilterBy = .any) {
-        self.canFilter = canFilter
+    private var filterBinding: Binding<ReleaseFilterBy>
+    private var filterLanguageBinding: Binding<Language?>
+    private var filterQualityBinding: Binding<QualityInfo?>
+    private var filterCustomFormatBinding: Binding<CustomFormat?>
+    private var filterProtocolBinding: Binding<ReleaseProtocol?>
+    private var filterIndexerBinding: Binding<String?>
+    
+    init(type: InstanceType, releaseParams: ReleaseParams, defaultFilter: ReleaseFilterBy = .any) {
+        self.type = type
         self.releaseParams = releaseParams
-        self.viewModel = InteractiveSearchViewModelS(type: type, defaultFilter: defaultFilter)
+        
+        let vm = InteractiveSearchViewModelS(type: type, defaultFilter: defaultFilter)
+        self.viewModel = vm
+        
+        self.filterBinding = Binding(
+            get: { vm.filterUiState.filterBy },
+            set: { vm.setFilterby($0) }
+        )
+        self.filterLanguageBinding = Binding(
+            get: { vm.filterUiState.language },
+            set: { vm.setFilterLanguage($0) }
+        )
+        self.filterQualityBinding = Binding(
+            get: { vm.filterUiState.quality },
+            set: { vm.setFilterQuality($0) }
+        )
+        self.filterCustomFormatBinding = Binding(
+            get: { vm.filterUiState.customFormat },
+            set: { vm.setFilterCustomFormat($0) }
+        )
+        self.filterProtocolBinding = Binding(
+            get: { vm.filterUiState.protocol },
+            set: { vm.setFilterProtocol($0) }
+        )
+        self.filterIndexerBinding = Binding(
+            get: { vm.filterUiState.indexer },
+            set: { vm.setFilterIndexer($0) }
+        )
     }
     
     var body: some View {
@@ -100,11 +133,29 @@ struct InteractiveSearchScreen: View {
         }
         
         ToolbarItem(placement: .primaryAction) {
-            ReleaseFilterByPickerMenu(filterBy: Binding(
-                get: { viewModel.filterUiState.filterBy },
-                set: { viewModel.setFilterby($0) }
-            ))
+            ReleaseFilterByPickerMenu(filterBy: filterBinding, filterQuality: filterQualityBinding, filterLanguage: filterLanguageBinding, filterIndexer: filterIndexerBinding, filterProtocol: filterProtocolBinding, filterCustomFormat: filterCustomFormatBinding, type: type, languages: languages, indexers: indexers, qualities: qualities, protocols: protocols, customFormats: customFormats)
             .menuIndicator(.hidden)
         }
     }
+    
+    private var languages: Set<Language> {
+        (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterLanguages ?? Set()
+    }
+    
+    private var qualities: Set<QualityInfo> {
+        (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterQualities ?? Set()
+    }
+    
+    private var customFormats: Set<CustomFormat> {
+        (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterCustomFormats ?? Set()
+    }
+    
+    private var protocols: Set<ReleaseProtocol> {
+        (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterProtocols ?? Set()
+    }
+    
+    private var indexers: Set<String> {
+        (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterIndexers ?? Set()
+    }
+
 }

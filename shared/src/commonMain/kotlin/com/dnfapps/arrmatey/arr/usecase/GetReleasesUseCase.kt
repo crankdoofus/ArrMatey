@@ -56,6 +56,7 @@ class GetReleasesUseCase(
     private fun parseProtocols(items: List<ArrRelease>): Set<ReleaseProtocol> {
         return items
             .map { it.protocol }
+            .sortedBy { it.name }
             .toSet()
     }
 

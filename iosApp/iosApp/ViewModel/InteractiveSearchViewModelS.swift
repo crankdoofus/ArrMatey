@@ -23,8 +23,8 @@ class InteractiveSearchViewModelS: ObservableObject {
     }
     
     init(type: InstanceType, defaultFilter: ReleaseFilterBy) {
-        self.viewModel = KoinBridge.shared.getInteractiveSearchViewModel(type: type, defaultFilter: defaultFilter)
         self.filterUiState = InteractiveSearchUiState.companion.empty(filterBy: defaultFilter)
+        self.viewModel = KoinBridge.shared.getInteractiveSearchViewModel(type: type, defaultFilter: defaultFilter)
         startObserving()
     }
     
@@ -63,4 +63,25 @@ class InteractiveSearchViewModelS: ObservableObject {
     func setFilterby(_ filterBy: ReleaseFilterBy) {
         viewModel.setFilterBy(filterBy: filterBy)
     }
+    
+    func setFilterLanguage(_ filterLanguage: Shared.Language?) {
+        viewModel.setFilterLanguage(language: filterLanguage)
+    }
+    
+    func setFilterIndexer(_ indexer: String?) {
+        viewModel.setFilterIndexer(indexer: indexer)
+    }
+    
+    func setFilterQuality(_ quality: QualityInfo?) {
+        viewModel.setFilterQuality(qualityInfo: quality)
+    }
+    
+    func setFilterProtocol(_ filterProtocol: ReleaseProtocol?) {
+        viewModel.setFilterProtocol(protocol: filterProtocol)
+    }
+    
+    func setFilterCustomFormat(_ customFormat: CustomFormat?) {
+        viewModel.setFilterCustomFormat(customFormat: customFormat)
+    }
+    
 }
