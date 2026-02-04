@@ -44,6 +44,8 @@
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
     <string name="manual_import">Manual Import</string>
+    <string name="refresh">Refresh</string>
+    <string name="search_monitored">Search monitored</string>
 
     <!-- Labels -->
     <string name="label">Label</string>

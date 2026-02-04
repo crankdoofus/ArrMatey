@@ -102,6 +102,14 @@ class ArrMediaDetailsViewModelS: ObservableObject {
         viewModel.deleteSeasonFiles(seasonNumber: seasonNumber)
     }
     
+    func performRefresh() {
+        viewModel.performRefresh()
+    }
+    
+    func performSeriesAutomaticLookup() {
+        viewModel.performSeriesAutomaticLookup()
+    }
+    
     func performEpisodeAutomaticLookup(episodeId: Int64) {
         viewModel.performEpisodeAutomaticLookup(episodeId: episodeId)
     }

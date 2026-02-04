@@ -13,6 +13,7 @@ import com.dnfapps.arrmatey.arr.usecase.DeleteMediaUseCase
 import com.dnfapps.arrmatey.arr.usecase.DeleteSeasonFilesUseCase
 import com.dnfapps.arrmatey.arr.usecase.GetMediaDetailsUseCase
 import com.dnfapps.arrmatey.arr.usecase.PerformAutomaticSearchUseCase
+import com.dnfapps.arrmatey.arr.usecase.PerformRefreshUseCase
 import com.dnfapps.arrmatey.arr.usecase.ToggleMonitorUseCase
 import com.dnfapps.arrmatey.arr.usecase.UpdateMediaUseCase
 import com.dnfapps.arrmatey.client.OperationStatus
@@ -38,7 +39,8 @@ class ArrMediaDetailsViewModel(
     private val performAutomaticSearchUseCase: PerformAutomaticSearchUseCase,
     private val updateMediaUseCase: UpdateMediaUseCase,
     private val deleteMediaUseCase: DeleteMediaUseCase,
-    private val deleteSeasonFilesUseCase: DeleteSeasonFilesUseCase
+    private val deleteSeasonFilesUseCase: DeleteSeasonFilesUseCase,
+    private val performRefreshUseCase: PerformRefreshUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<MediaDetailsUiState>(MediaDetailsUiState.Initial)
@@ -197,6 +199,17 @@ class ArrMediaDetailsViewModel(
                     _deleteSeasonStatus.value = status
                 }
         }
+    }
+
+    fun performRefresh() {
+        viewModelScope.launch {
+            val repository = currentRepository ?: return@launch
+            performRefreshUseCase(mediaId, instanceType, repository)
+        }
+    }
+
+    fun performSeriesAutomaticLookup() {
+        runSearch(mediaId)
     }
 
     fun performEpisodeAutomaticLookup(episodeId: Long) {

@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +27,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -261,7 +264,15 @@ fun MediaDetailsScreen(
                     }
                     MenuButton(
                         onEdit = { showEditSheet = true },
-                        onDelete = { confirmDelete = true }
+                        onDelete = { confirmDelete = true },
+                        onRefresh = {
+                            mediaDetailsViewModel.performRefresh()
+                        },
+                        showSearch = type == InstanceType.Sonarr,
+                        enableSearch = isMonitored,
+                        onSearchMonitored = {
+                            mediaDetailsViewModel.performSeriesAutomaticLookup()
+                        }
                     )
                 }
             )
@@ -417,7 +428,11 @@ private fun EditMediaSheet(
 @Composable
 private fun MenuButton(
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onRefresh: () -> Unit,
+    showSearch: Boolean,
+    enableSearch: Boolean,
+    onSearchMonitored: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -436,6 +451,36 @@ private fun MenuButton(
             expanded = showMenu,
             onDismissRequest = { showMenu = false }
         ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.refresh)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showMenu = false
+                    onRefresh()
+                }
+            )
+            if (showSearch) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.search_monitored)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null
+                        )
+                    },
+                    enabled = enableSearch,
+                    onClick = {
+                        showMenu = false
+                        onSearchMonitored()
+                    }
+                )
+            }
+            HorizontalDivider()
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.edit)) },
                 leadingIcon = {

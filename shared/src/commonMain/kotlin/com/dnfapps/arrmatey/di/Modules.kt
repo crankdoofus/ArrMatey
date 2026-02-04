@@ -46,6 +46,7 @@ import com.dnfapps.arrmatey.arr.usecase.DeleteQueueItemUseCase
 import com.dnfapps.arrmatey.arr.usecase.DeleteSeasonFilesUseCase
 import com.dnfapps.arrmatey.arr.usecase.GetEpisodeHistoryUseCase
 import com.dnfapps.arrmatey.arr.usecase.PerformAutomaticSearchUseCase
+import com.dnfapps.arrmatey.arr.usecase.PerformRefreshUseCase
 import com.dnfapps.arrmatey.arr.usecase.ToggleMonitorUseCase
 import com.dnfapps.arrmatey.arr.usecase.UpdateMediaUseCase
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
@@ -135,6 +136,7 @@ val useCaseModule = module {
     factory { GetEpisodeHistoryUseCase() }
     factory { DeleteEpisodeFileUseCase() }
     factory { DeleteQueueItemUseCase(get()) }
+    factory { PerformRefreshUseCase() }
 }
 
 val viewModelModule = module {
@@ -143,7 +145,7 @@ val viewModelModule = module {
         ArrMediaViewModel(type, get(), get(), get())
     }
     factory { (id: Long, type: InstanceType) ->
-        ArrMediaDetailsViewModel(id, type, get(), get(), get(), get(), get(), get(), get())
+        ArrMediaDetailsViewModel(id, type, get(), get(), get(), get(), get(), get(), get(), get())
     }
     factory { (type: InstanceType) ->
         InstancesViewModel(type, get(), get(), get())

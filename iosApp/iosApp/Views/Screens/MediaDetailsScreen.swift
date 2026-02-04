@@ -38,13 +38,26 @@ struct MediaDetailsScreen: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button("edit", systemImage: "pencil") {
-                            showEditSheet = true
+                        Section {
+                            Button("refresh", systemImage: "arrow.clockwise") {
+                                viewModel.performRefresh()
+                            }
+                            if type == .sonarr {
+                                Button("search_monitored", systemImage: "magnifyingglass") {
+                                    viewModel.performSeriesAutomaticLookup()
+                                }
+                                .disabled(!viewModel.isMonitored)
+                            }
                         }
-                        Button("delete", systemImage: "trash") {
-                            showConfirmSheet = true
+                        Section {
+                            Button("edit", systemImage: "pencil") {
+                                showEditSheet = true
+                            }
+                            Button("delete", systemImage: "trash") {
+                                showConfirmSheet = true
+                            }
+                            .tint(.red)
                         }
-                        .tint(.red)
                     } label: {
                         Image(systemName: "ellipsis")
                             .imageScale(.medium)

@@ -82,6 +82,10 @@
         en = Remove
     [manual_import]
         en = Manual Import
+    [refresh]
+        en = Refresh
+    [search_monitored]
+        en = Search monitored
 
 [[Labels]]
     [label]

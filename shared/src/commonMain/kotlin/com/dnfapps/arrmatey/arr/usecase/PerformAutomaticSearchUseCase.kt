@@ -18,7 +18,7 @@ class PerformAutomaticSearchUseCase {
                 when {
                     episodeId != null -> CommandPayload.Episode(listOf(episodeId))
                     seasonNumber != null -> CommandPayload.Season(mediaId, seasonNumber)
-                    else -> throw IllegalStateException("Sonarr search requires episodeId or seasonNumber")
+                    else -> CommandPayload.Series(mediaId)
                 }
             }
             InstanceType.Radarr -> CommandPayload.Movie(listOf(mediaId))
