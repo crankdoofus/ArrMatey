@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.compose.components
 
+import ArrMatey.shared.MR
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,14 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import arrmatey.shared.generated.resources.Res
-import arrmatey.shared.generated.resources.season
-import arrmatey.shared.generated.resources.unknown
 import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
@@ -53,10 +47,11 @@ import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 import com.dnfapps.arrmatey.extensions.pxToDp
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
+import com.dnfapps.arrmatey.utils.MokoStrings
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.mokoString
 import com.skydoves.cloudy.cloudy
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 private val defaultHeight = 100.dp
 
@@ -147,9 +142,13 @@ private fun ColumnScope.MediaDetails(item: ArrMedia, isActive: Boolean) {
 }
 
 @Composable
-private fun ColumnScope.SeriesDetails(item: ArrSeries, isActive: Boolean) {
+private fun ColumnScope.SeriesDetails(
+    item: ArrSeries,
+    isActive: Boolean
+) {
     val countStr = "${item.episodeFileCount}/${item.episodeCount} (${(item.statusProgress).toInt()}%)"
-    val seasonLabel = pluralStringResource(Res.plurals.season, item.seasonCount)
+    val seasonText = if (item.seasonCount > 1) MR.strings.seasons else MR.strings.season_singular
+    val seasonLabel = "${item.seasonCount} ${mokoString(seasonText)}"
     val seasonCountStr = "${item.seasonCount} $seasonLabel"
     val fileSizeString = item.fileSize.bytesAsFileSizeString()
     val network = item.network
@@ -158,7 +157,7 @@ private fun ColumnScope.SeriesDetails(item: ArrSeries, isActive: Boolean) {
     Text(firstLine, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)
 
     val statusStr = when (item.status) {
-        MediaStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - ${stringResource(Res.string.unknown)}"
+        MediaStatus.Continuing -> item.nextAiring?.format() ?: "${item.status.name} - ${mokoString(MR.strings.unknown)}"
         else -> item.status.name
     }
     Text(statusStr, color = Color.White, fontSize = 14.sp, lineHeight = 18.sp)

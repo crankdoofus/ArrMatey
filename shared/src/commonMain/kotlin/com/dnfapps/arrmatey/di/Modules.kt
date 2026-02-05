@@ -57,6 +57,7 @@ import com.dnfapps.arrmatey.datastore.DataStoreFactory
 import com.dnfapps.arrmatey.datastore.InstancePreferenceStoreRepository
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.utils.MokoStrings
 import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
 import com.dnfapps.arrmatey.utils.NetworkConnectivityRepository
 import io.ktor.client.plugins.logging.Logger
@@ -172,6 +173,10 @@ val viewModelModule = module {
     }
 }
 
+val resourcesModule = module {
+    single { MokoStrings() }
+}
+
 expect fun platformModules(): List<Module>
 
-fun appModules() = listOf(networkModule, databaseModule, preferencesModule, repositoryModule, serviceModule, useCaseModule, viewModelModule) + platformModules()
+fun appModules() = listOf(networkModule, databaseModule, preferencesModule, repositoryModule, serviceModule, useCaseModule, viewModelModule, resourcesModule) + platformModules()

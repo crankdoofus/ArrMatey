@@ -17,6 +17,7 @@ import com.dnfapps.arrmatey.arr.viewmodel.MovieFilesViewModel
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.utils.MokoStrings
 import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
 
@@ -60,6 +61,9 @@ object KoinBridge: KoinComponent {
         getKoin().get()
 
     fun getPreferencesStore(): PreferencesStore =
+        getKoin().get()
+
+    fun getMokoStrings(): MokoStrings =
         getKoin().get()
 
 }

@@ -89,10 +89,6 @@
     <string name="custom_timeout_seconds">Custom timeout (s)</string>
     <string name="cache_on_disk">Cache library on disk</string>
     <string name="cache_on_disk_description">Cache the contents of this library on device for offline access.</string>
-    <plurals name="season">
-        <item quantity="one">Season</item>
-        <item quantity="other">Seasons</item>
-    </plurals>
     <string name="seasons">Seasons</string>
     <string name="season_singular">Season</string>
     <string name="specials">Specials</string>

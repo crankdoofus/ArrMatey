@@ -1,4 +1,11 @@
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+buildscript {
+    dependencies {
+        classpath(libs.resources.generator)
+    }
+}
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,6 +17,8 @@ plugins {
     alias(libs.plugins.androidx.room)
     kotlin("plugin.serialization") version libs.versions.kotlin
 }
+
+apply(plugin = "dev.icerock.mobile.multiplatform-resources")
 
 //tasks.register<Exec>("generateLocalization") {
 //    group = "build setup"
@@ -38,6 +47,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+            export(libs.moko.resources)
         }
     }
 
@@ -72,7 +82,6 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.ui)
-            implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
@@ -91,6 +100,9 @@ kotlin {
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
             implementation(libs.cloudy)
+
+            api(libs.moko.resources)
+            api(libs.moko.resources.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -111,6 +123,14 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    sourceSets {
+        named("main") {
+            // MOKO handles the generated res path automatically usually,
+            // but if you manually add it, ensure it points to the moko-resources folder
+            res.srcDirs("build/generated/moko/androidMain/res")
+        }
+    }
 }
 
 dependencies {
@@ -123,6 +143,19 @@ dependencies {
 room {
     schemaDirectory("$projectDir/schemas")
 }
+
+//tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
+//    dependsOn("generateMRcommonMain")
+//}
+
+//compose.resources {
+//    packageOfResClass = "com.dnfapps.arrmatey.resources"
+//    nameOfResClass = "MR"
+//}
+//compose.resources {
+//    packageOfResClass = "com.dnfapps.arrmatey.resources"
+//    nameOfResClass = "SharedRes"
+//}
 
 //afterEvaluate {
 //    tasks.matching { (it.name.startsWith("compile") && it.name.contains("Kotlin")) || it.name.contains("build") }

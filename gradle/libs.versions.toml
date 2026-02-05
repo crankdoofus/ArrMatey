@@ -15,6 +15,7 @@ kotlin = "2.2.21"
 ktor = "3.3.2"
 kotlinx-coroutines = "1.10.2"
 kotlinx-datetime = "0.7.1"
+resourcesGenerator = "0.26.0"
 skie = "0.10.8"
 koin-bom = "4.1.1"
 room = "2.8.4"
@@ -26,6 +27,7 @@ m3Alpha = "1.5.0-alpha09"
 coil = "3.3.0"
 datastore = "1.2.0"
 cloudy = "0.3.0"
+moko = "0.26.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -65,6 +67,10 @@ coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
+moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko" }
+moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko" }
+resources-generator = { module = "dev.icerock.moko:resources-generator", version.ref = "moko" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -75,3 +81,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 skie = { id = "co.touchlab.skie", version.ref = "skie" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
+#moko-resources = { id = "dev.icerock.moko.multiplatform-resources", version.ref = "moko" }
