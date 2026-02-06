@@ -63,21 +63,21 @@ struct InteractiveSearchScreen: View {
         ZStack {
             contentForState()
         }
-        .searchable(text: Binding(get: { viewModel.searchQuery }, set: { viewModel.updateSearchQuery($0) }), isPresented: $searchPresented, prompt: "search")
+        .searchable(text: Binding(get: { viewModel.searchQuery }, set: { viewModel.updateSearchQuery($0) }), isPresented: $searchPresented, prompt: MR.strings().search.localized())
         .onAppear {
             viewModel.getRelease(releaseParams)
         }
-        .alert("grab_release", isPresented: Binding(get: { confirmRelease != nil }, set: { if !$0 { confirmRelease = nil }})) {
-            Button("grab") {
+        .alert(MR.strings().grab_release_title.localized(), isPresented: Binding(get: { confirmRelease != nil }, set: { if !$0 { confirmRelease = nil }})) {
+            Button(MR.strings().grab.localized()) {
                 if let release = confirmRelease {
                     viewModel.downloadRelease(release, true)
                 }
                 confirmRelease = nil
             }
-            Button("cancel", role: .cancel) { confirmRelease = nil }
+            Button(MR.strings().cancel.localized(), role: .cancel) { confirmRelease = nil }
         } message: {
             if let release = confirmRelease {
-                Text("Are you sure you want to grab \(release.title)")
+                Text(MR.strings().confirm_grab_release.formatted(args: [release.title]))
             }
         }
         .toolbar {

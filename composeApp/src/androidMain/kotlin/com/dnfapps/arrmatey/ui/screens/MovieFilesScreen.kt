@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +20,10 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.viewmodel.MovieFilesViewModel
 import com.dnfapps.arrmatey.di.koinInjectParams
@@ -35,6 +34,7 @@ import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.ui.components.ExtraFileCard
 import com.dnfapps.arrmatey.ui.components.FileCard
 import com.dnfapps.arrmatey.ui.components.HistoryItemView
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 import kotlin.time.ExperimentalTime
 
@@ -78,7 +78,7 @@ fun MovieFilesScreen(
             ) {
                 item {
                     Text(
-                        text = stringResource(R.string.files),
+                        text = mokoString(MR.strings.files),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -93,7 +93,7 @@ fun MovieFilesScreen(
                 }
                 item {
                     Text(
-                        text = stringResource(R.string.history),
+                        text = mokoString(MR.strings.history),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -103,7 +103,7 @@ fun MovieFilesScreen(
                 }
                 if (uiState.history.isEmpty()) {
                     item {
-                        Text(stringResource(R.string.no_history))
+                        Text(mokoString(MR.strings.no_history))
                     }
                 }
                 item {

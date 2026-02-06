@@ -3,6 +3,8 @@ package com.dnfapps.arrmatey.instances.model
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 
 @Entity(
     tableName = "instances",
@@ -24,7 +26,7 @@ data class Instance(
 )
 
 enum class InstanceType(
-    val descriptionKey: String,
+    val resource: StringResource,
     val iconKey: String,
     val github: String,
     val website: String,
@@ -32,7 +34,7 @@ enum class InstanceType(
     val supportsActivityQueue: Boolean
 ) {
     Sonarr(
-        descriptionKey = "sonarr_description",
+        resource = MR.strings.sonarr_description,
         github = "https://github.com/Sonarr/Sonarr",
         website = "https://sonarr.tv/",
         iconKey = "sonarr",
@@ -40,7 +42,7 @@ enum class InstanceType(
         supportsActivityQueue = true
     ),
     Radarr(
-        descriptionKey = "radarr_description",
+        resource = MR.strings.radarr_description,
         github = "https://github.com/Radarr/Radarr",
         website = "https://radarr.video/",
         iconKey = "radarr",

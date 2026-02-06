@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.components
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,13 +23,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.compose.utils.SortBy
 import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.utils.mokoString
 
 @Composable
 fun SortMenuButton(
@@ -54,7 +54,7 @@ fun SortMenuButton(
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Default.Sort,
-            contentDescription = stringResource(R.string.sort)
+            contentDescription = mokoString(MR.strings.sort)
         )
     }
     DropdownMenu(
@@ -86,7 +86,7 @@ fun SortMenuButton(
                             tint = if (sortBy == option) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
                         )
                         Text(
-                            text = getString(option.textKey),
+                            text = mokoString(option.resource),
                             color = if (sortBy == option) MaterialTheme.colorScheme.primary else Color.Unspecified
                         )
                     }
@@ -119,7 +119,7 @@ fun SortMenuButton(
                             tint = if (sortOrder == order) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
                         )
                         Text(
-                            text = getString(order.iosText),
+                            text = mokoString(order.resource),
                             color = if (sortOrder == order) MaterialTheme.colorScheme.primary else Color.Unspecified
                         )
                     }

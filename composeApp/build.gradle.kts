@@ -44,6 +44,9 @@ kotlin {
             implementation(libs.coil.network)
             implementation(libs.kotlinx.datetime)
             implementation(libs.cloudy)
+
+            implementation(libs.moko.resources)
+            implementation(libs.moko.resources.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

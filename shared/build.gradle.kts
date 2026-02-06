@@ -1,5 +1,5 @@
-import org.gradle.accessors.dm.LibrariesForLibs
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import dev.icerock.gradle.MultiplatformResourcesPluginExtension
 
 buildscript {
     dependencies {
@@ -19,13 +19,6 @@ plugins {
 }
 
 apply(plugin = "dev.icerock.mobile.multiplatform-resources")
-
-//tasks.register<Exec>("generateLocalization") {
-//    group = "build setup"
-//    description = "Generation localization files"
-//
-//    commandLine("/Users/owen.lejeune/.nvm/versions/node/v22.3.0/bin/node", "$rootDir/strings/generate-strings.js")
-//}
 
 skie {
     features {
@@ -48,15 +41,10 @@ kotlin {
             baseName = "Shared"
             isStatic = true
             export(libs.moko.resources)
+            export(libs.moko.resources.compose)
+            linkerOpts("-linker-option", "-ObjC")
         }
     }
-
-//    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
-//        binaries.all {
-//            linkTaskProvider.get()
-//                .dependsOn(tasks.named("generateLocalization"))
-//        }
-//    }
 
     sourceSets {
         all {
@@ -144,22 +132,8 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-//tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
-//    dependsOn("generateMRcommonMain")
-//}
-
-//compose.resources {
-//    packageOfResClass = "com.dnfapps.arrmatey.resources"
-//    nameOfResClass = "MR"
-//}
-//compose.resources {
-//    packageOfResClass = "com.dnfapps.arrmatey.resources"
-//    nameOfResClass = "SharedRes"
-//}
-
-//afterEvaluate {
-//    tasks.matching { (it.name.startsWith("compile") && it.name.contains("Kotlin")) || it.name.contains("build") }
-//        .configureEach {
-//            dependsOn(tasks.named("generateLocalization"))
-//        }
-//}
+configure<MultiplatformResourcesPluginExtension> {
+    resourcesPackage.set("com.dnfapps.arrmatey.shared")
+    resourcesClassName.set("MR")
+    iosBaseLocalizationRegion.set("en")
+}

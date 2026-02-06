@@ -19,22 +19,22 @@ struct RemoveQueueItemView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("client_remove_title", isOn: $remove)
+                Toggle(MR.strings().client_remove_title.localized(), isOn: $remove)
             } footer: {
-                Text("client_remove_message")
+                Text(MR.strings().client_remove_message.localized())
             }
             
             Section {
-                Toggle("blocklist_title", isOn: $block)
+                Toggle(MR.strings().blocklist_title.localized(), isOn: $block)
             } footer: {
-                Text("blocklist_message")
+                Text(MR.strings().blocklist_message.localized())
             }
             
             if block {
                 Section {
-                    Toggle("skip_redownload_title", isOn: $skip)
+                    Toggle(MR.strings().skip_redownload_title.localized(), isOn: $skip)
                 } footer: {
-                    Text("skip_redownload_message")
+                    Text(MR.strings().skip_redownload_message.localized())
                 }
             }
         }
@@ -44,7 +44,7 @@ struct RemoveQueueItemView: View {
                 Button {
                     onDelete(remove, block, block && skip)
                 } label: {
-                    Label("delete", systemImage: "trash")
+                    Label(MR.strings().delete.localized(), systemImage: "trash")
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.borderedProminent)

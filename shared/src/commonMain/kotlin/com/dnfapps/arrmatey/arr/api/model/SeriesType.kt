@@ -1,16 +1,18 @@
 package com.dnfapps.arrmatey.arr.api.model
 
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 import kotlinx.serialization.SerialName
 
-enum class SeriesType {
+enum class SeriesType(val resource: StringResource) {
     @SerialName("standard")
-    Standard,
+    Standard(MR.strings.standard),
 
     @SerialName("daily")
-    Daily,
+    Daily(MR.strings.daily),
 
     @SerialName("anime")
-    Anime;
+    Anime(MR.strings.anime);
 
     companion object {
         fun allEntries() = entries.toList()

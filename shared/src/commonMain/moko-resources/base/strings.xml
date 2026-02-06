@@ -16,6 +16,7 @@
 
     <!-- Messages -->
     <string name="confirm_delete_instance">Are you sure you want to delete %1$s?</string>
+    <string name="confirm_grab_release">Are you sure you want to grab %1$s?</string>
     <string name="couldnt_connect_message">There was an error connecting to the server</string>
     <string name="no_type_instances_message">You don\'t have any %1$s instances added yet</string>
     <string name="empty_library_message">Try adding something to your library</string>
@@ -27,6 +28,8 @@
     <string name="blocklist_message">Block this release from being redownloaded via Automatic Search or RSS</string>
     <string name="skip_redownload_title">Skip Redownload</string>
     <string name="skip_redownload_message">Whether to search for this release again or not</string>
+    <string name="delete_season">Delete season %1$d</string>
+    <string name="delete_season_confirm">Are you sure you want to remove all the files for season %1$d? This action cannot be undone.</string>
 
     <!-- Actions -->
     <string name="close">Close</string>
@@ -131,7 +134,7 @@
     <string name="protocol">Protocol</string>
     <string name="download_client">Download Client</string>
     <string name="indexer">Indexer</string>
-    <string name="langauges">Languages</string>
+    <string name="languages">Languages</string>
     <string name="language">Language</string>
     <string name="destination">Destination</string>
     <string name="no_history">No History</string>
@@ -141,6 +144,11 @@
     <string name="no_activity">Your queue is empty</string>
     <string name="tags">Tags</string>
     <string name="monitor_new_seasons">Monitor New Seasons</string>
+    <string name="move_files">Move files</string>
+    <string name="move_files_description">Whether to automatically move files to the new folder or not.</string>
+    <string name="direction">Direction</string>
+    <string name="custom_format">Custom Format</string>
+    <string name="add">Add</string>
 
     <!-- History Event Type -->
     <string name="grabbed">Grabbed</string>
@@ -156,6 +164,7 @@
     <string name="series_folder_imported">Series Folder Imported</string>
 
     <!-- Errors -->
+    <string name="error">Error</string>
     <string name="instance_connect_error">Failed to connect to instance at %1$s</string>
     <string name="instance_connect_error_ios">Failed to connect to instance</string>
     <string name="showing_cached_library">Showing cached library</string>
@@ -197,5 +206,15 @@
     <string name="standard">Standard</string>
     <string name="daily">Daily</string>
     <string name="anime">Anime</string>
+
+    <!-- Finale type -->
+    <string name="series_finale">Series finale</string>
+    <string name="season_finale">Season finale</string>
+    <string name="midseason_finale">Midseason finale</string>
+
+    <!-- Empty Search Results -->
+    <string name="no_query_results">No results for \"%1$d\" in your library</string>
+    <string name="no_query_results_label">Check your spelling or</string>
+    <string name="no_query_results_link">add a new %1%d</string>
 
 </resources>

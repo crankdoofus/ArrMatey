@@ -9,7 +9,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $navigationManager.selectedTab) {
             ForEach(TabItem.companion.allValues(), id: \.self) { tabItem in
-                Tab(LocalizedStringKey(tabItem.textKey), systemImage: tabItem.iosIcon, value: tabItem) {
+                Tab(LocalizedStringKey(tabItem.resource.localized()), systemImage: tabItem.iosIcon, value: tabItem) {
                     BottomTabView(tabItem: tabItem)
                 }
                 .badge(badgeValue(for: tabItem))

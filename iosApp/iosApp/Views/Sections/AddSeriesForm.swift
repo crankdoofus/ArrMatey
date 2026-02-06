@@ -59,17 +59,17 @@ struct AddSeriesForm: View {
     private var content: some View {
         Form {
             Section {
-                Picker("monitor", selection: $monitorType) {
+                Picker(MR.strings().monitor.localized(), selection: $monitorType) {
                     ForEach(selectableMonitorTypes, id: \.self) { type in
-                        Text(type.label()).tag(type)
+                        Text(type.resource.localized()).tag(type)
                     }
                 }
                 
-                Toggle("season_folders", isOn: $useSeasonFolders)
+                Toggle(MR.strings().season_folders.localized(), isOn: $useSeasonFolders)
             }
             
             Section {
-                Picker("quality_profile", selection: $selectedQualityProfileId) {
+                Picker(MR.strings().quality_profile.localized(), selection: $selectedQualityProfileId) {
                     ForEach(qualityProfiles, id: \.self) { qualityProfile in
                         if let name = qualityProfile.name {
                             Text(name).tag(qualityProfile.id)
@@ -77,13 +77,13 @@ struct AddSeriesForm: View {
                     }
                 }
                 
-                Picker("series_type", selection: $selectedSeriesType) {
+                Picker(MR.strings().series_type.localized(), selection: $selectedSeriesType) {
                     ForEach(SeriesType.companion.allEntries(), id: \.self) { seriesType in
-                        Text(seriesType.label()).tag(seriesType)
+                        Text(seriesType.resource.localized()).tag(seriesType)
                     }
                 }
                 
-                Picker("root_folder", selection: $selectedRootFolderId) {
+                Picker(MR.strings().root_folder.localized(), selection: $selectedRootFolderId) {
                     ForEach(rootFolders, id: \.self) { rootFolder in
                         Text("\(rootFolder.path) (\(rootFolder.freeSpaceString))")
                             .tag(rootFolder.id)
@@ -99,7 +99,7 @@ struct AddSeriesForm: View {
             Button {
                 onDismiss()
             } label: {
-                Label("cancel", systemImage: "xmark")
+                Label(MR.strings().cancel.localized(), systemImage: "xmark")
             }
             .tint(.primary)
         }
@@ -116,7 +116,7 @@ struct AddSeriesForm: View {
                 if (isLoading) {
                     ProgressView().tint(nil)
                 } else {
-                    Label("save", systemImage: "checkmark")
+                    Label(MR.strings().save.localized(), systemImage: "checkmark")
                 }
             }
             .disabled(isLoading)

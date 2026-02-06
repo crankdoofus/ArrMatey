@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,10 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
@@ -52,6 +51,7 @@ import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.sheets.AddMovieSheet
 import com.dnfapps.arrmatey.ui.sheets.AddSeriesSheet
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +72,7 @@ fun MediaPreviewScreen(
     val rootFolders by viewModel.rootFolders.collectAsStateWithLifecycle()
     val tags by viewModel.tags.collectAsStateWithLifecycle()
 
-    val successMessage = stringResource(R.string.success)
+    val successMessage = mokoString(MR.strings.success)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -136,7 +136,7 @@ fun MediaPreviewScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },

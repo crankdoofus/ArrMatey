@@ -32,7 +32,7 @@ struct MovieFilesView: View {
             MovieExtraFilesView(extraFiles: movieExtraFiles)
             
             if movie.movieFile == nil && movieExtraFiles.isEmpty {
-                Text(String(localized: LocalizedStringResource("no_files")))
+                Text(MR.strings().no_files.localized())
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity)
@@ -41,10 +41,10 @@ struct MovieFilesView: View {
             }
         } header: {
             HStack(alignment: .center) {
-                Text(String(localized: LocalizedStringResource("files")))
+                Text(MR.strings().files.localized())
                     .font(.system(size: 20, weight: .bold))
                 Spacer()
-                Text(String(localized: LocalizedStringResource("history")))
+                Text(MR.strings().history.localized())
                     .font(.system(size: 16))
                     .foregroundColor(.accentColor)
                     .onTapGesture {

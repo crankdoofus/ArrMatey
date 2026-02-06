@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,16 +26,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.viewmodel.AddInstanceViewModel
 import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstanceInfoCard
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -68,14 +68,14 @@ fun AddInstanceScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.add_instance)) },
+                title = { Text(text = mokoString(MR.strings.add_instance)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navigation.popBackStack() }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -89,7 +89,7 @@ fun AddInstanceScreen(
                         enabled = uiState.saveButtonEnabled,
                         modifier = Modifier.padding(end = 12.dp)
                     ) {
-                        Text(text = stringResource(R.string.save))
+                        Text(text = mokoString(MR.strings.save))
                     }
                 }
             )
@@ -116,7 +116,7 @@ fun AddInstanceScreen(
                 options = InstanceType.entries,
                 selectedOption = selectedInstanceType,
                 onOptionSelected = { selectedInstanceType = it },
-                label = { Text(stringResource(R.string.instance_type)) }
+                label = { Text(mokoString(MR.strings.instance_type)) }
             )
 
             ArrConfigurationScreen(

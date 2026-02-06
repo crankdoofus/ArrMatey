@@ -19,7 +19,7 @@ struct EpisodeRow: View {
     
     private var statusString: String? {
         episode.episodeFile?.qualityName ??
-        (episode.airDate?.isTodayOrAfter() == true ? String(localized: LocalizedStringResource("unaired")) : nil)
+        (episode.airDate?.isTodayOrAfter() == true ? MR.strings().unaired.localized() : nil)
     }
     
     var body: some View {
@@ -39,7 +39,7 @@ struct EpisodeRow: View {
                             .tint(.primary)
                         
                         if let finaleType = episode.finaleType {
-                            Text(" • \(finaleType.label)")
+                            Text(" • \(finaleType.resource.localized())")
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)
                         }
@@ -51,7 +51,7 @@ struct EpisodeRow: View {
                                 .font(.system(size: 14))
                                 .italic(episode.airDate?.isTodayOrAfter() == true)
                         } else {
-                            Text(String(localized: LocalizedStringResource("missing")))
+                            Text(MR.strings().missing.localized())
                                 .font(.system(size: 14))
                                 .foregroundColor(.red)
                                 .italic()

@@ -32,16 +32,16 @@ struct EpisodeDetailsScreen: View {
     var body: some View {
         contentForState()
             .toolbar { toolbarContent }
-            .alert(LocalizedStringResource("are_you_sure"), isPresented: $confirmDelete) {
-                Button("yes", role: .destructive) {
+            .alert(MR.strings().are_you_sure.localized(), isPresented: $confirmDelete) {
+                Button(MR.strings().yes.localized(), role: .destructive) {
                     viewModel.deleteEpisode()
                     confirmDelete = false
                 }
-                Button("no", role: .cancel) {
+                Button(MR.strings().no.localized(), role: .cancel) {
                     confirmDelete = false
                 }
             } message: {
-                Text(LocalizedStringResource("episode_delete_message"))
+                Text(MR.strings().episode_delete_message.localized())
             }
     }
     
@@ -63,7 +63,7 @@ struct EpisodeDetailsScreen: View {
                             viewModel.executeAutomaticSearch()
                         })
                     
-                    Text(String(localized: LocalizedStringResource("files")))
+                    Text(MR.strings().files.localized())
                         .font(.system(size: 20, weight: .bold))
                     
                     if let file = episode.episodeFile {
@@ -76,10 +76,10 @@ struct EpisodeDetailsScreen: View {
                             .progressViewStyle(.circular)
                     case let success as HistoryStateSuccess:
                         if success.items.isEmpty {
-                            Text("no_history")
+                            Text(MR.strings().no_history.localized())
                                 .font(.system(size: 22, weight: .medium))
                         } else {
-                            Text("history")
+                            Text(MR.strings().history.localized())
                                 .font(.system(size: 20, weight: .bold))
                             ForEach(success.items, id: \.id) { historyItem in
                                 HistoryItemView(item: historyItem)

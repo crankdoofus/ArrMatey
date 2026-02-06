@@ -28,7 +28,7 @@ struct MovieFilesScreen: View {
         ZStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("files")
+                    Text(MR.strings().files.localized())
                         .font(.system(size: 22, weight: .medium))
                     
                     if let file = movie.movieFile {
@@ -37,11 +37,11 @@ struct MovieFilesScreen: View {
                     
                     MovieExtraFilesView(extraFiles: uiState.extraFiles)
                     
-                    Text("history")
+                    Text(MR.strings().history.localized())
                         .font(.system(size: 22, weight: .medium))
                     
                     if uiState.history.isEmpty {
-                        Text("no_history")
+                        Text(MR.strings().no_history.localized())
                             .foregroundColor(.secondary)
                     } else {
                         ForEach(uiState.history, id: \.id) { item in

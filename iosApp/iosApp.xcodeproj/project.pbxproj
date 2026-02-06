@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4403C6732ECE98970082A3A5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4403C6722ECE98970082A3A5 /* Localizable.xcstrings */; };
 		4405C4E52F21671700F7FEC8 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = 4405C4E42F21671700F7FEC8 /* Flow */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4403C6722ECE98970082A3A5 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		C88CA26F2129589A165D4942 /* ArrMatey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArrMatey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -57,7 +55,6 @@
 		20C0C2E0342F05DE44755B95 = {
 			isa = PBXGroup;
 			children = (
-				4403C6722ECE98970082A3A5 /* Localizable.xcstrings */,
 				9487242E3AD8F152D191234C /* Configuration */,
 				3F3BB1E6F7F76B8495D4C326 /* iosApp */,
 				D5D342071E63D7F728C5AA6C /* Products */,
@@ -88,6 +85,7 @@
 			buildConfigurationList = 489071EFCFB6FBDA5B6E8AA7 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
 				52C0BF1CBE121CC824B275D5 /* Compile Kotlin Framework */,
+				44E4AADA2F3680720024109F /* MOKO Resources */,
 				46E7A9BB22F4DD2DDB844A85 /* Sources */,
 				1EBA5235F338DC8F4353F4CC /* Frameworks */,
 				EF3D3043CD8B9AEA0948DDDC /* Resources */,
@@ -147,13 +145,30 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4403C6732ECE98970082A3A5 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		44E4AADA2F3680720024109F /* MOKO Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "MOKO Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# 1. Path to the bundle inside the built framework\nBUNDLE_SRC=\"$SRCROOT/../shared/build/xcode-frameworks/$CONFIGURATION/$SDK_NAME/Shared.framework/ArrMatey:shared.bundle\"\n\n# 2. Destination is the root of the .app\nDEST=\"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH\"\n\n# 3. Copy the bundle\nif [ -d \"$BUNDLE_SRC\" ]; then\n    echo \"Success: Copying MOKO bundle from $BUNDLE_SRC\"\n    cp -R \"$BUNDLE_SRC\" \"$DEST/\"\nelse\n    echo \"Error: MOKO bundle not found at $BUNDLE_SRC\"\n    echo \"Make sure you have run the build at least once.\"\n    exit 1\nfi\n";
+		};
 		52C0BF1CBE121CC824B275D5 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;

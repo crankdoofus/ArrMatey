@@ -15,18 +15,18 @@ struct ReleaseSortByPickerMenu: View {
     
     var body: some View {
         Menu {
-            Picker("sort_by", selection: $sortBy) {
+            Picker(MR.strings().sort_by.localized(), selection: $sortBy) {
                 ForEach(ReleaseSortBy.companion.allEntries(), id: \.self) { sort in
-                    Text(sort.label()).tag(sort)
+                    Text(sort.resource.localized()).tag(sort)
                 }
             }
             .pickerStyle(.inline)
             
             Section {
-                Picker("direction", selection: $sortOrder) {
+                Picker(MR.strings().direction.localized(), selection: $sortOrder) {
                     ForEach(Shared.SortOrder.allCases, id: \.self) { order in
                         Label {
-                            Text(String(localized: String.LocalizationValue(order.iosText)))
+                            Text(order.resource.localized())
                         } icon: {
                             Image(systemName: order.iosIcon)
                         }

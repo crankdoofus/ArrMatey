@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.components
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -11,6 +12,7 @@ import com.dnfapps.arrmatey.compose.utils.breakable
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -31,7 +33,7 @@ fun FileCard(file: MediaFile) {
         )
         file.dateAdded?.format("MMM d, yyyy")?.let { formattedDate ->
             Text(
-                text = stringResource(R.string.added_on, formattedDate),
+                text = mokoString(MR.strings.added_on, formattedDate),
                 fontSize = 12.sp
             )
         }

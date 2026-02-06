@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.components
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.entensions.bullet
@@ -38,6 +37,7 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloadingText
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @Composable
@@ -78,7 +78,7 @@ fun EpisodeRow(
                             color = MaterialTheme.colorScheme.secondary
                         )) {
                             bullet()
-                            append(finalType.label)
+                            append(mokoString(finalType.resource))
                         }
                     }
                 }
@@ -94,8 +94,8 @@ fun EpisodeRow(
             val (statusText, statusColor) = when {
                 isActive && progressLabel != null -> progressLabel to SonarrDownloadingText
                 episode.fileQualityName != null -> episode.fileQualityName!! to MaterialTheme.colorScheme.tertiary
-                airDate != null -> stringResource(R.string.unaired) to Color.Unspecified
-                else -> stringResource(R.string.missing) to MaterialTheme.colorScheme.error
+                airDate != null -> mokoString(MR.strings.unaired) to Color.Unspecified
+                else -> mokoString(MR.strings.missing) to MaterialTheme.colorScheme.error
             }
 
 

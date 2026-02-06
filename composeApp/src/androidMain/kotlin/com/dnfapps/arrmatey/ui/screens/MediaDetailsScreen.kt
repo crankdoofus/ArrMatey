@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,10 +49,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
@@ -81,6 +80,7 @@ import com.dnfapps.arrmatey.ui.components.SeasonsArea
 import com.dnfapps.arrmatey.ui.components.UpcomingDateView
 import com.dnfapps.arrmatey.ui.sheets.EditMovieSheet
 import com.dnfapps.arrmatey.ui.sheets.EditSeriesSheet
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -116,8 +116,8 @@ fun MediaDetailsScreen(
         }
     }
 
-    val searchQueuedMessage = stringResource(R.string.search_queued)
-    val searchErrorMessage = stringResource(R.string.search_error)
+    val searchQueuedMessage = mokoString(MR.strings.search_queued)
+    val searchErrorMessage = mokoString(MR.strings.search_error)
     LaunchedEffect(lastSearchResult) {
         when (lastSearchResult) {
             true -> {
@@ -246,7 +246,7 @@ fun MediaDetailsScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -320,7 +320,7 @@ fun MediaDetailsScreen(
                                 moveFilesItem = null
                             }
                         ) {
-                            Text(stringResource(R.string.yes))
+                            Text(mokoString(MR.strings.yes))
                         }
                     },
                     dismissButton = {
@@ -330,7 +330,7 @@ fun MediaDetailsScreen(
                                 moveFilesItem = null
                             }
                         ) {
-                            Text(stringResource(R.string.no))
+                            Text(mokoString(MR.strings.no))
                         }
                     }
                 )
@@ -358,14 +358,14 @@ private fun ConfirmDeleteAlert(
                 .padding(bottom = 24.dp)
         ) {
             LabelledSwitch(
-                label = stringResource(R.string.add_exclusion),
-                sublabel = stringResource(R.string.add_exclusion_description),
+                label = mokoString(MR.strings.add_exclusion),
+                sublabel = mokoString(MR.strings.add_exclusion_description),
                 checked = addExclusion,
                 onCheckedChange = { addExclusion = !addExclusion }
             )
             LabelledSwitch(
-                label = stringResource(R.string.delete_files),
-                sublabel = stringResource(R.string.delete_files_description),
+                label = mokoString(MR.strings.delete_files),
+                sublabel = mokoString(MR.strings.delete_files_description),
                 checked = deleteFiles,
                 onCheckedChange = { deleteFiles = !deleteFiles }
             )
@@ -386,7 +386,7 @@ private fun ConfirmDeleteAlert(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null
                     )
-                    Text(text = stringResource(R.string.delete))
+                    Text(text = mokoString(MR.strings.delete))
                 }
             }
         }
@@ -452,7 +452,7 @@ private fun MenuButton(
             onDismissRequest = { showMenu = false }
         ) {
             DropdownMenuItem(
-                text = { Text(stringResource(R.string.refresh)) },
+                text = { Text(mokoString(MR.strings.refresh)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -466,7 +466,7 @@ private fun MenuButton(
             )
             if (showSearch) {
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.search_monitored)) },
+                    text = { Text(mokoString(MR.strings.search_monitored)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -482,7 +482,7 @@ private fun MenuButton(
             }
             HorizontalDivider()
             DropdownMenuItem(
-                text = { Text(stringResource(R.string.edit)) },
+                text = { Text(mokoString(MR.strings.edit)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -496,7 +496,7 @@ private fun MenuButton(
             )
             DropdownMenuItem(
                 text = { Text(
-                    text = stringResource(R.string.delete),
+                    text = mokoString(MR.strings.delete),
                     color = MaterialTheme.colorScheme.error
                 ) },
                 leadingIcon = {

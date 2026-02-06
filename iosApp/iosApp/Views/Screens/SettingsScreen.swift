@@ -38,7 +38,7 @@ struct SettingsScreen: View {
                         navigationManager.go(to: .editInstance(instance.id))
                     }
                 }
-                Button(LocalizedStringResource("add_instance")) {
+                Button(MR.strings().add_instance.localized()) {
                     navigationManager.go(to: .newInstance())
                 }
             } header: {
@@ -50,6 +50,6 @@ struct SettingsScreen: View {
                 }
             }
         }
-        .navigationTitle(LocalizedStringResource("settings"))
+        .navigationTitle(MR.strings().settings.localized())
     }
 }

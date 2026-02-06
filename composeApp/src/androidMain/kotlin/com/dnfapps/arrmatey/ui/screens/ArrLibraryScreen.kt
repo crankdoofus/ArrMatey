@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -42,10 +41,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -61,7 +58,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -72,7 +68,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.state.ArrLibrary
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
@@ -93,10 +88,12 @@ import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.navigation.SettingsScreen
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstancePicker
 import com.dnfapps.arrmatey.ui.theme.ViewType
 import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -156,26 +153,27 @@ fun ArrLibraryScreen(
                         )
 
                         if (hasServerConnectivityError) {
+                            val connectError = mokoString(MR.strings.instance_connect_error, instancesState.selectedInstance?.url ?: "")
                             Icon(
                                 imageVector = Icons.Default.CloudOff,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.clickable {
                                     scope.launch {
-                                        val message = context.getString(R.string.instance_connect_error, instancesState.selectedInstance?.url ?: "")
-                                        snackbarHostState.showSnackbarImmediately(message = message)
+                                        snackbarHostState.showSnackbarImmediately(message = connectError)
                                     }
                                 }
                             )
                         }
                         if (!hasNetworkConnection) {
+                            val noNetworkError = mokoString(MR.strings.no_network)
                             Icon(
                                 imageVector = Icons.Default.SignalWifiOff,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.clickable {
                                     scope.launch {
-                                        snackbarHostState.showSnackbarImmediately(message = context.getString(R.string.no_network))
+                                        snackbarHostState.showSnackbarImmediately(message = noNetworkError)
                                     }
                                 }
                             )
@@ -189,7 +187,7 @@ fun ArrLibraryScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.search)
+                                contentDescription = mokoString(MR.strings.search)
                             )
                         }
                         IconButton(
@@ -207,7 +205,7 @@ fun ArrLibraryScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
-                                contentDescription = stringResource(R.string.filter)
+                                contentDescription = mokoString(MR.strings.filter)
                             )
                         }
                     }
@@ -277,7 +275,7 @@ fun ArrLibraryScreen(
                                                     }
                                                 )
                                             },
-                                            placeholder = { Text(stringResource(R.string.search)) },
+                                            placeholder = { Text(mokoString(MR.strings.search)) },
                                             shape = RoundedCornerShape(10.dp),
                                             singleLine = true
                                         )
@@ -387,11 +385,11 @@ private fun NoInstanceView(
             modifier = Modifier.size(128.dp)
         )
         Text(
-            text = stringResource(R.string.no_type_instances, type.name),
+            text = mokoString(MR.strings.no_type_instances, type.name),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium
         )
-        Text(text = stringResource(R.string.no_type_instances_message, type.name))
+        Text(text = mokoString(MR.strings.no_type_instances_message, type.name))
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -412,7 +410,7 @@ private fun NoInstanceView(
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.add_instance),
+                text = mokoString(MR.strings.add_instance),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -435,12 +433,12 @@ private fun EmptyLibraryView(
             modifier = Modifier.size(128.dp)
         )
         Text(
-            text = stringResource(R.string.empty_library),
+            text = mokoString(MR.strings.empty_library),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium
         )
         Text(
-            text = stringResource(R.string.empty_library_message)
+            text = mokoString(MR.strings.empty_library_message)
         )
     }
 }
@@ -462,13 +460,13 @@ private fun InstanceErrorView(
             tint = MaterialTheme.colorScheme.error
         )
         Text(
-            text = stringResource(R.string.couldnt_connect),
+            text = mokoString(MR.strings.couldnt_connect),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium
         )
-        Text(text = stringResource(R.string.couldnt_connect_message))
+        Text(text = mokoString(MR.strings.couldnt_connect_message))
         Button(onClick = onRefresh) {
-            Text(text = stringResource(R.string.retry))
+            Text(text = mokoString(MR.strings.retry))
         }
     }
 }
@@ -531,8 +529,8 @@ fun FilterSheet(
                 options = FilterBy.typeEntries(type),
                 selectedOption = selectedFilter,
                 onOptionSelected = onFilterChanged,
-                label = { Text(stringResource(R.string.filter_by)) },
-                getOptionLabel = { getString(it.iosText) }
+                label = { Text(mokoString(MR.strings.filter_by)) },
+                getOptionLabel = { mokoString(it.resource) }
             )
 
             Row(
@@ -543,8 +541,8 @@ fun FilterSheet(
                     options = SortBy.typeEntries(type),
                     selectedOption = selectedSortBy,
                     onOptionSelected = onSortByChanged,
-                    label = { Text(stringResource(R.string.sort_by)) },
-                    getOptionLabel = { getString(it.textKey) },
+                    label = { Text(mokoString(MR.strings.sort_by)) },
+                    getOptionLabel = { mokoString(it.resource) },
                     getOptionIcon = { it.androidIcon },
                     modifier = Modifier.weight(1f)
                 )
@@ -552,8 +550,8 @@ fun FilterSheet(
                     options = SortOrder.entries,
                     selectedOption = selectedSortOrder,
                     onOptionSelected = onSortOrderChanged,
-                    label = { Text(stringResource(R.string.sort_order)) },
-                    getOptionLabel = { getString(it.iosText) },
+                    label = { Text(mokoString(MR.strings.sort_order)) },
+                    getOptionLabel = { mokoString(it.resource) },
                     getOptionIcon = { it.androidIcon },
                     modifier = Modifier.weight(1f)
                 )

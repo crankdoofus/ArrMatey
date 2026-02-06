@@ -62,7 +62,7 @@ struct NewInstanceView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            Button(LocalizedStringResource("save")) {
+            Button(MR.strings().save.localized()) {
                 viewModel.createInstance(instanceType)
             }
             .disabled(!uiState.saveButtonEnabled)

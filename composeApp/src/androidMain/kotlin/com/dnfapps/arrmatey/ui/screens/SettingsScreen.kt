@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,17 +26,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.viewmodel.MoreScreenViewModel
 import com.dnfapps.arrmatey.entensions.getDrawableId
 import com.dnfapps.arrmatey.isDebug
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.navigation.SettingsScreen
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +50,7 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = stringResource(R.string.settings)) })
+            TopAppBar(title = { Text(text = mokoString(MR.strings.settings)) })
         }
     ) {
         Box(modifier = Modifier.padding(it)) {
@@ -58,7 +58,7 @@ fun SettingsScreen(
                 modifier = Modifier.padding(all = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = stringResource(R.string.instances), fontSize = 16.sp)
+                Text(text = mokoString(MR.strings.instances), fontSize = 16.sp)
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     allInstances.forEachIndexed { index, instance ->
                         val topR = if (index == 0) radius else 0.dp
@@ -115,7 +115,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(32.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
-                            Text(text = stringResource(R.string.add_instance), fontSize = 18.sp, fontWeight = FontWeight.Normal)
+                            Text(text = mokoString(MR.strings.add_instance), fontSize = 18.sp, fontWeight = FontWeight.Normal)
                         }
                     }
                 }

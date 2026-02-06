@@ -20,10 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dnfapps.arrmatey.R
+import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.utils.mokoString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +36,7 @@ fun <T> DropdownPicker(
     getOptionIcon: (@Composable (T) -> ImageVector)? = null,
     label: @Composable () -> Unit = {},
     includeAllOption: Boolean = false,
-    allLabel: String = stringResource(R.string.all),
+    allLabel: String = mokoString(MR.strings.all),
     onAllSelected: () -> Unit = {}
 ) {
     var isDropDownExpanded by remember { mutableStateOf(false) }
@@ -58,7 +58,7 @@ fun <T> DropdownPicker(
                 value = when {
                     selectedOption != null -> getOptionLabel(selectedOption)
                     includeAllOption -> allLabel
-                    else -> stringResource(R.string.unknown)
+                    else -> mokoString(MR.strings.unknown)
                 },
                 onValueChange = {},
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(isDropDownExpanded) },

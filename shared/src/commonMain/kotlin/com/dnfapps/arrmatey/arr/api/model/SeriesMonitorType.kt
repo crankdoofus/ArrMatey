@@ -1,49 +1,51 @@
 package com.dnfapps.arrmatey.arr.api.model
 
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 import kotlinx.serialization.SerialName
 
-enum class SeriesMonitorType {
+enum class SeriesMonitorType(val resource: StringResource) {
     @SerialName("unknown")
-    Unknown,
+    Unknown(MR.strings.unknown),
 
     @SerialName("all")
-    All,
+    All(MR.strings.all),
 
     @SerialName("future")
-    Future,
+    Future(MR.strings.future),
 
     @SerialName("missing")
-    Missing,
+    Missing(MR.strings.missing),
 
     @SerialName("existing")
-    Existing,
+    Existing(MR.strings.existing),
 
     @SerialName("firstSeason")
-    FirstSeason,
+    FirstSeason(MR.strings.first_season),
 
     @SerialName("lastSeason")
-    LastSeason,
+    LastSeason(MR.strings.last_season),
 
     @SerialName("latestSeason")
-    LatestSeason,
+    LatestSeason(MR.strings.latest_seasons),
 
     @SerialName("pilot")
-    Pilot,
+    Pilot(MR.strings.pilot),
 
     @SerialName("recent")
-    Recent,
+    Recent(MR.strings.recent),
 
     @SerialName("monitorSpecials")
-    MonitorSpecials,
+    MonitorSpecials(MR.strings.monitor_specials),
 
     @SerialName("unmonitorSpecials")
-    UnmonitorSpecials,
+    UnmonitorSpecials(MR.strings.unmonitor_specials),
 
     @SerialName("none")
-    None,
+    None(MR.strings.none),
 
     @SerialName("skip")
-    Skip;
+    Skip(MR.strings.skip);
 
     companion object {
         fun allValues() = entries.toList()

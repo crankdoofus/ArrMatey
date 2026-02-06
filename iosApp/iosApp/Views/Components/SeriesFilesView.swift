@@ -48,7 +48,7 @@ struct SeriesFilesView: View {
                 )
             }
         } header : {
-            Text(String(localized: LocalizedStringResource("seasons")))
+            Text(MR.strings().seasons.localized())
                 .font(.system(size: 26, weight: .bold))
         }
     }

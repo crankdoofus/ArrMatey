@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import com.dnfapps.arrmatey.compose.utils.FilterBy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.utils.mokoString
 
 @Composable
 fun FilterMenuButton(
@@ -57,7 +58,7 @@ fun FilterMenuButton(
                     },
                     text = {
                         Text(
-                            text = getString(option.iosText),
+                            text = mokoString(option.resource),
                             color = if (selectedFilter == option) MaterialTheme.colorScheme.primary else Color.Unspecified
                         )
                     }

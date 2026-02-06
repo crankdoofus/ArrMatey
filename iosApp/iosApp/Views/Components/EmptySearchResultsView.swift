@@ -19,15 +19,15 @@ struct EmptySearchResultsView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            Text("No results for \"\(query)\" in your library")
+            Text(MR.strings().no_query_results.formatted(args: [query]))
                 .font(.system(size: 18, weight: .medium))
             
             HStack(spacing: 4) {
-                Text("Check your spelling or")
+                Text(MR.strings().no_query_results_label.localized())
                     .foregroundColor(.secondary)
                 
                 Button(action: onShouldSearch) {
-                    Text("add a new \(mediaType)")
+                    Text(MR.strings().no_query_results_link.formatted(args: [mediaType]))
                         .fontWeight(.bold)
                         .foregroundColor(.accentColor)
                 }

@@ -5,17 +5,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
 import com.dnfapps.arrmatey.compose.TabItem
 import org.koin.compose.koinInject
-
-fun TabItem.stringResource() = when (this) {
-    TabItem.SHOWS -> R.string.series
-    TabItem.MOVIES -> R.string.movies
-    TabItem.ACTIVITY -> R.string.activity
-    TabItem.SETTINGS -> R.string.settings
-}
 
 @Composable
 fun BadgeContent(

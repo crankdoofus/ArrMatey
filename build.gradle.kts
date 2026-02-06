@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        // This makes the plugin available to all modules manually
+        classpath("dev.icerock.moko:resources-generator:0.26.0")
+    }
+}
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader

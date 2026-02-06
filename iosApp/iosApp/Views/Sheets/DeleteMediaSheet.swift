@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Shared
 
 struct DeleteMediaSheet: View {
     let isLoading: Bool
@@ -20,14 +21,14 @@ struct DeleteMediaSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("add_exclusion", isOn: $addExclusion)
+                    Toggle(MR.strings().add_exclusion.localized(), isOn: $addExclusion)
                 } footer: {
-                    Text("add_exclusion_description")
+                    Text(MR.strings().add_exclusion_description.localized())
                 }
                 Section {
-                    Toggle("delete_files", isOn: $deleteFiles)
+                    Toggle(MR.strings().delete_files.localized(), isOn: $deleteFiles)
                 } footer: {
-                    Text("delete_files_description")
+                    Text(MR.strings().delete_files_description.localized())
                 }
             }
             .toolbar {
@@ -35,7 +36,7 @@ struct DeleteMediaSheet: View {
                     Button {
                         dismiss()
                     } label: {
-                        Label("cancel", systemImage: "xmark")
+                        Label(MR.strings().cancel.localized(), systemImage: "xmark")
                     }
                     .tint(.primary)
                 }
@@ -46,7 +47,7 @@ struct DeleteMediaSheet: View {
                         if isLoading {
                             ProgressView().tint(.white)
                         } else {
-                            Label("delete", systemImage: "trash")
+                            Label(MR.strings().delete.localized(), systemImage: "trash")
                         }
                     }
                     .tint(.red)

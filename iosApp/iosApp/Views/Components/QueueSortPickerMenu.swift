@@ -14,18 +14,18 @@ struct QueueSortPickerMenu: View {
     
     var body: some View {
         Menu {
-            Picker("sort_by", selection: $sortBy) {
+            Picker(MR.strings().sort_by.localized(), selection: $sortBy) {
                 ForEach(QueueSortBy.companion.allEntries(), id: \.self) { sortOption in
-                    Text(sortOption.label()).tag(sortOption)
+                    Text(sortOption.resource.localized()).tag(sortOption)
                 }
             }
             .pickerStyle(.inline)
             
             Section {
-                Picker("direction", selection: $sortOrder) {
+                Picker(MR.strings().direction.localized(), selection: $sortOrder) {
                     ForEach(Shared.SortOrder.allCases, id: \.self) { order in
                         Label {
-                            Text(String(localized: String.LocalizationValue(order.iosText)))
+                            Text(order.resource.localized())
                         } icon: {
                             Image(systemName: order.iosIcon)
                         }

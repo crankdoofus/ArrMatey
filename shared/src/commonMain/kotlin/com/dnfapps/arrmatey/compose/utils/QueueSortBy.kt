@@ -1,10 +1,12 @@
 package com.dnfapps.arrmatey.compose.utils
 
 import com.dnfapps.arrmatey.arr.api.model.QueueItem
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 
-enum class QueueSortBy {
-    Title,
-    Added;
+enum class QueueSortBy(val resource: StringResource) {
+    Title(MR.strings.title),
+    Added(MR.strings.added);
 
     companion object {
         fun allEntries() = entries.toList()

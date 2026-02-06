@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.components
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,14 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import arrmatey.composeapp.generated.resources.Res
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
@@ -29,8 +27,8 @@ import com.dnfapps.arrmatey.arr.api.model.QualityProfile
 import com.dnfapps.arrmatey.arr.api.model.SeriesMonitorNewItems
 import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.entensions.forEachIndexed
-import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -43,7 +41,7 @@ fun InfoArea(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = stringResource(R.string.information),
+            text = mokoString(MR.strings.information),
             fontWeight = FontWeight.Medium,
             fontSize = 26.sp
         )
@@ -91,25 +89,25 @@ private fun seriesInfo(
     tags: List<Tag>
 ): Map<String, String> {
     val qualityProfile = qualityProfiles.firstOrNull { it.id == series.qualityProfileId }
-    val tagsLabel = series.formatTags(tags) ?: stringResource(R.string.none)
+    val tagsLabel = series.formatTags(tags) ?: mokoString(MR.strings.none)
 
-    val unknown = stringResource(R.string.unknown)
+    val unknown = mokoString(MR.strings.unknown)
     val monitorLabel = if (series.monitorNewItems == SeriesMonitorNewItems.All) {
-        stringResource(R.string.monitored)
-    } else { stringResource(R.string.unmonitored) }
+        mokoString(MR.strings.monitored)
+    } else { mokoString(MR.strings.unmonitored) }
 
     val seasonFolderLabel = if (series.seasonFolder) {
-        stringResource(R.string.yes)
-    } else { stringResource(R.string.no) }
+        mokoString(MR.strings.yes)
+    } else { mokoString(MR.strings.no) }
 
     return mapOf(
-        stringResource(R.string.series_type) to series.seriesType.name,
-        stringResource(R.string.root_folder) to (series.rootFolderPath ?: unknown),
-        stringResource(R.string.path) to (series.path ?: unknown),
-        stringResource(R.string.new_seasons) to monitorLabel,
-        stringResource(R.string.season_folders) to seasonFolderLabel,
-        stringResource(R.string.quality_profile) to (qualityProfile?.name ?: unknown),
-        stringResource(R.string.tags) to tagsLabel
+        mokoString(MR.strings.series_type) to series.seriesType.name,
+        mokoString(MR.strings.root_folder) to (series.rootFolderPath ?: unknown),
+        mokoString(MR.strings.path) to (series.path ?: unknown),
+        mokoString(MR.strings.new_seasons) to monitorLabel,
+        mokoString(MR.strings.season_folders) to seasonFolderLabel,
+        mokoString(MR.strings.quality_profile) to (qualityProfile?.name ?: unknown),
+        mokoString(MR.strings.tags) to tagsLabel
     )
 }
 
@@ -121,28 +119,28 @@ private fun movieInfo(
     tags: List<Tag>
 ): Map<String, String> {
     val qualityProfile = qualityProfiles.firstOrNull { it.id == movie.qualityProfileId }
-    val tagsLabel = movie.formatTags(tags) ?: stringResource(R.string.none)
+    val tagsLabel = movie.formatTags(tags) ?: mokoString(MR.strings.none)
 
-    val unknown = stringResource(R.string.unknown)
+    val unknown = mokoString(MR.strings.unknown)
 
     val rootFolderPathValue = movie.rootFolderPath.takeUnless { it.isBlank() }
-        ?: stringResource(R.string.unknown)
+        ?: mokoString(MR.strings.unknown)
 
     return buildMap {
-        put(stringResource(R.string.minimum_availability), movie.minimumAvailability.name)
-        put(stringResource(R.string.root_folder), rootFolderPathValue)
-        put(stringResource(R.string.path), (movie.path ?: unknown))
+        put(mokoString(MR.strings.minimum_availability), movie.minimumAvailability.name)
+        put(mokoString(MR.strings.root_folder), rootFolderPathValue)
+        put(mokoString(MR.strings.path), (movie.path ?: unknown))
         movie.inCinemas?.format("MMM d, yyyy")?.let {
-            put(stringResource(R.string.in_cinemas), it)
+            put(mokoString(MR.strings.in_cinemas), it)
         }
         movie.physicalRelease?.format("MMM d, yyyy")?.let {
-            put(stringResource(R.string.physical_release), it)
+            put(mokoString(MR.strings.physical_release), it)
         }
         movie.digitalRelease?.format("MMM d, yyyy")?.let {
-            put(stringResource(R.string.digital_release), it)
+            put(mokoString(MR.strings.digital_release), it)
         }
-        put(stringResource(R.string.quality_profile), (qualityProfile?.name ?: unknown))
-        put(stringResource(R.string.tags), tagsLabel)
+        put(mokoString(MR.strings.quality_profile), (qualityProfile?.name ?: unknown))
+        put(mokoString(MR.strings.tags), tagsLabel)
     }
 
 }

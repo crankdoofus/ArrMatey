@@ -20,9 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.MediaStatus
@@ -30,9 +28,10 @@ import com.dnfapps.arrmatey.arr.api.model.QualityProfile
 import com.dnfapps.arrmatey.arr.api.model.RootFolder
 import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
-import com.dnfapps.arrmatey.entensions.stringResource
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.LabelledSwitch
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -62,7 +61,7 @@ fun AddMovieSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             LabelledSwitch(
-                label = stringResource(R.string.monitored),
+                label = mokoString(MR.strings.monitored),
                 checked = monitored,
                 onCheckedChange = { monitored = it }
             )
@@ -73,7 +72,7 @@ fun AddMovieSheet(
                 selectedOption = qualityProfile,
                 onOptionSelected = { qualityProfile = it },
                 getOptionLabel = { it.name ?: "" },
-                label = { Text(stringResource(R.string.quality_profile)) }
+                label = { Text(mokoString(MR.strings.quality_profile)) }
             )
 
             DropdownPicker(
@@ -85,8 +84,8 @@ fun AddMovieSheet(
                 modifier = Modifier.fillMaxWidth(),
                 selectedOption = minimumAvailability,
                 onOptionSelected = { minimumAvailability = it },
-                getOptionLabel = { stringResource(it.stringResource()) },
-                label = { Text(stringResource(R.string.minimum_availability)) }
+                getOptionLabel = { mokoString(it.resource) },
+                label = { Text(mokoString(MR.strings.minimum_availability)) }
             )
 
             if (rootFolders.size > 1) {
@@ -95,7 +94,7 @@ fun AddMovieSheet(
                     modifier = Modifier.fillMaxWidth(),
                     selectedOption = rootFolder,
                     onOptionSelected = { rootFolder = it },
-                    label = { Text(stringResource(R.string.root_folder)) },
+                    label = { Text(mokoString(MR.strings.root_folder)) },
                     getOptionLabel = { "${it.path} (${it.freeSpace.bytesAsFileSizeString()})" }
                 )
             }
@@ -120,7 +119,7 @@ fun AddMovieSheet(
                         contentDescription = null
                     )
                     Text(
-                        text = stringResource(R.string.save)
+                        text = mokoString(MR.strings.save)
                     )
                 }
             }

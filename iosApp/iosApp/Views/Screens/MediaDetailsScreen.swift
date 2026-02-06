@@ -39,21 +39,21 @@ struct MediaDetailsScreen: View {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Section {
-                            Button("refresh", systemImage: "arrow.clockwise") {
+                            Button(MR.strings().refresh.localized(), systemImage: "arrow.clockwise") {
                                 viewModel.performRefresh()
                             }
                             if type == .sonarr {
-                                Button("search_monitored", systemImage: "magnifyingglass") {
+                                Button(MR.strings().search_monitored.localized(), systemImage: "magnifyingglass") {
                                     viewModel.performSeriesAutomaticLookup()
                                 }
                                 .disabled(!viewModel.isMonitored)
                             }
                         }
                         Section {
-                            Button("edit", systemImage: "pencil") {
+                            Button(MR.strings().edit.localized(), systemImage: "pencil") {
                                 showEditSheet = true
                             }
-                            Button("delete", systemImage: "trash") {
+                            Button(MR.strings().delete.localized(), systemImage: "trash") {
                                 showConfirmSheet = true
                             }
                             .tint(.red)
@@ -100,22 +100,22 @@ struct MediaDetailsScreen: View {
                 }
             }
             .alert(
-                "Delete season \(confirmDeleteSeason ?? 0)?",
+                MR.strings().delete_season.formatted(args: [confirmDeleteSeason ?? 0]),
                 isPresented: Binding(
                     get: { confirmDeleteSeason != nil },
                     set: { if !$0 { confirmDeleteSeason = nil } }
                 ),
                 presenting: confirmDeleteSeason
             ) { season in
-                Button("delete", role: .destructive) {
+                Button(MR.strings().delete.localized(), role: .destructive) {
                     viewModel.deleteSeasonFiles(season)
                     confirmDeleteSeason = nil
                 }
-                Button("cancel", role: .cancel) {
+                Button(MR.strings().cancel.localized(), role: .cancel) {
                     confirmDeleteSeason = nil
                 }
             } message: { season in
-                Text("Are you sure you want to remove all the files for season \(season)? This action cannot be undone.")
+                Text(MR.strings().delete_season_confirm.formatted(args: [season]))
             }
     }
     
@@ -124,7 +124,7 @@ struct MediaDetailsScreen: View {
         switch viewModel.uiState {
         case is MediaDetailsUiStateInitial:
             ZStack {
-                Text("initial state")
+                EmptyView()
             }
         case is MediaDetailsUiStateLoading:
             ZStack {
@@ -165,7 +165,7 @@ struct MediaDetailsScreen: View {
             VStack{}
         default:
             VStack {
-                Text("detault")
+                EmptyView()
             }
         }
     }
@@ -175,14 +175,14 @@ struct MediaDetailsScreen: View {
         case let series as ArrSeries:
             if series.status == .continuing {
                 if let airing = series.nextAiring?.format(pattern: "HH:mm MMMM d, yyyy") {
-                    return "\(String(localized: LocalizedStringResource("airing_next"))) \(airing)"
+                    return "\(MR.strings().airing_next.localized()) \(airing)"
                 } else {
-                    return String(localized: LocalizedStringResource("continuing_unknown"))
+                    return MR.strings().continuing_unknown.localized()
                 }
             } else { return nil }
         case let movie as ArrMovie:
             if let inCinemas = movie.inCinemas?.format(pattern: "HH:mm MMMM d, yyyy"), movie.digitalRelease == nil, movie.physicalRelease == nil {
-                return "\(String(localized: LocalizedStringResource("in_cinemas"))) \(inCinemas)"
+                return "\(MR.strings().in_cinemas.localized()) \(inCinemas)"
             } else {
                 return nil
             }

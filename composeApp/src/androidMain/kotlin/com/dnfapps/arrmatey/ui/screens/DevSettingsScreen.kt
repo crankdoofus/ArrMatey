@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,16 +23,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.client.LoggerLevel
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
-import com.dnfapps.arrmatey.ui.components.LabelledSwitch
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +55,7 @@ fun DevSettingsScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 }

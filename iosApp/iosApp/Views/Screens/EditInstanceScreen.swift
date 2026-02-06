@@ -71,20 +71,20 @@ struct EditInstanceScreen: View {
             showError: $viewModel.showError
         )
         .toolbar { toolbarContent }
-        .alert( LocalizedStringResource("confirm"), isPresented: $showDeleteConfirmation, presenting: viewModel.instance) { instance in
+        .alert(MR.strings().confirm.localized(), isPresented: $showDeleteConfirmation, presenting: viewModel.instance) { instance in
             confirmDeleteButtons(instance)
         } message: { instance in
-            Text(String(localized: LocalizedStringResource("confirm_delete_instance \(instance.label)")))
+            Text(MR.strings().confirm_delete_instance.formatted(args: [instance.label]))
         }
     }
     
     @ViewBuilder
     private func confirmDeleteButtons(_ instance: Instance) -> some View {
-        Button("yes", role: .destructive) {
+        Button(MR.strings().yes.localized(), role: .destructive) {
             viewModel.delete(instance)
             dismiss()
         }
-        Button("no", role: .cancel) {
+        Button(MR.strings().no.localized(), role: .cancel) {
             showDeleteConfirmation = false
         }
     }
@@ -101,7 +101,7 @@ struct EditInstanceScreen: View {
                     }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(LocalizedStringResource("save")) {
+                Button(MR.strings().save.localized()) {
                     Task {
                         saveClicked = true
                         viewModel.testConnection()

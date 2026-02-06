@@ -51,15 +51,15 @@ struct EditSeriesSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("monitored", isOn: $monitored)
-                    Toggle("monitor_new_seasons", isOn: $monitorNewSeasons)
-                    Toggle("season_folders", isOn: $seasonFolders)
-                    Picker("series_type", selection: $seriesType) {
+                    Toggle(MR.strings().monitored.localized(), isOn: $monitored)
+                    Toggle(MR.strings().monitor_new_seasons.localized(), isOn: $monitorNewSeasons)
+                    Toggle(MR.strings().season_folders.localized(), isOn: $seasonFolders)
+                    Picker(MR.strings().series_type.localized(), selection: $seriesType) {
                         ForEach(SeriesType.companion.allEntries(), id: \.self) { type in
-                            Text(type.label()).tag(type)
+                            Text(type.resource.localized()).tag(type)
                         }
                     }
-                    Picker("quality_profile", selection: $qualityProfileId) {
+                    Picker(MR.strings().quality_profile.localized(), selection: $qualityProfileId) {
                         ForEach(qualityProfiles, id: \.id) { qp in
                             Text(qp.name ?? "").tag(qp.id)
                         }
@@ -68,19 +68,19 @@ struct EditSeriesSheet: View {
                 
                 Section {
                     if rootFolders.count > 1 {
-                        Picker("root_folder", selection: $rootFolder) {
+                        Picker(MR.strings().root_folder.localized(), selection: $rootFolder) {
                             ForEach(rootFolders, id: \.id) { folder in
                                 Text("\(folder.path) (\(folder.freeSpace.bytesAsFileSizeString()))")
                                     .tag(folder.path)
                             }
                         }
                         if canMove {
-                            Toggle("Move files", isOn: $moveFiles)
+                            Toggle(MR.strings().move_files.localized(), isOn: $moveFiles)
                         }
                     }
                 } footer: {
                     if canMove {
-                        Text("Whether to automcatically move files to the new folder or not.")
+                        Text(MR.strings().move_files_description.localized())
                     }
                 }
             }
@@ -90,7 +90,7 @@ struct EditSeriesSheet: View {
                     Button {
                         dismiss()
                     } label: {
-                        Label("close", systemImage: "xmark")
+                        Label(MR.strings().close.localized(), systemImage: "xmark")
                             .foregroundStyle(.white)
                     }
                     .tint(nil)
@@ -106,7 +106,7 @@ struct EditSeriesSheet: View {
                                 .progressViewStyle(.circular)
                                 .foregroundStyle(.white)
                         } else {
-                            Label("save", systemImage: "checkmark")
+                            Label(MR.strings().save.localized(), systemImage: "checkmark")
                                 .foregroundStyle(.white)
                         }
                     }

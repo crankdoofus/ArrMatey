@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,14 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.viewmodel.EditInstanceViewModel
 import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -68,14 +68,14 @@ fun EditInstanceScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.add_instance)) },
+                title = { Text(text = mokoString(MR.strings.add_instance)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { settingsNav.popBackStack() }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -105,7 +105,7 @@ fun EditInstanceScreen(
                         },
                         modifier = Modifier.padding(end = 12.dp)
                     ) {
-                        Text(text = stringResource(R.string.save))
+                        Text(text = mokoString(MR.strings.save))
                     }
                 }
             )
@@ -142,7 +142,7 @@ fun EditInstanceScreen(
                                         settingsNav.popBackStack()
                                     }
                                 }
-                            ) { Text(stringResource(R.string.yes)) }
+                            ) { Text(mokoString(MR.strings.yes)) }
                         },
                         dismissButton = {
                             TextButton(
@@ -150,11 +150,11 @@ fun EditInstanceScreen(
                                     confirmDelete = false
 
                                 }
-                            ) { Text(stringResource(R.string.no)) }
+                            ) { Text(mokoString(MR.strings.no)) }
                         },
-                        title = { Text(stringResource(R.string.confirm)) },
+                        title = { Text(mokoString(MR.strings.confirm)) },
                         text = {
-                            Text(stringResource(R.string.confirm_delete_instance, instance.label))
+                            Text(mokoString(MR.strings.confirm_delete_instance, instance.label))
                         }
                     )
                 }

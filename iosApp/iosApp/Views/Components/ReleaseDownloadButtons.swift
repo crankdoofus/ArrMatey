@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Shared
 
 struct ReleaseDownloadButtons: View {
     var onInteractiveClicked: () -> Void
@@ -17,7 +18,7 @@ struct ReleaseDownloadButtons: View {
         HStack(spacing: 6) {
             Button(action: onInteractiveClicked) {
                 Label(
-                    title: { Text("interactive") },
+                    title: { Text(MR.strings().interactive.localized()) },
                     icon: { Image(systemName: "person.fill") }
                 )
                 .frame(maxWidth: .infinity)
@@ -33,7 +34,7 @@ struct ReleaseDownloadButtons: View {
                             .controlSize(.small)
                     } else {
                         Label(
-                            title: { Text("automatic") },
+                            title: { Text(MR.strings().automatic.localized()) },
                             icon: { Image(systemName: "magnifyingglass") }
                         )
                     }

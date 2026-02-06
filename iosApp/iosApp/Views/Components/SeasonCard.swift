@@ -79,9 +79,9 @@ struct SeasonCard: View {
     
     private var seasonTitle: String {
         if season.seasonNumber == 0 {
-            String(localized: LocalizedStringResource("specials"))
+            MR.strings().specials.localized()
         } else {
-            String(localized: LocalizedStringResource("season_singular")) + " \(season.seasonNumber)"
+            MR.strings().season_singular.localized() + " \(season.seasonNumber)"
         }
     }
     

@@ -12,21 +12,16 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.compose.TabItem
 import com.dnfapps.arrmatey.entensions.BadgeContent
-import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.ui.tabs.ActivityTab
 import com.dnfapps.arrmatey.ui.tabs.ArrTab
 import com.dnfapps.arrmatey.ui.tabs.SettingsTabNavHost
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @SuppressLint("UnrememberedMutableState")
@@ -60,11 +55,11 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = entry.androidIcon,
-                                contentDescription = stringResource(entry.stringResource())
+                                contentDescription = mokoString(entry.resource)
                             )
                         }
                     },
-                    label = { Text(text = stringResource(entry.stringResource())) }
+                    label = { Text(text = mokoString(entry.resource)) }
                 )
             }
         }

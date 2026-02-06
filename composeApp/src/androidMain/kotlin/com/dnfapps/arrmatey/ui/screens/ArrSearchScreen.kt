@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,10 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.state.ArrLibrary
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrSearchViewModel
@@ -46,6 +45,7 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.ui.components.SortMenuButton
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -94,7 +94,7 @@ fun ArrSearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -133,7 +133,7 @@ fun ArrSearchScreen(
                             modifier = Modifier.clickable { searchQuery = "" }
                         )
                     },
-                    placeholder = { Text(stringResource(R.string.search)) },
+                    placeholder = { Text(mokoString(MR.strings.search)) },
                     shape = RoundedCornerShape(10.dp),
                     singleLine = true
                 )
@@ -155,7 +155,7 @@ fun ArrSearchScreen(
                         is ArrLibrary.Success -> {
                             if (state.items.isEmpty()) {
                                 Text(
-                                    text = stringResource(R.string.empty_library),
+                                    text = mokoString(MR.strings.empty_library),
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {

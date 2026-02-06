@@ -2,8 +2,10 @@ package com.dnfapps.arrmatey.arr.api.model
 
 import com.dnfapps.arrmatey.extensions.formatAsRuntime
 import com.dnfapps.arrmatey.extensions.isBeforeToday
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.utils.formatLocalDateTime
 import com.dnfapps.arrmatey.utils.padStart
+import dev.icerock.moko.resources.StringResource
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -11,7 +13,6 @@ import kotlinx.datetime.todayIn
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -28,7 +29,7 @@ data class Episode(
     @Contextual val airDateUtc: Instant? = null,
     @Contextual val lastSearchTime: Instant? = null,
     val runtime: Int?,
-    val finaleType: FinalType? = null,
+    val finaleType: FinaleType? = null,
     val overview: String? = null,
     val episodeFile: EpisodeFile? = null,
     val hasFile: Boolean,
@@ -101,13 +102,13 @@ data class Episode(
     }
 }
 
-enum class FinalType(val label: String) {
+enum class FinaleType(val resource: StringResource) {
     @SerialName("series")
-    Series("Series finale"),
+    Series(MR.strings.series_finale),
 
     @SerialName("season")
-    Season("Season finale"),
+    Season(MR.strings.season_finale),
 
     @SerialName("midseason")
-    Midseason("Midseason finale")
+    Midseason(MR.strings.midseason_finale)
 }

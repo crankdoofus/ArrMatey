@@ -20,18 +20,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.arr.api.model.QualityProfile
 import com.dnfapps.arrmatey.arr.api.model.RootFolder
 import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
-import com.dnfapps.arrmatey.entensions.stringResource
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.LabelledSwitch
+import com.dnfapps.arrmatey.utils.mokoString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +58,7 @@ fun EditMovieSheet(
                 .padding(bottom = 24.dp)
         ) {
             LabelledSwitch(
-                label = stringResource(R.string.monitored),
+                label = mokoString(MR.strings.monitored),
                 checked = monitored,
                 onCheckedChange = { monitored = it }
             )
@@ -73,7 +72,7 @@ fun EditMovieSheet(
                         selectedOption = profile,
                         onOptionSelected = { qualityProfileId = it.id },
                         getOptionLabel = { it.name ?: "" },
-                        label = { Text(stringResource(R.string.quality_profile)) }
+                        label = { Text(mokoString(MR.strings.quality_profile)) }
                     )
                 }
 
@@ -86,8 +85,8 @@ fun EditMovieSheet(
                 modifier = Modifier.fillMaxWidth(),
                 selectedOption = minimumAvailability,
                 onOptionSelected = { minimumAvailability = it },
-                getOptionLabel = { stringResource(it.stringResource()) },
-                label = { Text(stringResource(R.string.minimum_availability)) }
+                getOptionLabel = { mokoString(it.resource) },
+                label = { Text(mokoString(MR.strings.minimum_availability)) }
             )
 
             if (rootFolders.size > 1) {
@@ -99,7 +98,7 @@ fun EditMovieSheet(
                             modifier = Modifier.fillMaxWidth(),
                             selectedOption = folder,
                             onOptionSelected = { rootFolder = it.path },
-                            label = { Text(stringResource(R.string.root_folder)) },
+                            label = { Text(mokoString(MR.strings.root_folder)) },
                             getOptionLabel = { "${it.path} (${it.freeSpace.bytesAsFileSizeString()})" }
                         )
                     }
@@ -123,7 +122,7 @@ fun EditMovieSheet(
                         imageVector = Icons.Default.Check,
                         contentDescription = null
                     )
-                    Text(stringResource(R.string.save))
+                    Text(mokoString(MR.strings.save))
                 }
             }
         }

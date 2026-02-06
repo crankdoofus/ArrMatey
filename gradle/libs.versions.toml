@@ -81,4 +81,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 skie = { id = "co.touchlab.skie", version.ref = "skie" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
-#moko-resources = { id = "dev.icerock.moko.multiplatform-resources", version.ref = "moko" }
+moko-resources = { id = "dev.icerock.moko.multiplatform-resources", version.ref = "moko" }

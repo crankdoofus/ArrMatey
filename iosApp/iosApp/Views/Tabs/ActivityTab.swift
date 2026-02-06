@@ -15,8 +15,8 @@ struct ActivityTab: View {
     @State private var selectedItem: IdentifiableQueueItem? = nil
     
     private var titleText: String {
-        guard !viewModel.queueItems.isEmpty else { return String(localized: LocalizedStringResource("activity")) }
-        return "\(String(localized: LocalizedStringResource("activity"))) (\(viewModel.queueItems.count))"
+        guard !viewModel.queueItems.isEmpty else { return MR.strings().activity.localized() }
+        return "\(MR.strings().activity.localized()) (\(viewModel.queueItems.count))"
     }
     
     var body: some View {
@@ -91,7 +91,7 @@ struct ActivityTab: View {
             Image(systemName: "square.and.arrow.down.fill")
                 .font(.system(size: 64))
                 .foregroundStyle(.secondary)
-            Text(LocalizedStringResource("no_activity"))
+            Text(MR.strings().no_activity.localized())
                 .font(.system(size: 20, weight: .bold))
         }
         .padding(.horizontal, 24)

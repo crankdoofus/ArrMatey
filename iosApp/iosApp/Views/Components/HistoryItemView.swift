@@ -14,7 +14,7 @@ struct HistoryItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 12) {
-                Text(item.eventType.label())
+                Text(item.eventType.resource.localized())
                     .font(.system(size: 14))
                     .foregroundColor(.accentColor)
                 Text(item.date.format(pattern: "MMM d, yyyy"))

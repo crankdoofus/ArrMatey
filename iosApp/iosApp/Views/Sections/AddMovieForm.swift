@@ -59,10 +59,10 @@ struct AddMovieForm: View {
     private var content: some View {
         Form {
             Section {
-                Toggle("monitored", isOn: $isMonitored)
+                Toggle(MR.strings().monitored.localized(), isOn: $isMonitored)
                 
                 if selectedQualityProfileId != nil {
-                    Picker("quality_profile", selection: $selectedQualityProfileId) {
+                    Picker(MR.strings().quality_profile.localized(), selection: $selectedQualityProfileId) {
                         ForEach(qualityProfiles, id: \.self) { qualityProfile in
                             if let name = qualityProfile.name {
                                 Text(name)
@@ -72,14 +72,14 @@ struct AddMovieForm: View {
                     }
                 }
                 
-                Picker("minimum_availability", selection: $selectedMinimumAvailability) {
+                Picker(MR.strings().minimum_availability.localized(), selection: $selectedMinimumAvailability) {
                     ForEach(selectableStatuses, id: \.self) { status in
-                        Text(status.label()).tag(status)
+                        Text(status.resource.localized()).tag(status)
                     }
                 }
                 
                 if selectedRootFolderId != nil {
-                    Picker("root_folder", selection: $selectedRootFolderId) {
+                    Picker(MR.strings().root_folder.localized(), selection: $selectedRootFolderId) {
                         ForEach(rootFolders, id: \.self) { rootFolder in
                             Text("\(rootFolder.path) (\(rootFolder.freeSpaceString))")
                                 .tag(rootFolder.id)
@@ -96,7 +96,7 @@ struct AddMovieForm: View {
             Button {
                 onDismiss()
             } label: {
-                Label("cancel", systemImage: "xmark")
+                Label(MR.strings().cancel.localized(), systemImage: "xmark")
             }
             .tint(.primary)
         }
@@ -113,7 +113,7 @@ struct AddMovieForm: View {
                 if (isLoading) {
                     ProgressView().tint(nil)
                 } else {
-                    Label("save", systemImage: "checkmark")
+                    Label(MR.strings().save.localized(), systemImage: "checkmark")
                 }
             }
             .disabled(isLoading)

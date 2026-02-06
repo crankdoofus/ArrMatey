@@ -33,10 +33,10 @@ struct SortByPickerMenu: View {
     
     var body: some View {
         Menu {
-            Picker("Sort By", selection: $sortedBy) {
+            Picker(MR.strings().sort_by.localized(), selection: $sortedBy) {
                 ForEach(SortBy.companion.typeEntries(type: type), id: \.self) { sortOption in
                     Label {
-                        Text(String(localized: String.LocalizationValue(sortOption.textKey)))
+                        Text(sortOption.resource.localized())
                     } icon: {
                         Image(systemName: sortOption.iosIcon)
                     }
@@ -46,10 +46,10 @@ struct SortByPickerMenu: View {
             .pickerStyle(.inline)
             
             Section {
-                Picker("Direction", selection: $sortOrder) {
+                Picker(MR.strings().direction.localized(), selection: $sortOrder) {
                     ForEach(Shared.SortOrder.allCases, id: \.self) { sortOrder in
                         Label {
-                            Text(String(localized: String.LocalizationValue(sortOrder.iosText)))
+                            Text(sortOrder.resource.localized())
                         } icon: {
                             Image(systemName: sortOrder.iosIcon)
                         }

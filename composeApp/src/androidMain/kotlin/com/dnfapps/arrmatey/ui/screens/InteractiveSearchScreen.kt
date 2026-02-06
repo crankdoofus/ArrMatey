@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrRelease
 import com.dnfapps.arrmatey.arr.api.model.CustomFormat
 import com.dnfapps.arrmatey.arr.api.model.Language
@@ -80,13 +78,14 @@ import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.entensions.showErrorImmediately
 import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
-import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.extensions.formatAgeMinutes
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -109,8 +108,8 @@ fun InteractiveSearchScreen(
     var confirmRelease by remember { mutableStateOf<ArrRelease?>( null) }
     var showSearch by remember { mutableStateOf(false) }
 
-    val downloadQueueSuccessMessage = stringResource(R.string.download_queue_success)
-    val downloadQueueErrorMessage = stringResource(R.string.download_queue_error)
+    val downloadQueueSuccessMessage = mokoString(MR.strings.download_queue_success)
+    val downloadQueueErrorMessage = mokoString(MR.strings.download_queue_error)
 
     var showFilterSheet by remember { mutableStateOf(false) }
 
@@ -142,7 +141,7 @@ fun InteractiveSearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -156,7 +155,7 @@ fun InteractiveSearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(R.string.search)
+                            contentDescription = mokoString(MR.strings.search)
                         )
                     }
                     IconButton(
@@ -164,7 +163,7 @@ fun InteractiveSearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.FilterList,
-                            contentDescription = stringResource(R.string.filter)
+                            contentDescription = mokoString(MR.strings.filter)
                         )
                     }
                 }
@@ -210,7 +209,7 @@ fun InteractiveSearchScreen(
                                         }
                                     )
                                 },
-                                placeholder = { Text(stringResource(R.string.search)) },
+                                placeholder = { Text(mokoString(MR.strings.search)) },
                                 shape = RoundedCornerShape(10.dp),
                                 singleLine = true
                             )
@@ -264,13 +263,13 @@ fun InteractiveSearchScreen(
                         confirmRelease = null
                     },
                     title = {
-                        Text(stringResource(R.string.grab_release_title))
+                        Text(mokoString(MR.strings.grab_release_title))
                     },
                     text = {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(stringResource(R.string.grab_release_message))
+                            Text(mokoString(MR.strings.grab_release_message))
                             ReleaseItem(release)
                         }
                     },
@@ -281,7 +280,7 @@ fun InteractiveSearchScreen(
                                 confirmRelease = null
                             }
                         ) {
-                            Text(stringResource(R.string.grab))
+                            Text(mokoString(MR.strings.grab))
                         }
                     },
                     dismissButton = {
@@ -290,7 +289,7 @@ fun InteractiveSearchScreen(
                                 confirmRelease = null
                             }
                         ) {
-                            Text(stringResource(R.string.cancel))
+                            Text(mokoString(MR.strings.cancel))
                         }
                     }
                 )
@@ -421,8 +420,8 @@ fun FilterSheet(
                     options = ReleaseSortBy.entries,
                     selectedOption = selectedSortBy,
                     onOptionSelected = onSortByChanged,
-                    label = { Text(stringResource(R.string.sort_by)) },
-                    getOptionLabel = { stringResource(it.stringResource()) }
+                    label = { Text(mokoString(MR.strings.sort_by)) },
+                    getOptionLabel = { mokoString(it.resource) }
                 )
             }
             item {
@@ -430,8 +429,8 @@ fun FilterSheet(
                     options = SortOrder.entries,
                     selectedOption = selectedSortOrder,
                     onOptionSelected = onSortOrderChanged,
-                    label = { Text(stringResource(R.string.sort_order)) },
-                    getOptionLabel = { getString(it.iosText) },
+                    label = { Text(mokoString(MR.strings.sort_order)) },
+                    getOptionLabel = { mokoString(it.resource) },
                     getOptionIcon = { it.androidIcon }
                 )
             }
@@ -442,8 +441,8 @@ fun FilterSheet(
                         options = ReleaseFilterBy.entries,
                         selectedOption = selectedFilter,
                         onOptionSelected = onFilterChanged,
-                        label = { Text(stringResource(R.string.filter_by)) },
-                        getOptionLabel = { stringResource(it.stringResource()) }
+                        label = { Text(mokoString(MR.strings.filter_by)) },
+                        getOptionLabel = { mokoString(it.resource) }
                     )
                 }
             }
@@ -454,10 +453,10 @@ fun FilterSheet(
                         options = qualities,
                         selectedOption = filterQualityInfo,
                         onOptionSelected = onQualityChange,
-                        label = { Text(stringResource(R.string.quality))},
+                        label = { Text(mokoString(MR.strings.quality))},
                         getOptionLabel = { it.qualityLabel },
                         includeAllOption = true,
-                        allLabel = stringResource(R.string.any),
+                        allLabel = mokoString(MR.strings.any),
                         onAllSelected = { onQualityChange(null) }
                     )
                 }
@@ -468,10 +467,10 @@ fun FilterSheet(
                         options = languages,
                         selectedOption = filterLanguage,
                         onOptionSelected = onLanguageChange,
-                        label = { Text(stringResource(R.string.language)) },
-                        getOptionLabel = { it.name ?: stringResource(R.string.unknown) },
+                        label = { Text(mokoString(MR.strings.language)) },
+                        getOptionLabel = { it.name ?: mokoString(MR.strings.unknown) },
                         includeAllOption = true,
-                        allLabel = stringResource(R.string.any),
+                        allLabel = mokoString(MR.strings.any),
                         onAllSelected = { onLanguageChange(null) }
                     )
                 }
@@ -482,10 +481,10 @@ fun FilterSheet(
                         options = customFormats,
                         selectedOption = filterCustomFormat,
                         onOptionSelected = onCustomFormatChange,
-                        label = { Text("Custom Format") },
+                        label = { Text(mokoString(MR.strings.custom_format)) },
                         getOptionLabel = { it.name },
                         includeAllOption = true,
-                        allLabel = stringResource(R.string.any),
+                        allLabel = mokoString(MR.strings.any),
                         onAllSelected = { onLanguageChange(null) }
                     )
                 }
@@ -496,10 +495,10 @@ fun FilterSheet(
                         options = protocols,
                         selectedOption = filterProtocol,
                         onOptionSelected = onProtocolChange,
-                        label = { Text(stringResource(R.string.protocol)) },
+                        label = { Text(mokoString(MR.strings.protocol)) },
                         getOptionLabel = { it.name },
                         includeAllOption = true,
-                        allLabel = stringResource(R.string.any),
+                        allLabel = mokoString(MR.strings.any),
                         onAllSelected = { onProtocolChange(null) }
                     )
                 }
@@ -510,9 +509,9 @@ fun FilterSheet(
                         options = indexers,
                         selectedOption = filterIndexer,
                         onOptionSelected = onIndexerChange,
-                        label = { Text(stringResource(R.string.indexer)) },
+                        label = { Text(mokoString(MR.strings.indexer)) },
                         includeAllOption = true,
-                        allLabel = stringResource(R.string.any),
+                        allLabel = mokoString(MR.strings.any),
                         onAllSelected = { onIndexerChange(null) }
                     )
                 }

@@ -20,7 +20,7 @@ struct MediaFileCard: View {
                 .font(.system(size: 14))
             
             if let dateAdded = file.dateAdded?.format(pattern: "MMM d, yyyy") {
-                Text(String(localized: LocalizedStringResource("added_on \(dateAdded)")))
+                Text(MR.strings().added_on.formatted(args: [dateAdded]))
                     .font(.system(size: 14))
             }
         }

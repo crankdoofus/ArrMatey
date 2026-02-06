@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,13 +35,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.state.HistoryState
@@ -61,6 +60,7 @@ import com.dnfapps.arrmatey.ui.components.HistoryItemView
 import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
 import com.dnfapps.arrmatey.ui.components.ReleaseDownloadButtons
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @Composable
@@ -150,7 +150,7 @@ fun EpisodeDetailsScreen(
                     )
 
                     Text(
-                        text = stringResource(R.string.files),
+                        text = mokoString(MR.strings.files),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -158,7 +158,7 @@ fun EpisodeDetailsScreen(
                         FileCard(file)
                     } ?: run {
                         Text(
-                            text = stringResource(R.string.no_files),
+                            text = mokoString(MR.strings.no_files),
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
@@ -176,13 +176,13 @@ fun EpisodeDetailsScreen(
                         }
                         is HistoryState.Success -> {
                             Text(
-                                stringResource(R.string.history),
+                                mokoString(MR.strings.history),
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Medium
                             )
                             if (historyResult.items.isEmpty()) {
                                 Text(
-                                    text = stringResource(R.string.no_history),
+                                    text = mokoString(MR.strings.no_history),
                                     fontWeight = FontWeight.Medium,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.fillMaxWidth()
@@ -210,7 +210,7 @@ fun EpisodeDetailsScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = mokoString(MR.strings.back)
                         )
                     }
                 },
@@ -244,12 +244,12 @@ fun EpisodeDetailsScreen(
         if (confirmDelete) {
             AlertDialog(
                 onDismissRequest = { confirmDelete = false },
-                title = { Text(stringResource(R.string.are_you_sure)) },
-                text = { Text(stringResource(R.string.episode_delete_message)) },
+                title = { Text(mokoString(MR.strings.are_you_sure)) },
+                text = { Text(mokoString(MR.strings.episode_delete_message)) },
                 dismissButton = {
                     TextButton(
                         onClick = { confirmDelete = false }
-                    ) { Text(stringResource(R.string.cancel)) }
+                    ) { Text(mokoString(MR.strings.cancel)) }
                 },
                 confirmButton = {
                     TextButton(
@@ -257,7 +257,7 @@ fun EpisodeDetailsScreen(
                             confirmDelete = false
                             viewModel.deleteEpisode()
                         }
-                    ) { Text(stringResource(R.string.yes)) }
+                    ) { Text(mokoString(MR.strings.yes)) }
                 }
             )
         }

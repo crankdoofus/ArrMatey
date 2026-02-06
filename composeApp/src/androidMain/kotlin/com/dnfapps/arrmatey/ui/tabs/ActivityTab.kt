@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.ui.tabs
 
-import androidx.compose.foundation.background
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +21,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Train
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,7 +33,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Label
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -52,8 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -63,7 +57,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.QueueDownloadState
 import com.dnfapps.arrmatey.arr.api.model.QueueItem
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
@@ -74,11 +67,11 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.getString
-import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.LabelledSwitch
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 import kotlin.time.ExperimentalTime
 
@@ -109,7 +102,7 @@ fun ActivityTab(
             TopAppBar(
                 title = {
                     val countText = if (queueItems.isNotEmpty()) " (${queueItems.size})" else ""
-                    Text(stringResource(R.string.activity) + countText)
+                    Text(mokoString(MR.strings.activity) + countText)
                 },
                 actions = {
                     if (queueItems.isNotEmpty()) {
@@ -118,7 +111,7 @@ fun ActivityTab(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
-                                contentDescription = stringResource(R.string.filter)
+                                contentDescription = mokoString(MR.strings.filter)
                             )
                         }
                     }
@@ -277,7 +270,7 @@ fun FilterSheet(
                 selectedOption = selectedInstanceId,
                 onOptionSelected = onInstanceChange,
                 getOptionLabel = { id -> instances.first { it.id == id }.label },
-                label = { Text(stringResource(R.string.instances)) },
+                label = { Text(mokoString(MR.strings.instances)) },
                 includeAllOption = true,
                 onAllSelected = { onInstanceChange(null) },
                 modifier = Modifier.fillMaxWidth()
@@ -291,16 +284,16 @@ fun FilterSheet(
                     options = QueueSortBy.entries,
                     selectedOption = sortBy,
                     onOptionSelected = onSortByChanged,
-                    label = { Text(stringResource(R.string.sort_by)) },
-                    getOptionLabel = { stringResource(it.stringResource()) },
+                    label = { Text(mokoString(MR.strings.sort_by)) },
+                    getOptionLabel = { mokoString(it.resource) },
                     modifier = Modifier.weight(1f)
                 )
                 DropdownPicker(
                     options = SortOrder.entries,
                     selectedOption = sortOrder,
                     onOptionSelected = onSortOrderChanged,
-                    label = { Text(stringResource(R.string.sort_order)) },
-                    getOptionLabel = { getString(it.iosText) },
+                    label = { Text(mokoString(MR.strings.sort_order)) },
+                    getOptionLabel = { mokoString(it.resource) },
                     getOptionIcon = { it.androidIcon },
                     modifier = Modifier.weight(1f)
                 )
@@ -333,7 +326,7 @@ fun QueueItemInfoSheet(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = item.title ?: stringResource(R.string.unknown),
+                text = item.title ?: mokoString(MR.strings.unknown),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -438,12 +431,12 @@ fun QueueItemInfoSheet(
             }
 
             val infoItems = mapOf(
-                R.string.protocol to item.protocol.name,
-                R.string.download_client to item.downloadClient,
-                R.string.indexer to item.indexer,
-                R.string.langauges to item.languageLabels.takeUnless { it.isEmpty() }?.joinToString(", "),
-                R.string.added to item.added.format(),
-                R.string.destination to item.outputPath
+                MR.strings.protocol to item.protocol.name,
+                MR.strings.download_client to item.downloadClient,
+                MR.strings.indexer to item.indexer,
+                MR.strings.languages to item.languageLabels.takeUnless { it.isEmpty() }?.joinToString(", "),
+                MR.strings.added to item.added.format(),
+                MR.strings.destination to item.outputPath
             )
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -453,7 +446,7 @@ fun QueueItemInfoSheet(
                 infoItems.forEach { (key, value) ->
                     value?.let {
                         item {
-                            Text(text = stringResource(key), fontWeight = FontWeight.SemiBold)
+                            Text(text = mokoString(key), fontWeight = FontWeight.SemiBold)
                         }
                         item {
                             Text(text = value, fontSize = 14.sp)
@@ -475,7 +468,7 @@ fun QueueItemInfoSheet(
                         contentDescription = null
                     )
                     Text(
-                        text = stringResource(R.string.remove)
+                        text = mokoString(MR.strings.remove)
                     )
                 }
 
@@ -494,7 +487,7 @@ fun QueueItemInfoSheet(
                                 contentDescription = null
                             )
                             Text(
-                                text = stringResource(R.string.manual_import)
+                                text = mokoString(MR.strings.manual_import)
                             )
                         }
                     }
@@ -520,7 +513,7 @@ fun EmptyActivityState(
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = stringResource(R.string.no_activity),
+            text = mokoString(MR.strings.no_activity),
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
@@ -550,21 +543,21 @@ fun ConfirmDeleteItemSheet(
                 .padding(bottom = 24.dp)
         ) {
             LabelledSwitch(
-                label = stringResource(R.string.client_remove_title),
-                sublabel = stringResource(R.string.client_remove_message),
+                label = mokoString(MR.strings.client_remove_title),
+                sublabel = mokoString(MR.strings.client_remove_message),
                 checked = removeFromClient,
                 onCheckedChange = { removeFromClient = it }
             )
             LabelledSwitch(
-                label = stringResource(R.string.blocklist_title),
-                sublabel = stringResource(R.string.blocklist_message),
+                label = mokoString(MR.strings.blocklist_title),
+                sublabel = mokoString(MR.strings.blocklist_message),
                 checked = blocklistRelease,
                 onCheckedChange = { blocklistRelease = it }
             )
             if (blocklistRelease) {
                 LabelledSwitch(
-                    label = stringResource(R.string.skip_redownload_title),
-                    sublabel = stringResource(R.string.skip_redownload_message),
+                    label = mokoString(MR.strings.skip_redownload_title),
+                    sublabel = mokoString(MR.strings.skip_redownload_message),
                     checked = skipRedownload,
                     onCheckedChange = { skipRedownload = it }
                 )
@@ -587,7 +580,7 @@ fun ConfirmDeleteItemSheet(
                         contentDescription = null
                     )
                     Text(
-                        text = stringResource(R.string.remove)
+                        text = mokoString(MR.strings.remove)
                     )
                 }
             }

@@ -66,7 +66,7 @@ struct MediaPreviewScreen: View {
         .ignoresSafeArea(edges: .top)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("add", systemImage: "plus") {
+                Button(MR.strings().add.localized(), systemImage: "plus") {
                     sheetPresented = true
                 }
             }
@@ -122,14 +122,14 @@ struct MediaPreviewScreen: View {
         case let series as ArrSeries:
             if series.status == .continuing {
                 if let airing = series.nextAiring?.format(pattern: "HH:mm MMMM d, yyyy") {
-                    return "\(String(localized: LocalizedStringResource("airing_next"))) \(airing)"
+                    return "\(MR.strings().airing_next.localized()) \(airing)"
                 } else {
-                    return String(localized: LocalizedStringResource("continuing_unknown"))
+                    return MR.strings().continuing_unknown.localized()
                 }
             } else { return nil }
         case let movie as ArrMovie:
             if let inCinemas = movie.inCinemas?.format(pattern: "HH:mm MMMM d, yyyy"), movie.digitalRelease == nil, movie.physicalRelease == nil {
-                return "\(String(localized: LocalizedStringResource("in_cinemas"))) \(inCinemas)"
+                return "\(MR.strings().in_cinemas.localized()) \(inCinemas)"
             } else {
                 return nil
             }

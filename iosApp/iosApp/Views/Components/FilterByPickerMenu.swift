@@ -27,9 +27,9 @@ struct FilterByPickerMenu: View {
     
     var body: some View {
         Menu {
-            Picker("Filter By", selection: $filteredBy) {
+            Picker(MR.strings().filter_by.localized(), selection: $filteredBy) {
                 ForEach(FilterBy.companion.typeEntries(type: type), id: \.self) { filterOption in
-                    Text(String(localized: String.LocalizationValue(filterOption.iosText)))
+                    Text(filterOption.resource.localized())
                         .tag(filterOption)
                 }
             }

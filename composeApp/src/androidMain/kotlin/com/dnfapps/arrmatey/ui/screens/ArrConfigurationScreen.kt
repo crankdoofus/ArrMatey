@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,15 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.dnfapps.arrmatey.R
-import com.dnfapps.arrmatey.instances.state.AddInstanceUiState
 import com.dnfapps.arrmatey.compose.components.AMOutlinedTextField
 import com.dnfapps.arrmatey.database.dao.ConflictField
 import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.instances.state.AddInstanceUiState
+import com.dnfapps.arrmatey.utils.mokoString
 import com.dnfapps.arrmatey.utils.thenGet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,40 +71,40 @@ fun ArrConfigurationScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         AMOutlinedTextField(
-            label = stringResource(R.string.label),
+            label = mokoString(MR.strings.label),
             value = instanceLabel,
             onValueChange = onInstanceLabelChanged,
             modifier = Modifier.fillMaxWidth(),
             placeholder = instanceType.toString(),
             singleLine = true,
             isError = hasLabelConflict,
-            errorMessage = hasLabelConflict thenGet stringResource(R.string.instance_label_exists)
+            errorMessage = hasLabelConflict thenGet mokoString(MR.strings.instance_label_exists)
         )
 
         AMOutlinedTextField(
-            label = stringResource(R.string.host),
+            label = mokoString(MR.strings.host),
             required = true,
             value = apiEndpoint,
             onValueChange = onApiEndpointChanged,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = stringResource(R.string.host_placeholder) + "${instanceType.defaultPort}",
-            description = stringResource(R.string.host_description, instanceType.toString()),
+            placeholder = mokoString(MR.strings.host_placeholder) + "${instanceType.defaultPort}",
+            description = mokoString(MR.strings.host_description, instanceType.name),
             singleLine = true,
             isError = endpointError || hasUrlConflict,
             errorMessage = when {
-                endpointError -> stringResource(R.string.invalid_host)
-                hasUrlConflict -> stringResource(R.string.instance_url_exists)
+                endpointError -> mokoString(MR.strings.invalid_host)
+                hasUrlConflict -> mokoString(MR.strings.instance_url_exists)
                 else -> null
             }
         )
 
         AMOutlinedTextField(
-            label = stringResource(R.string.api_key),
+            label = mokoString(MR.strings.api_key),
             required = true,
             value = apiKey,
             onValueChange = onApiKeyChanged,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = stringResource(R.string.api_key_placeholder),
+            placeholder = mokoString(MR.strings.api_key_placeholder),
             singleLine = true
         )
 
@@ -120,19 +120,19 @@ fun ArrConfigurationScreen(
                 if (isTesting) {
                     CircularProgressIndicator()
                 } else {
-                    Text(text = stringResource(R.string.test))
+                    Text(text = mokoString(MR.strings.test))
                 }
             }
 
             testResult?.let { result ->
                 if (result) {
                     Text(
-                        text = "✅ ${stringResource(R.string.success)}",
+                        text = "✅ ${mokoString(MR.strings.success)}",
                         color = Color.Green
                     )
                 } else {
                     Text(
-                        text = "❌ ${stringResource(R.string.failure)}",
+                        text = "❌ ${mokoString(MR.strings.failure)}",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -149,7 +149,7 @@ fun ArrConfigurationScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(R.string.slow_instance))
+            Text(text = mokoString(MR.strings.slow_instance))
             Switch(
                 checked = isSlowInstance,
                 onCheckedChange = null
@@ -160,7 +160,7 @@ fun ArrConfigurationScreen(
             value = customTimeout?.toString() ?: "",
             onValueChange = { onCustomTimeoutChanged(it.toLongOrNull()) },
             modifier = Modifier.fillMaxWidth(),
-            label = stringResource(R.string.custom_timeout_seconds),
+            label = mokoString(MR.strings.custom_timeout_seconds),
             enabled = isSlowInstance,
             placeholder = "300",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

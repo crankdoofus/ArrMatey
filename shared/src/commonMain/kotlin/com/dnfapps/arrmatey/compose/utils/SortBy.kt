@@ -13,28 +13,30 @@ import androidx.compose.material.icons.filled.Tv
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.dnfapps.arrmatey.compose.icons.Hard_drive
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 
 enum class SortBy(
     val iosIcon: String,
     val androidIcon: ImageVector,
-    val textKey: String
+    val resource: StringResource
 ) {
-    Title("textformat", Icons.Default.SortByAlpha, "title"),
-    Year("calendar", Icons.Default.CalendarMonth, "year"),
-    Added("clock.fill", Icons.Filled.Schedule, "added"),
-    Rating("star.fill", Icons.Filled.Star, "rating"),
-    FileSize("opticaldiscdrive.fill", Hard_drive, "file_size"),
+    Title("textformat", Icons.Default.SortByAlpha, MR.strings.title),
+    Year("calendar", Icons.Default.CalendarMonth, MR.strings.year),
+    Added("clock.fill", Icons.Filled.Schedule, MR.strings.added),
+    Rating("star.fill", Icons.Filled.Star, MR.strings.rating),
+    FileSize("opticaldiscdrive.fill", Hard_drive, MR.strings.file_size),
 
     // Movies
-    Grabbed("arrow.down.circle.fill", Icons.Default.ArrowCircleDown, "grabbed"),
-    DigitalRelease("play.tv", Icons.Default.Tv, "digital_release"),
+    Grabbed("arrow.down.circle.fill", Icons.Default.ArrowCircleDown, MR.strings.grabbed),
+    DigitalRelease("play.tv", Icons.Default.Tv, MR.strings.digital_release),
 
     // TV
-    NextAiring("clock", Icons.Default.Schedule, "next_airing"),
-    PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, "previous_airing"),
+    NextAiring("clock", Icons.Default.Schedule, MR.strings.next_airing),
+    PreviousAiring("clock.arrow.trianglehead.counterclockwise.rotate.90", Icons.Default.History, MR.strings.previous_airing),
 
     // Lookup
-    Relevance("star", Icons.Default.Star, "relevance");
+    Relevance("star", Icons.Default.Star, MR.strings.relevance);
 
     companion object {
 
@@ -56,35 +58,9 @@ enum class SortBy(
 
 enum class SortOrder(
     val iosIcon: String,
-    val iosText: String,
-    val androidIcon: ImageVector
+    val androidIcon: ImageVector,
+    val resource: StringResource
 ) {
-    Asc("arrow.up", "sort_ascending", Icons.Default.ArrowUpward),
-    Desc("arrow.down", "sort_descending", Icons.Default.ArrowDownward)
+    Asc("arrow.up", Icons.Default.ArrowUpward, MR.strings.sort_ascending),
+    Desc("arrow.down", Icons.Default.ArrowDownward, MR.strings.sort_descending)
 }
-
-//private fun List<ArrMedia>.applyBaseSorting(sortBy: SortBy, order: SortOrder) = when(sortBy) {
-//    SortBy.Title -> if (order == SortOrder.Asc) sortedBy { it.sortTitle?.lowercase() } else sortedByDescending { it.sortTitle?.lowercase() }
-//    SortBy.Year -> if (order == SortOrder.Asc) sortedBy { it.year } else sortedByDescending { it.year }
-//    SortBy.Added -> if (order == SortOrder.Asc) sortedBy { it.added } else sortedByDescending { it.added }
-//    SortBy.Rating -> if (order == SortOrder.Asc) sortedBy { it.ratingScore() } else sortedByDescending { it.ratingScore() }
-//    SortBy.FileSize -> if (order == SortOrder.Asc) sortedBy { it.statistics?.sizeOnDisk } else sortedByDescending { it.statistics?.sizeOnDisk }
-//    else -> this
-//}
-//
-//fun List<ArrSeries>.applySeriesSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-//    SortBy.NextAiring -> if (order == SortOrder.Asc) sortedBy { it.nextAiring } else sortedByDescending { it.nextAiring }
-//    SortBy.PreviousAiring -> if (order == SortOrder.Asc) sortedBy { it.previousAiring } else sortedByDescending { it.previousAiring }
-//    else -> applyBaseSorting(sortBy, order) as List<ArrSeries>
-//}
-//
-//fun List<ArrMovie>.applyMovieSorting(sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(sortBy) {
-//    SortBy.Grabbed -> if (order == SortOrder.Asc) sortedBy { it.movieFile?.dateAdded } else sortedByDescending { it.movieFile?.dateAdded }
-//    SortBy.DigitalRelease -> if (order == SortOrder.Asc) sortedBy { it.digitalRelease } else sortedByDescending { it.digitalRelease }
-//    else -> applyBaseSorting(sortBy, order) as List<ArrMovie>
-//}
-//
-//fun List<ArrMedia>.applySorting(type: InstanceType, sortBy: SortBy, order: SortOrder = SortOrder.Asc) = when(type) {
-//    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesSorting(sortBy, order)
-//    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieSorting(sortBy, order)
-//}

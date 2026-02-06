@@ -1,29 +1,31 @@
 package com.dnfapps.arrmatey.arr.api.model
 
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 import kotlinx.serialization.SerialName
 
-enum class MediaStatus {
+enum class MediaStatus(val resource: StringResource) {
     // Sonarr Statuses
     @SerialName("continuing")
-    Continuing,
+    Continuing(MR.strings.continuing),
     @SerialName("ended")
-    Ended,
+    Ended(MR.strings.ended),
     @SerialName("upcoming")
-    Upcoming,
+    Upcoming(MR.strings.upcoming),
 
     // Radarr Statuses
     @SerialName("tba")
-    Tba,
+    Tba(MR.strings.tba),
     @SerialName("announced")
-    Announced,
+    Announced(MR.strings.announced),
     @SerialName("inCinemas")
-    InCinemas,
+    InCinemas(MR.strings.in_cinemas),
     @SerialName("released")
-    Released,
+    Released(MR.strings.released),
 
     // Shared
     @SerialName("deleted")
-    Deleted;
+    Deleted(MR.strings.deleted);
 
     companion object {
         fun seriesValues() = listOf(Continuing, Ended, Upcoming, Deleted)

@@ -25,7 +25,7 @@ struct QueueItemInfoSheet: View {
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(.accentColor)
                         
-                        Text(item.title ?? String(localized: "unknown"))
+                        Text(item.title ?? MR.strings().unknown.localized())
                             .font(.system(size: 18, weight: .semibold))
                     }
                     
@@ -65,7 +65,7 @@ struct QueueItemInfoSheet: View {
                     LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], spacing: 12) {
                         ForEach(infoItems, id: \.key) { key, value in
                             if let value = value {
-                                Text(LocalizedStringKey(key))
+                                Text(key)
                                     .font(.system(size: 14, weight: .semibold))
                                 Text(value)
                                     .font(.system(size: 14))
@@ -79,7 +79,7 @@ struct QueueItemInfoSheet: View {
                             RemoveQueueItemView(deleteInProgress: deleteInProgress, onDelete: onDelete)
                         } label: {
                             Label {
-                                Text("remove")
+                                Text(MR.strings().remove.localized())
                                     .font(.callout)
                             } icon: {
                                 Image(systemName: "trash")
@@ -98,7 +98,7 @@ struct QueueItemInfoSheet: View {
                                 //
                             } label : {
                                 Label {
-                                    Text("manual_import")
+                                    Text(MR.strings().manual_import.localized())
                                         .font(.callout)
                                 } icon: {
                                     Image(systemName: "square.and.arrow.down")
@@ -156,14 +156,14 @@ struct QueueItemInfoSheet: View {
     
     private func getInfoItems() -> [(key: String, value: String?)] {
         var items: [(key: String, value: String?)] = []
-        items.append((key: "protocol", value: item.protocol.name))
-        items.append((key: "download_client", value: item.downloadClient))
-        items.append((key: "indexer", value: item.indexer))
+        items.append((key: MR.strings().protocol.localized(), value: item.protocol.name))
+        items.append((key: MR.strings().download_client.localized(), value: item.downloadClient))
+        items.append((key: MR.strings().indexer.localized(), value: item.indexer))
         if !item.languageLabels.isEmpty {
-            items.append((key: "languages", value: item.languageLabels.joined(separator: ", ")))
+            items.append((key: MR.strings().languages.localized(), value: item.languageLabels.joined(separator: ", ")))
         }
-        items.append((key: "added", value: item.added.description))
-        items.append((key: "destination", value: item.outputPath))
+        items.append((key: MR.strings().added.localized(), value: item.added.description))
+        items.append((key: MR.strings().destination.localized(), value: item.outputPath))
         return items
     }
     

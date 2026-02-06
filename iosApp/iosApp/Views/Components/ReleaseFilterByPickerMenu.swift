@@ -48,9 +48,9 @@ struct ReleaseFilterByPickerMenu: View {
             
             if type == .sonarr {
                 Section {
-                    Picker("filter_by", selection: $filterBy) {
+                    Picker(MR.strings().filter_by.localized(), selection: $filterBy) {
                         ForEach(ReleaseFilterBy.companion.allEntries(), id: \.self) { filter in
-                            Text(filter.label()).tag(filter)
+                            Text(filter.resource.localized()).tag(filter)
                         }
                     }
                     .pickerStyle(.inline)
@@ -64,8 +64,8 @@ struct ReleaseFilterByPickerMenu: View {
     
     private var qualitiesPicker: some View {
         Menu {
-            Picker("quality", selection: $filterQuality) {
-                Text("any").tag(nil as QualityInfo?)
+            Picker(MR.strings().quality.localized(), selection: $filterQuality) {
+                Text(MR.strings().any.localized()).tag(nil as QualityInfo?)
                 Divider()
                 ForEach(Array(qualities), id: \.quality.id) { quality in
                     Text(quality.qualityLabel).tag(quality)
@@ -73,28 +73,28 @@ struct ReleaseFilterByPickerMenu: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Text("quality")
+            Text(MR.strings().quality.localized())
         }
     }
     
     private var languagesPicker: some View {
         Menu {
-            Picker("language", selection: $filterLanguage) {
-                Text("any").tag(nil as Language?)
+            Picker(MR.strings().language.localized(), selection: $filterLanguage) {
+                Text(MR.strings().any.localized()).tag(nil as Language?)
                 Divider()
                 ForEach(Array(languages), id: \.id) { lang in
-                    Text(lang.name ?? "unknown").tag(lang)
+                    Text(lang.name ?? MR.strings().unknown.localized()).tag(lang)
                 }
             }
             .pickerStyle(.inline)
         } label: {
-            Text("language")
+            Text(MR.strings().language.localized())
         }
     }
     
     private var customFormatPicker: some View {
         Menu {
-            Picker("custom_format", selection: $filterCustomFormat) {
+            Picker(MR.strings().custom_format.localized(), selection: $filterCustomFormat) {
                 Text("any").tag(nil as CustomFormat?)
                 Divider()
                 ForEach(Array(customFormats), id: \.id) { format in
@@ -103,14 +103,14 @@ struct ReleaseFilterByPickerMenu: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Text("custom_format")
+            Text(MR.strings().custom_format.localized())
         }
     }
     
     private var protocolPicker: some View {
         Menu {
-            Picker("protocol", selection: $filterProtocol) {
-                Text("any").tag(nil as ReleaseProtocol?)
+            Picker(MR.strings().protocol.localized(), selection: $filterProtocol) {
+                Text(MR.strings().any.localized()).tag(nil as ReleaseProtocol?)
                 Divider()
                 ForEach(Array(protocols), id: \.self) { p in
                     Text(p.name).tag(p)
@@ -118,14 +118,14 @@ struct ReleaseFilterByPickerMenu: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Text("custom_format")
+            Text(MR.strings().custom_format.localized())
         }
     }
     
     private var indexerPicker: some View {
         Menu {
-            Picker("indexer", selection: $filterIndexer) {
-                Text("any").tag(nil as String?)
+            Picker(MR.strings().indexer.localized(), selection: $filterIndexer) {
+                Text(MR.strings().any.localized()).tag(nil as String?)
                 Divider()
                 ForEach(Array(indexers), id: \.self) { indexer in
                     Text(indexer).tag(indexer)
@@ -133,7 +133,7 @@ struct ReleaseFilterByPickerMenu: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Text("indexer")
+            Text(MR.strings().indexer.localized())
         }
     }
 }

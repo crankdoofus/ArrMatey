@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.components
 
+import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -30,18 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
+import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -66,7 +66,7 @@ fun SeasonsArea(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = stringResource(R.string.seasons),
+            text = mokoString(MR.strings.seasons),
             fontWeight = FontWeight.Medium,
             fontSize = 26.sp
         )
@@ -89,9 +89,9 @@ fun SeasonsArea(
                     ) {
                         Text(
                             text = if (season.seasonNumber == 0) {
-                                stringResource(R.string.specials)
+                                mokoString(MR.strings.specials)
                             } else {
-                                "${stringResource(R.string.season_singular)} ${season.seasonNumber}"
+                                "${mokoString(MR.strings.season_singular)} ${season.seasonNumber}"
                             },
                             fontWeight = FontWeight.Medium,
                             fontSize = 22.sp
@@ -111,9 +111,9 @@ fun SeasonsArea(
                         Icon(
                             imageVector = if (season.monitored) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                             contentDescription = if (season.monitored) {
-                                stringResource(R.string.monitored)
+                                mokoString(MR.strings.monitored)
                             } else {
-                                stringResource(R.string.unmonitored)
+                                mokoString(MR.strings.unmonitored)
                             },
                             modifier = Modifier.clickable {
                                 onToggleSeasonMonitor(season.seasonNumber)

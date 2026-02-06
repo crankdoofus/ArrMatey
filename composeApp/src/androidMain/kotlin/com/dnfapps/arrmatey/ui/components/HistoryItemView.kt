@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -13,8 +12,8 @@ import com.dnfapps.arrmatey.arr.api.model.HistoryItem
 import com.dnfapps.arrmatey.compose.utils.breakable
 import com.dnfapps.arrmatey.compose.utils.singleLanguageLabel
 import com.dnfapps.arrmatey.entensions.bullet
-import com.dnfapps.arrmatey.entensions.stringResource
 import com.dnfapps.arrmatey.utils.format
+import com.dnfapps.arrmatey.utils.mokoString
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -27,7 +26,7 @@ fun HistoryItemView(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = stringResource(item.eventType.stringResource()),
+                text = mokoString(item.eventType.resource),
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp
             )

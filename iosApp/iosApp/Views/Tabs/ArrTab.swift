@@ -220,15 +220,15 @@ struct ArrTab: View {
                 .font(.system(size: 64))
                 .imageScale(.large)
             
-            Text("couldnt_connect")
+            Text(MR.strings().couldnt_connect.localized())
                 .font(.system(size: 20, weight: .medium))
                 .multilineTextAlignment(.center)
-            Text("couldnt_connect_message")
+            Text(MR.strings().couldnt_connect_message.localized())
                 .multilineTextAlignment(.center)
             Button(action: {
                 arrMediaViewModel.refresh()
             }) {
-                Text("retry")
+                Text(MR.strings().retry.localized())
             }
         }
         .padding(.horizontal, 24)
@@ -242,11 +242,11 @@ struct ArrTab: View {
                 .imageScale(.large)
             
             VStack(spacing: 4) {
-                Text(LocalizedStringResource("no_type_instances \(type.name)"))
+                Text(MR.strings().no_type_instances.formatted(args: [type.name]))
                     .font(.system(size: 20, weight: .bold))
                     .multilineTextAlignment(.center)
             
-                Text(LocalizedStringResource("no_type_instances_message \(type.name)"))
+                Text(MR.strings().no_type_instances_message.formatted(args: [type.name]))
                     .multilineTextAlignment(.center)
             }
             
@@ -259,7 +259,7 @@ struct ArrTab: View {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(.primary)
-                    Text(LocalizedStringResource("add_instance"))
+                    Text(MR.strings().add_instance.localized())
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.primary)
                 }

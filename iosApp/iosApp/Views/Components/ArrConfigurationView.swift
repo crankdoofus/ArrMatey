@@ -61,18 +61,18 @@ struct ArrConfigurationView: View {
             instanceLabel = newValue.name
             onInstanceLabelChanged(newValue.name)
         }
-        .alert("Error", isPresented: $showError) {
-            Button("ok") { showError = false }
+        .alert(MR.strings().error.localized(), isPresented: $showError) {
+            Button(MR.strings().ok.localized()) { showError = false }
         } message: {
             Group {
                 if let error = uiState.createResult as? InsertResultError {
                     Text(error.message)
                 } else {
                     if hasLabelConflict {
-                        Text(String(localized: LocalizedStringResource("instance_label_exists")))
+                        Text(MR.strings().instance_label_exists.localized())
                     }
                     if hasUrlConflict {
-                        Text(String(localized: LocalizedStringResource("instance_url_exists")))
+                        Text(MR.strings().instance_url_exists.localized())
                     }
                 }
             }
@@ -98,17 +98,17 @@ struct ArrConfigurationView: View {
                 }
                 .buttonStyle(.plain)
             }
-            Text(LocalizedStringResource(stringLiteral: instanceType.descriptionKey))
+            Text(instanceType.resource.localized())
                 .font(.system(size: 14))
             HStack(spacing: 8) {
-                Button(LocalizedStringResource("github"), action: {
+                Button(MR.strings().github.localized(), action: {
                     if let url = URL(string: instanceType.github) {
                         openURL(url)
                     }
                 })
                 .frame(maxWidth: .infinity)
                 
-                Button(LocalizedStringResource("website"), action: {
+                Button(MR.strings().website.localized(), action: {
                     if let url = URL(string: instanceType.website) {
                         openURL(url)
                     }
@@ -124,7 +124,7 @@ struct ArrConfigurationView: View {
     private var instanceSection: some View {
         Section {
             if (showInstancePicker) {
-                Picker(LocalizedStringResource("instance_type"), selection: $instanceType) {
+                Picker(MR.strings().instance_type.localized(), selection: $instanceType) {
                     ForEach(InstanceType.companion.allValue(),  id: \.self) { type in
                         Text(String(localized: LocalizedStringResource(stringLiteral: type.name)))
                             .tag(type)
@@ -135,7 +135,7 @@ struct ArrConfigurationView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 24) {
-                    Text(LocalizedStringResource("label")).layoutPriority(2)
+                    Text(MR.strings().label.localized()).layoutPriority(2)
                     TextField(
                         text: Binding(
                             get: { instanceLabel.isEmpty ? uiState.instanceLabel : instanceLabel },
@@ -150,7 +150,7 @@ struct ArrConfigurationView: View {
                 }
                 
                 if hasLabelConflict {
-                    Text(LocalizedStringResource("instance_label_exists"))
+                    Text(MR.strings().instance_label_exists.localized())
                         .font(.caption)
                         .foregroundColor(.red)
                 }
@@ -158,7 +158,7 @@ struct ArrConfigurationView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 24) {
-                    Text(LocalizedStringResource("host")).layoutPriority(2)
+                    Text(MR.strings().host.localized()).layoutPriority(2)
                     TextField(
                         text: Binding(
                             get: { apiEndpoint.isEmpty ? uiState.apiEndpoint : apiEndpoint },
@@ -176,18 +176,18 @@ struct ArrConfigurationView: View {
                 }
                 
                 if uiState.endpointError {
-                    Text(LocalizedStringResource("invalid_host"))
+                    Text(MR.strings().invalid_host.localized())
                         .font(.caption)
                         .foregroundColor(.red)
                 } else if hasUrlConflict {
-                    Text(LocalizedStringResource("instance_url_exists"))
+                    Text(MR.strings().instance_url_exists.localized())
                         .font(.caption)
                         .foregroundColor(.red)
                 }
             }
             
             HStack(spacing: 24) {
-                Text(LocalizedStringResource("api_key"))
+                Text(MR.strings().api_key.localized())
                 TextField(
                     text: Binding(
                         get: { apiKey.isEmpty ? uiState.apiKey : apiKey },
@@ -196,7 +196,7 @@ struct ArrConfigurationView: View {
                             onApiKeyChanged(newValue)
                         }
                     ),
-                    prompt: Text(LocalizedStringResource("api_key_placeholder"))
+                    prompt: Text(MR.strings().api_key_placeholder.localized())
                 ) {
                     EmptyView()
                 }
@@ -204,7 +204,7 @@ struct ArrConfigurationView: View {
                 .textInputAutocapitalization(.never)
             }
         } footer: {
-            Text(LocalizedStringKey("host_description \(String(instanceType.name))"))
+            Text(MR.strings().host_description.formatted(args: [instanceType.name]))
         }
     }
     
@@ -216,7 +216,7 @@ struct ArrConfigurationView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 } else {
-                    Text(LocalizedStringResource("test"))
+                    Text(MR.strings().test.localized())
                 }
             }
             .disabled(uiState.testing || uiState.apiEndpoint.isEmpty || uiState.apiKey.isEmpty)
@@ -225,7 +225,7 @@ struct ArrConfigurationView: View {
             
             if let testResult = uiState.testResult {
                 HStack(spacing: 4) {
-                    Text(LocalizedStringResource(testResult.boolValue ? "success" : "failure"))
+                    Text(testResult.boolValue ? MR.strings().success.localized() : MR.strings().failure.localized())
                         .foregroundColor(testResult.boolValue ? .green : .red)
                         .multilineTextAlignment(.trailing)
                 }
@@ -237,14 +237,14 @@ struct ArrConfigurationView: View {
     private var slowInstanceSection: some View {
         Section {
             Toggle(
-                LocalizedStringResource("slow_instance"),
+                MR.strings().slow_instance.localized(),
                 isOn: Binding(
                     get: { uiState.isSlowInstance },
                     set: { onIsSlowInstanceChanged($0) }
                 )
             )
             HStack(spacing: 24) {
-                Text(LocalizedStringResource("custom_timeout_seconds"))
+                Text(MR.strings().custom_timeout_seconds.localized())
                     .foregroundStyle(uiState.isSlowInstance ? Color.primary.opacity(1.0) : Color.primary.opacity(0.3))
                 TextField(
                     text: Binding(

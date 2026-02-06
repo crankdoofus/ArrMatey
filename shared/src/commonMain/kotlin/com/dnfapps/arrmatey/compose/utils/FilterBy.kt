@@ -1,22 +1,24 @@
 package com.dnfapps.arrmatey.compose.utils
 
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.shared.MR
+import dev.icerock.moko.resources.StringResource
 
 enum class FilterBy(
-    val iosText: String
+    val resource: StringResource
 ) {
-    All("all"),
-    Monitored("monitored"),
-    Unmonitored("unmonitored"),
-    Missing("missing"),
+    All(MR.strings.all),
+    Monitored(MR.strings.monitored),
+    Unmonitored(MR.strings.unmonitored),
+    Missing(MR.strings.missing),
 
     // Movies
-    Wanted("wanted"),
-    Downloaded("downloaded"),
+    Wanted(MR.strings.wanted),
+    Downloaded(MR.strings.downloaded),
 
     // Series
-    ContinuingOnly("continuing_only"),
-    EndedOnly("ended_only");
+    ContinuingOnly(MR.strings.continuing_only),
+    EndedOnly(MR.strings.ended_only);
 
     companion object {
         fun typeEntries(type: InstanceType) =
@@ -26,29 +28,3 @@ enum class FilterBy(
             }
     }
 }
-
-//private fun List<ArrMedia>.applyBaseFiltering(filterBy: FilterBy) = when (filterBy) {
-//    FilterBy.All -> this
-//    FilterBy.Monitored -> filter { it.monitored }
-//    FilterBy.Unmonitored -> filter {!it.monitored }
-//    else -> this
-//}
-//
-//fun List<ArrSeries>.applySeriesFiltering(filterBy: FilterBy) = when(filterBy) {
-//    FilterBy.Missing -> filter { it.episodeCount > it.episodeFileCount }
-//    FilterBy.ContinuingOnly -> filter { it.status == MediaStatus.Continuing }
-//    FilterBy.EndedOnly -> filter { it.status == MediaStatus.Ended }
-//    else -> applyBaseFiltering(filterBy) as List<ArrSeries>
-//}
-//
-//fun List<ArrMovie>.applyMovieFiltering(filterBy: FilterBy) = when(filterBy) {
-//    FilterBy.Missing -> filter { it.monitored && it.isAvailable && it.movieFile == null }
-//    FilterBy.Wanted -> filter { it.monitored && it.movieFile == null }
-//    FilterBy.Downloaded -> filter { it.movieFile != null }
-//    else -> applyBaseFiltering(filterBy) as List<ArrMovie>
-//}
-//
-//fun List<ArrMedia>.applyFiltering(type: InstanceType, filterBy: FilterBy) = when(type) {
-//    InstanceType.Sonarr -> (this as List<ArrSeries>).applySeriesFiltering(filterBy)
-//    InstanceType.Radarr -> (this as List<ArrMovie>).applyMovieFiltering(filterBy)
-//}

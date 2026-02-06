@@ -1,6 +1,5 @@
 package com.dnfapps.arrmatey.compose.components
 
-import ArrMatey.shared.MR
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +44,7 @@ import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 import com.dnfapps.arrmatey.extensions.pxToDp
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
 import com.dnfapps.arrmatey.utils.MokoStrings

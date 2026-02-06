@@ -47,15 +47,15 @@ struct EditMovieSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("monitored", isOn: $monitored)
+                    Toggle(MR.strings().monitored.localized(), isOn: $monitored)
                     
-                    Picker("quality_profile", selection: $qualityProfileId) {
+                    Picker(MR.strings().quality_profile.localized(), selection: $qualityProfileId) {
                         ForEach(qualityProfiles, id: \.id) { qp in
                             Text(qp.name ?? "").tag(qp.id)
                         }
                     }
                     
-                    Picker("minimum_availability", selection: $minimumAvailability) {
+                    Picker(MR.strings().minimum_availability.localized(), selection: $minimumAvailability) {
                         ForEach(statusOptions, id: \.self) { status in
                             Text(status.name).tag(status)
                         }
@@ -64,19 +64,19 @@ struct EditMovieSheet: View {
                 
                 Section {
                     if rootFolders.count > 1 {
-                        Picker("root_rolder", selection: $rootFolder) {
+                        Picker(MR.strings().root_folder.localized(), selection: $rootFolder) {
                             ForEach(rootFolders, id: \.id) { folder in
                                 Text("\(folder.path) (\(folder.freeSpace.bytesAsFileSizeString()))")
                                     .tag(folder.path)
                             }
                         }
                         if canMove {
-                            Toggle("Move files", isOn: $moveFiles)
+                            Toggle(MR.strings().move_files.localized(), isOn: $moveFiles)
                         }
                     }
                 } footer: {
                     if canMove {
-                        Text("Whether to automcatically move files to the new folder or not.")
+                        Text(MR.strings().move_files_description.localized())
                     }
                 }
             }
@@ -91,7 +91,7 @@ struct EditMovieSheet: View {
                             ProgressView()
                                 .progressViewStyle(.circular)
                         } else {
-                            Label("save", systemImage: "checkmark")
+                            Label(MR.strings().save.localized(), systemImage: "checkmark")
                                 .foregroundStyle(.white)
                         }
                     }

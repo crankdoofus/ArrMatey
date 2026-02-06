@@ -14,8 +14,8 @@ struct QueueFilterMenu: View {
     
     var body: some View {
         Menu {
-            Picker("filter_by", selection: $instanceId) {
-                Text("all").tag(nil as Int64?)
+            Picker(MR.strings().filter_by.localized(), selection: $instanceId) {
+                Text(MR.strings().all.localized()).tag(nil as Int64?)
                 ForEach(instances, id: \.id) { instance in
                     if let label = instances.first(where: { $0.id == instance.id })?.label {
                         Text(label).tag(instance.id)

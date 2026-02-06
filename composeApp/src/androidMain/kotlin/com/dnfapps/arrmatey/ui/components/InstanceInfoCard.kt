@@ -19,14 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dnfapps.arrmatey.R
 import com.dnfapps.arrmatey.entensions.getDrawableId
-import com.dnfapps.arrmatey.entensions.getString
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.utils.mokoString
 
 @Composable
 fun InstanceInfoCard(
@@ -63,12 +62,12 @@ fun InstanceInfoCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
+                        contentDescription = mokoString(MR.strings.close)
                     )
                 }
             }
             Text(
-                text = getString(instanceType.descriptionKey),
+                text = mokoString(instanceType.resource),
                 fontSize = 14.sp,
                 lineHeight = 18.sp
             )
@@ -81,13 +80,13 @@ fun InstanceInfoCard(
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = stringResource(R.string.github))
+                    Text(text = mokoString(MR.strings.github))
                 }
                 Button(
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = stringResource(R.string.website))
+                    Text(text = mokoString(MR.strings.website))
                 }
             }
         }

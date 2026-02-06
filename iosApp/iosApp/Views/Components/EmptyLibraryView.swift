@@ -5,6 +5,7 @@
 //  Created by Owen LeJeune on 2026-01-20.
 //
 
+import Shared
 import SwiftUI
 
 struct EmptyLibraryView: View {
@@ -14,10 +15,10 @@ struct EmptyLibraryView: View {
                 .font(.system(size: 64))
                 .imageScale(.large)
             
-            Text("empty_library")
+            Text(MR.strings().empty_library.localized())
                 .font(.system(size: 20, weight: .medium))
                 .multilineTextAlignment(.center)
-            Text("empty_library_message")
+            Text(MR.strings().empty_library_message.localized())
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 24)

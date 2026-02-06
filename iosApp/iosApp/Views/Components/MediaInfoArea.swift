@@ -44,72 +44,72 @@ struct MediaInfoArea: View {
                 }
             }
         } header: {
-            Text(String(localized: LocalizedStringResource("information")))
+            Text(MR.strings().information.localized())
                 .font(.system(size: 26, weight: .bold))
         }
     }
     
     private func seriesInfo(_ series: ArrSeries) -> [InfoItem] {
         let qualityProfile = qualityProfiles.first(where: { $0.id == series.qualityProfileId })
-        let qualityLabel = qualityProfile?.name ?? String(localized: "unknown")
-        let tagsLabel = series.formatTags(availableTags: tags) ?? String(localized: "none")
+        let qualityLabel = qualityProfile?.name ?? MR.strings().unknown.localized()
+        let tagsLabel = series.formatTags(availableTags: tags) ?? MR.strings().none.localized()
         
-        let unknown = String(localized: "unknown")
+        let unknown = MR.strings().unknown.localized()
         
         let monitorLabel = if series.monitorNewItems == .all {
-            String(localized: "monitored")
+            MR.strings().monitored.localized()
         } else {
-            String(localized: "unmonitored")
+            MR.strings().unmonitored.localized()
         }
         
         let seasonFolderLabel = if series.seasonFolder {
-            String(localized: "yes")
+            MR.strings().yes.localized()
         } else {
-            String(localized: "no")
+            MR.strings().no.localized()
         }
         
         return [
-            InfoItem(label: String(localized: "series_type"), value: series.seriesType.name),
-            InfoItem(label: String(localized: "root_folder"), value: series.rootFolderPath ?? unknown),
-            InfoItem(label: String(localized: "path"), value: series.path ?? unknown),
-            InfoItem(label: String(localized: "new_seasons"), value: monitorLabel),
-            InfoItem(label: String(localized: "season_folders"), value: seasonFolderLabel),
-            InfoItem(label: String(localized: "quality_profile"), value: qualityLabel),
-            InfoItem(label: String(localized: "tags"), value: tagsLabel)
+            InfoItem(label: MR.strings().series_type.localized(), value: series.seriesType.name),
+            InfoItem(label: MR.strings().root_folder.localized(), value: series.rootFolderPath ?? unknown),
+            InfoItem(label: MR.strings().path.localized(), value: series.path ?? unknown),
+            InfoItem(label: MR.strings().new_seasons.localized(), value: monitorLabel),
+            InfoItem(label: MR.strings().season_folders.localized(), value: seasonFolderLabel),
+            InfoItem(label: MR.strings().quality_profile.localized(), value: qualityLabel),
+            InfoItem(label: MR.strings().tags.localized(), value: tagsLabel)
         ]
     }
     
     private func movieInfo(_ movie: ArrMovie) -> [InfoItem] {
-        let qualityProfile = qualityProfiles.first(where: { $0.id == movie.qualityProfileId })
-        let qualityLabel = qualityProfile?.name ?? String(localized: "unknown")
-        let tagsLabel = movie.formatTags(availableTags: tags) ?? String(localized: "none")
+        let unknown = MR.strings().unknown.localized()
         
-        let unknown = String(localized: "unknown")
+        let qualityProfile = qualityProfiles.first(where: { $0.id == movie.qualityProfileId })
+        let qualityLabel = qualityProfile?.name ?? unknown
+        let tagsLabel = movie.formatTags(availableTags: tags) ?? MR.strings().none.localized()
         
         let rootFolderValue = if movie.rootFolderPath.isEmpty { unknown } else {
             movie.rootFolderPath
         }
         
         var info: [InfoItem] = [
-            InfoItem(label: String(localized: "minimum_availability"), value: movie.minimumAvailability.name),
-            InfoItem(label: String(localized: "root_folder"), value: rootFolderValue),
-            InfoItem(label: String(localized: "path"), value: movie.path ?? unknown)
+            InfoItem(label: MR.strings().minimum_availability.localized(), value: movie.minimumAvailability.name),
+            InfoItem(label: MR.strings().root_folder.localized(), value: rootFolderValue),
+            InfoItem(label: MR.strings().path.localized(), value: movie.path ?? unknown)
         ]
         
         if let inCinemas = movie.inCinemas?.format(pattern: "MMM d, yyyy") {
-            info.append(InfoItem(label: String(localized: "in_cinemas"), value: inCinemas))
+            info.append(InfoItem(label: MR.strings().in_cinemas.localized(), value: inCinemas))
         }
         
         if let physicalRelease = movie.physicalRelease?.format(pattern: "MMM d, yyyy") {
-            info.append(InfoItem(label: String(localized: "physical_release"), value: physicalRelease))
+            info.append(InfoItem(label: MR.strings().physical_release.localized(), value: physicalRelease))
         }
         
         if let digitalRelease = movie.digitalRelease?.format(pattern: "MMM d, yyy") {
-            info.append(InfoItem(label: String(localized: "digital_release"), value: digitalRelease))
+            info.append(InfoItem(label: MR.strings().digital_release.localized(), value: digitalRelease))
         }
         
-        info.append(InfoItem(label: String(localized: "quality_profile"), value: qualityLabel))
-        info.append(InfoItem(label: String(localized: "tags"), value: tagsLabel))
+        info.append(InfoItem(label: MR.strings().quality_profile.localized(), value: qualityLabel))
+        info.append(InfoItem(label: MR.strings().tags.localized(), value: tagsLabel))
         
         return info
     }
