@@ -18,7 +18,7 @@ class EditInstanceViewModelS: ObservableObject {
     
     init(_ id: Int64) {
         self.viewModel = KoinBridge.shared.getEditInstanceViewModel(instanceId: id)
-        self.uiState = AddInstanceUiState.companion.empty()
+        self.uiState = AddInstanceUiState()
         startObserving()
     }
     

@@ -45,9 +45,5 @@ enum class SeriesMonitorType(val resource: StringResource) {
     None(MR.strings.none),
 
     @SerialName("skip")
-    Skip(MR.strings.skip);
-
-    companion object {
-        fun allValues() = entries.toList()
-    }
+    Skip(MR.strings.skip)
 }

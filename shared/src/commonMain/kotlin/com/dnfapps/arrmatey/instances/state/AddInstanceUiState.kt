@@ -17,7 +17,5 @@ data class AddInstanceUiState(
     val editResult: InsertResult? = null,
     val infoCardMaps: Map<InstanceType, Boolean> = emptyMap()
 ) {
-    companion object {
-        fun empty() = AddInstanceUiState()
-    }
+    constructor(): this("", "", "", false, null, false, false, null, false, null, null, emptyMap())
 }

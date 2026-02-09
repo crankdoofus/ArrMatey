@@ -8,7 +8,5 @@ data class MovieFilesState(
     val history: List<HistoryItem> = emptyList(),
     val isRefreshing: Boolean = false
 ) {
-    companion object {
-        fun empty() = MovieFilesState()
-    }
+    constructor(): this(emptyList(), emptyList(), false)
 }

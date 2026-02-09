@@ -39,7 +39,7 @@ struct CalendarFilterMenu: View {
             }
             
             Picker("contentfilter", selection: $contentFilter) {
-                ForEach(ContentFilter.companion.allEntries(), id: \.self) { filter in
+                ForEach(ContentFilter.allCases, id: \.self) { filter in
                     Label(filter.resource.localized(), systemImage: filter.systemImage)
                 }
             }

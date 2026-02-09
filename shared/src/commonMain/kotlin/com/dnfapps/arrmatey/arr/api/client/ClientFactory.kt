@@ -68,12 +68,7 @@ enum class LoggerLevel(
     Headers(LogLevel.HEADERS),
     Body(LogLevel.BODY),
     Info(LogLevel.INFO),
-    None(LogLevel.NONE);
-
-    companion object {
-        fun entries() = entries.toList()
-    }
-
+    None(LogLevel.NONE)
 }
 
 class DynamicLogger(

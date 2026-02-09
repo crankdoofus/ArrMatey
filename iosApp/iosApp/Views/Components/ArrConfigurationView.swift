@@ -125,7 +125,7 @@ struct ArrConfigurationView: View {
         Section {
             if (showInstancePicker) {
                 Picker(MR.strings().instance_type.localized(), selection: $instanceType) {
-                    ForEach(InstanceType.companion.allValue(),  id: \.self) { type in
+                    ForEach(InstanceType.allCases,  id: \.self) { type in
                         Text(String(localized: LocalizedStringResource(stringLiteral: type.name)))
                             .tag(type)
                     }

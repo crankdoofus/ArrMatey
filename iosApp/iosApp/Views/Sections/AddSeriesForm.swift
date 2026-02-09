@@ -24,7 +24,7 @@ struct AddSeriesForm: View {
     @State private var useSeasonFolders: Bool = true
     @State private var selectedRootFolderId: Int32? = nil
     
-    private let selectableMonitorTypes: [SeriesMonitorType] = SeriesMonitorType.companion.allValues().filter {
+    private let selectableMonitorTypes: [SeriesMonitorType] = SeriesMonitorType.allCases.filter {
         $0 != .unknown && $0 != .latestSeason && $0 != .skip
     }
     
@@ -78,7 +78,7 @@ struct AddSeriesForm: View {
                 }
                 
                 Picker(MR.strings().series_type.localized(), selection: $selectedSeriesType) {
-                    ForEach(SeriesType.companion.allEntries(), id: \.self) { seriesType in
+                    ForEach(SeriesType.allCases, id: \.self) { seriesType in
                         Text(seriesType.resource.localized()).tag(seriesType)
                     }
                 }

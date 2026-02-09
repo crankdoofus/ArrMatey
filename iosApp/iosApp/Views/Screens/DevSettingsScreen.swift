@@ -17,7 +17,7 @@ struct DevSettingsScreen: View {
     var body: some View {
         Form {
             Section {
-                ForEach(InstanceType.companion.allValue(), id: \.self) { instanceType in
+                ForEach(InstanceType.allCases, id: \.self) { instanceType in
                     Toggle("Show \(instanceType.name) info card", isOn: Binding(
                         get: { preferences.showInfoCardMap[instanceType] ?? true},
                         set: { newValue in
@@ -35,7 +35,7 @@ struct DevSettingsScreen: View {
                     get: { preferences.logLevel },
                     set: { level in preferences.setLoggingLevel(level)}
                 )) {
-                    ForEach(LoggerLevel.companion.entries(), id: \.self) { level in
+                    ForEach(LoggerLevel.allCases, id: \.self) { level in
                         Text(level.name).tag(level)
                     }
                 }

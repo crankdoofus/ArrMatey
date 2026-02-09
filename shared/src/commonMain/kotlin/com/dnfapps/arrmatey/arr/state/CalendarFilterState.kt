@@ -15,9 +15,7 @@ data class CalendarFilterState(
     val showFinalesOnly: Boolean = false,
     val instanceId: Long? = null
 ) {
-    companion object {
-        fun empty() = CalendarFilterState()
-    }
+    constructor(): this(ContentFilter.All, false, false, false, null)
 }
 
 enum class CalendarViewMode {
@@ -31,9 +29,5 @@ enum class ContentFilter(
 ) {
     All(MR.strings.all, Icons.Default.VideoLibrary, "play.square.stack"),
     MoviesOnly(MR.strings.movies, Icons.Default.Movie, "movieclapper"),
-    EpisodesOnly(MR.strings.episodes, Icons.Default.Tv, "tv");
-
-    companion object {
-        fun allEntries() = entries.toList()
-    }
+    EpisodesOnly(MR.strings.episodes, Icons.Default.Tv, "tv")
 }

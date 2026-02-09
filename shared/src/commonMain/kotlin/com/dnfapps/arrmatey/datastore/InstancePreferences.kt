@@ -11,7 +11,5 @@ data class InstancePreferences(
     val filterBy: FilterBy = FilterBy.All,
     val viewType: ViewType = ViewType.Grid
 ) {
-    companion object {
-        fun empty() = InstancePreferences()
-    }
+    constructor(): this(SortBy.Title, SortOrder.Asc, FilterBy.All, ViewType.Grid)
 }

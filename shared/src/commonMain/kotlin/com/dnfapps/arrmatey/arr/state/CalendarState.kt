@@ -17,7 +17,5 @@ data class CalendarState(
     val error: String? = null,
     val today: LocalDate = Clock.localToday()
 ) {
-    companion object {
-        fun empty() = CalendarState()
-    }
+    constructor(): this(emptyMap(), emptyMap(), emptyMap(), emptyList(), false, false, null, Clock.localToday())
 }

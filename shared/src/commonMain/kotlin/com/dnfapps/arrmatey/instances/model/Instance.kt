@@ -48,9 +48,5 @@ enum class InstanceType(
         iconKey = "radarr",
         defaultPort = 7878,
         supportsActivityQueue = true
-    );
-
-    companion object {
-        fun allValue() = entries.toList()
-    }
+    )
 }

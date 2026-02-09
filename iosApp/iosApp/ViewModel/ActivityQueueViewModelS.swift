@@ -16,7 +16,7 @@ class ActivityQueueViewModelS: ObservableObject {
     @Published private(set) var tasksWithIssues: Int = 0
     @Published private(set) var isPolling: Bool = false
     @Published private(set) var instances: [Instance] = []
-    @Published private(set) var uiState: ActivityQueueUiState = ActivityQueueUiState.companion.empty()
+    @Published private(set) var uiState: ActivityQueueUiState = ActivityQueueUiState()
     @Published private(set) var removeItemStatus: OperationStatus = OperationStatusIdle()
     @Published private(set) var removeInProgress: Bool = false
     @Published private(set) var removeSuccesss: Bool = false

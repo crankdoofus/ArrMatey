@@ -9,9 +9,5 @@ enum class ReleaseSortBy(val resource: StringResource) {
     Quality(MR.strings.quality),
     Seeders(MR.strings.seeders),
     FileSize(MR.strings.file_size),
-    CustomScore(MR.strings.custom_score);
-
-    companion object {
-        fun allEntries() = entries.toList()
-    }
+    CustomScore(MR.strings.custom_score)
 }

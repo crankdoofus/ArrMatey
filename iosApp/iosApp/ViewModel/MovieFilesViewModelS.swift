@@ -16,7 +16,7 @@ class MovieFilesViewModelS: ObservableObject {
     
     init(movieId: Int64) {
         self.viewModel = KoinBridge.shared.getMovieFilesViewModel(movieId: movieId)
-        self.uiState = MovieFilesState.companion.empty()
+        self.uiState = MovieFilesState()
         startObserving()
     }
     

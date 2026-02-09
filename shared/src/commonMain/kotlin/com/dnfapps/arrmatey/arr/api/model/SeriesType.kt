@@ -12,9 +12,5 @@ enum class SeriesType(val resource: StringResource) {
     Daily(MR.strings.daily),
 
     @SerialName("anime")
-    Anime(MR.strings.anime);
-
-    companion object {
-        fun allEntries() = entries.toList()
-    }
+    Anime(MR.strings.anime)
 }

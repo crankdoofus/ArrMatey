@@ -12,8 +12,8 @@ import SwiftUI
 class CalendarViewModelS: ObservableObject {
     private let viewModel: CalendarViewModel
     
-    @Published private(set) var filterState: CalendarFilterState = CalendarFilterState.companion.empty()
-    @Published private(set) var calendarState: CalendarState = CalendarState.companion.empty()
+    @Published private(set) var filterState: CalendarFilterState = CalendarFilterState()
+    @Published private(set) var calendarState: CalendarState = CalendarState()
     @Published private(set) var instances: [Instance] = []
     
     init() {

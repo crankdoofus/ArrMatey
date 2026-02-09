@@ -6,12 +6,10 @@ import dev.icerock.moko.resources.StringResource
 
 enum class QueueSortBy(val resource: StringResource) {
     Title(MR.strings.title),
-    Added(MR.strings.added);
-
-    companion object {
-        fun allEntries() = entries.toList()
-    }
+    Added(MR.strings.added)
 }
+
+// TODO: move these into activity queue view mdoel 
 
 fun List<QueueItem>.applySorting(sortBy: QueueSortBy, sortOrder: SortOrder) = when(sortBy) {
     QueueSortBy.Title -> sortedBy { it.titleLabel }

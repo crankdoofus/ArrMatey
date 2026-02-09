@@ -16,7 +16,7 @@ struct ReleaseSortByPickerMenu: View {
     var body: some View {
         Menu {
             Picker(MR.strings().sort_by.localized(), selection: $sortBy) {
-                ForEach(ReleaseSortBy.companion.allEntries(), id: \.self) { sort in
+                ForEach(ReleaseSortBy.allCases, id: \.self) { sort in
                     Text(sort.resource.localized()).tag(sort)
                 }
             }

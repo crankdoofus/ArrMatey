@@ -49,7 +49,7 @@ struct ReleaseFilterByPickerMenu: View {
             if type == .sonarr {
                 Section {
                     Picker(MR.strings().filter_by.localized(), selection: $filterBy) {
-                        ForEach(ReleaseFilterBy.companion.allEntries(), id: \.self) { filter in
+                        ForEach(ReleaseFilterBy.allCases, id: \.self) { filter in
                             Text(filter.resource.localized()).tag(filter)
                         }
                     }

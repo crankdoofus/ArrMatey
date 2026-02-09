@@ -55,7 +55,7 @@ struct EditSeriesSheet: View {
                     Toggle(MR.strings().monitor_new_seasons.localized(), isOn: $monitorNewSeasons)
                     Toggle(MR.strings().season_folders.localized(), isOn: $seasonFolders)
                     Picker(MR.strings().series_type.localized(), selection: $seriesType) {
-                        ForEach(SeriesType.companion.allEntries(), id: \.self) { type in
+                        ForEach(SeriesType.allCases, id: \.self) { type in
                             Text(type.resource.localized()).tag(type)
                         }
                     }

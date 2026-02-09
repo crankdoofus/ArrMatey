@@ -15,7 +15,7 @@ struct QueueSortPickerMenu: View {
     var body: some View {
         Menu {
             Picker(MR.strings().sort_by.localized(), selection: $sortBy) {
-                ForEach(QueueSortBy.companion.allEntries(), id: \.self) { sortOption in
+                ForEach(QueueSortBy.allCases, id: \.self) { sortOption in
                     Text(sortOption.resource.localized()).tag(sortOption)
                 }
             }

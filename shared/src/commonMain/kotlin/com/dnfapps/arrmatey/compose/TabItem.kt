@@ -19,9 +19,5 @@ enum class TabItem(
     MOVIES("movieclapper", Icons.Default.Movie, MR.strings.movies),
     ACTIVITY("square.and.arrow.down", Icons.Default.Download, MR.strings.activity),
     CALENDAR("calendar", Icons.Default.CalendarMonth, MR.strings.schedule),
-    SETTINGS("gear", Icons.Default.Settings, MR.strings.settings);
-
-    companion object {
-        fun allValues() = entries.toList()
-    }
+    SETTINGS("gear", Icons.Default.Settings, MR.strings.settings)
 }
