@@ -108,7 +108,7 @@ fun DevSettingsScreen(
                 }
 
                 DropdownPicker(
-                    options = LoggerLevel.entries(),
+                    options = LoggerLevel.entries,
                     selectedOption = logLevel,
                     onOptionSelected = { preferenceStore.setLogLevel(it) },
                     label = { Text("HTTP Logging Level") },

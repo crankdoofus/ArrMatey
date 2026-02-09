@@ -48,8 +48,6 @@ struct MediaSearchScreen: View {
                 toolbarContent
             }
             .searchable(text: $searchQuery, isPresented: $searchPresented, placement: .navigationBarDrawer)
-            .ignoresSafeArea(edges: .bottom)
-            
     }
     
     @ViewBuilder
@@ -73,23 +71,37 @@ struct MediaSearchScreen: View {
     
     @ViewBuilder
     private func resultsArea(_ state: ArrLibrarySuccess) -> some View {
-        PosterGridView(items: state.items, onItemClick: { media in
-            if let id = media.id?.int64Value {
-                navigation.go(to: .details(id), of: type)
-            } else {
-                let json = media.toJson()
-                navigation.go(to: .preview(json), of: type)
+        ScrollView {
+            let columns = [GridItem(.adaptive(minimum: 120), spacing: 16)]
+            
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(state.items, id: \.guid) { item in
+                    ZStack {
+                        PosterItemRepresentable(
+                            item: item,
+                            isActive: queueItems.contains(where: { $0.mediaId == item.id })
+                        )
+                        .id(item.guid)
+                        .frame(height: 180)
+                        .onTapGesture {
+                            if let id = item.id?.int64Value {
+                                navigation.go(to: .details(id), of: type)
+                            } else {
+                                let json = item.toJson()
+                                navigation.go(to: .preview(json), of: type)
+                            }
+                        }
+                    }
+                }
             }
-        }, itemIsActive: { media in
-            queueItems.contains(where: { $0.mediaId == media.id })
-        })
+            .padding(16)
+        }
     }
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .bottomBar) {
-            Image(systemName: "magnifyingglass")
-                .imageScale(.medium)
+        ToolbarItem(placement: .primaryAction) {
+            SortByPickerMenu(type: type, sortBy: viewModel.sortBy, sortOrder: viewModel.sortOrder, changeSortBy: { viewModel.setSortBy($0) }, changeSortOrder: { viewModel.setSortOrder($0) }, limitToLookup: true)
         }
     }
 }

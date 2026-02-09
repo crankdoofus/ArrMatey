@@ -18,7 +18,7 @@ data class ArrSeries(
     override val qualityProfileId: Int,
     override var monitored: Boolean,
     override val runtime: Int,
-    override val tmdbId: Int,
+    override val tmdbId: Long? = null,
     override val status: MediaStatus,
     override val sortTitle: String? = null,
     override val overview: String? = null,
@@ -42,7 +42,7 @@ data class ArrSeries(
     val seasonFolder: Boolean,
     val monitorNewItems: SeriesMonitorNewItems,
     val useSceneNumbering: Boolean,
-    val tvdbId: Int,
+    val tvdbId: Long,
     val tvRageId: Int,
     val tvMazeId: Int,
     val seriesType: SeriesType,
@@ -57,6 +57,9 @@ data class ArrSeries(
     val lastAired: String? = null,
     val episodesChanged: String? = null
 ): ArrMedia {
+
+    override val guid: Long
+        get() = id ?: tvdbId.plus(100_000)
 
     override fun ratingScore(): Double {
         return ratings.value

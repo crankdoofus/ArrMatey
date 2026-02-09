@@ -19,7 +19,7 @@ data class ArrMovie(
     override val qualityProfileId: Int,
     override val monitored: Boolean,
     override val runtime: Int,
-    override val tmdbId: Int,
+    override val tmdbId: Long,
     override val status: MediaStatus,
     override val sortTitle: String? = null,
     override val overview: String? = null,
@@ -64,6 +64,9 @@ data class ArrMovie(
 
     val instanceId: Long? = null
 ): ArrMedia {
+
+    override val guid: Long
+        get() = id ?: tmdbId.plus(100_000)
 
     val isWaiting: Boolean
         get() = when(status) {

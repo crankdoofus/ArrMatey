@@ -42,7 +42,7 @@ sealed interface ArrMedia {
     val qualityProfileId: Int
     val monitored: Boolean
     val runtime: Int
-    val tmdbId: Int
+    val tmdbId: Long?
     val images: List<ArrImage>
     val sortTitle: String?
     val overview: String?
@@ -64,6 +64,7 @@ sealed interface ArrMedia {
     /**
      * Computed properties + helpers
      */
+    val guid: Long
     fun ratingScore(): Double
     val statusProgress: Float
     val statusColor: Color

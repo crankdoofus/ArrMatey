@@ -47,11 +47,9 @@ import com.dnfapps.arrmatey.extensions.pxToDp
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
-import com.dnfapps.arrmatey.utils.MokoStrings
 import com.dnfapps.arrmatey.utils.format
 import com.dnfapps.arrmatey.utils.mokoString
 import com.skydoves.cloudy.cloudy
-import org.koin.compose.koinInject
 
 private val defaultHeight = 100.dp
 
@@ -60,11 +58,13 @@ fun <T: ArrMedia> MediaList(
     items: List<T>,
     onItemClick: (T) -> Unit,
     itemIsActive: (T) -> Boolean,
+    userScrollEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        userScrollEnabled = userScrollEnabled
     ) {
         items(items) { item ->
             val isActive = itemIsActive(item)
@@ -79,7 +79,6 @@ fun <T: ArrMedia> MediaItem(
     onItemClick: (T) -> Unit,
     isActive: Boolean = false
 ) {
-    var cardHeight by remember { mutableStateOf(0.dp) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,17 +91,15 @@ fun <T: ArrMedia> MediaItem(
         Box(modifier = Modifier.fillMaxSize()) {
             BannerView(
                 item = item,
-                modifier = Modifier.matchParentSize(),
-                overlay = {
-                    Box(modifier = Modifier.fillMaxWidth().height(cardHeight).background(TranslucentBlack))
-                }
+                modifier = Modifier.matchParentSize()
             )
+            Box(modifier = Modifier.matchParentSize().background(TranslucentBlack))
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
-                modifier = Modifier.padding(12.dp).fillMaxWidth().onGloballyPositioned {
-                    cardHeight = it.size.height.pxToDp() + 24.dp
-                },
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth()
             ) {
                 val posterUrl = item.getPoster()?.remoteUrl
                 AsyncImage(
@@ -206,8 +203,7 @@ private fun ColumnScope.MovieDetails(item: ArrMovie) {
 @Composable
 fun BannerView(
     item: ArrMedia,
-    modifier: Modifier = Modifier,
-    overlay: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val banner = item.getBanner()?.remoteUrl
     banner?.let { bannerUrl ->
@@ -217,6 +213,5 @@ fun BannerView(
             contentScale = ContentScale.Crop,
             modifier = modifier.cloudy()
         )
-        overlay()
     }
 }

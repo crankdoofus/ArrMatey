@@ -14,6 +14,8 @@ struct SortByPickerMenu: View {
     private let changeSortBy: (SortBy) -> Void
     private let changeSortOrder: (Shared.SortOrder) -> Void
     
+    private let sortByOptions: [SortBy]
+    
     @State private var sortedBy: SortBy
     @State private var sortOrder: Shared.SortOrder
     
@@ -22,19 +24,22 @@ struct SortByPickerMenu: View {
         sortBy: SortBy,
         sortOrder: Shared.SortOrder,
         changeSortBy: @escaping (SortBy) -> Void,
-        changeSortOrder: @escaping (Shared.SortOrder) -> Void
+        changeSortOrder: @escaping (Shared.SortOrder) -> Void,
+        limitToLookup: Bool = false
     ) {
         self.type = type
         self.sortedBy = sortBy
         self.sortOrder = sortOrder
         self.changeSortBy = changeSortBy
         self.changeSortOrder = changeSortOrder
+        
+        self.sortByOptions = limitToLookup ? SortBy.companion.lookupEntries() : SortBy.companion.typeEntries(type: type)
     }
     
     var body: some View {
         Menu {
             Picker(MR.strings().sort_by.localized(), selection: $sortedBy) {
-                ForEach(SortBy.companion.typeEntries(type: type), id: \.self) { sortOption in
+                ForEach(sortByOptions, id: \.self) { sortOption in
                     Label {
                         Text(sortOption.resource.localized())
                     } icon: {

@@ -33,10 +33,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
@@ -47,13 +43,15 @@ fun <T: ArrMedia> PosterGrid(
     items: List<T>,
     onItemClick: (T) -> Unit,
     itemIsActive: (T) -> Boolean,
+    userScrollEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Adaptive(minSize = 120.dp),
         contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        userScrollEnabled = userScrollEnabled
     ) {
         items(items) { item ->
             val isActive = itemIsActive(item)

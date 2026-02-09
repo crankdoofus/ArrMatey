@@ -57,7 +57,6 @@ struct ArrLibraryView: View {
                 )
             }
         }
-        .ignoresSafeArea(edges: .bottom)
         .id(items.count)
         .searchable(
             text: $searchQuery,
@@ -73,11 +72,36 @@ struct ArrLibraryView: View {
         onItemClicked: @escaping (ArrMedia) -> Void,
         itemIsActive: @escaping (ArrMedia) -> Bool
     ) -> some View {
-        switch viewType {
-        case .grid:
-            PosterGridView(items: items, onItemClick: onItemClicked, itemIsActive: itemIsActive)
-        case .list:
-            PosterListView(items: items, onItemClick: onItemClicked, itemIsActive: itemIsActive)
+        ScrollView {
+            if viewType == .grid {
+                let columns = [GridItem(.adaptive(minimum: 120), spacing: 16)]
+                
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(items, id: \.id) { item in
+                        PosterItemRepresentable(
+                            item: item,
+                            isActive: itemIsActive(item)
+                        )
+                        .frame(height: 180)
+                        .onTapGesture {
+                            onItemClicked(item)
+                        }
+                    }
+                }
+                .padding(16)
+            } else {
+                LazyVStack(spacing: 12) {
+                    ForEach(items, id: \.id) { item in
+                        MediaListItemRepresentable(item: item, isActive: itemIsActive(item))
+                            .frame(height: 110)
+                            .frame(maxWidth: .infinity)
+                            .onTapGesture {
+                                onItemClicked(item)
+                            }
+                    }
+                }
+                .padding(16)
+            }
         }
     }
 }
