@@ -16,4 +16,8 @@ data class CalendarState(
     val isLoadingFuture: Boolean = false,
     val error: String? = null,
     val today: LocalDate = Clock.localToday()
-)
+) {
+    companion object {
+        fun empty() = CalendarState()
+    }
+}

@@ -7,6 +7,7 @@ import com.dnfapps.arrmatey.arr.viewmodel.AddInstanceViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaDetailsViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrSearchViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.CalendarViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.EditInstanceViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.EpisodeDetailsViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.InstancesViewModel
@@ -55,6 +56,9 @@ object KoinBridge: KoinComponent {
 
     fun getEditInstanceViewModel(instanceId: Long): EditInstanceViewModel =
         getKoin().get { parametersOf(instanceId) }
+
+    fun getCalendarViewModel(): CalendarViewModel =
+        getKoin().get()
 
 
     fun getGenericClient(): GenericClient =

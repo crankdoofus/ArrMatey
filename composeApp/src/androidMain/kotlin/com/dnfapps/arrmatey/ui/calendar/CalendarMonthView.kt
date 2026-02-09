@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +34,7 @@ import com.dnfapps.arrmatey.arr.state.CalendarState
 import com.dnfapps.arrmatey.extensions.localToday
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -95,8 +97,7 @@ fun CalendarMonthView(
             onDateSelected = { selectedDate = it },
             state = state
         )
-
-        Spacer(modifier = Modifier.height(2.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
 
         if (selectedDate.month == currentMonth.month && selectedDate.year == currentMonth.year) {
             LazyColumn(

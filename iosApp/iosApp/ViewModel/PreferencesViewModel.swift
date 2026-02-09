@@ -15,6 +15,7 @@ class PreferencesViewModel: ObservableObject {
     @Published var showInfoCardMap: [InstanceType:Bool] = [:]
     @Published var enableAcitivityPolling: Bool = true
     @Published var logLevel: LoggerLevel = .headers
+    @Published var calendarViewMode: CalendarViewMode = .list
     
     init() {
         self.preferenceStore = KoinBridge.shared.getPreferencesStore()
@@ -29,6 +30,7 @@ class PreferencesViewModel: ObservableObject {
             self.enableAcitivityPolling = $0.boolValue
         }
         preferenceStore.httpLogLevel.observeAsync { self.logLevel = $0 }
+        preferenceStore.calendarViewMode.observeAsync { self.calendarViewMode = $0 }
     }
     
     func setInfoCardVisibility(type: InstanceType, visible: Bool) {
@@ -41,6 +43,10 @@ class PreferencesViewModel: ObservableObject {
     
     func setLoggingLevel(_ level: LoggerLevel) {
         preferenceStore.setLogLevel(level: level)
+    }
+    
+    func toggleCalendarViewMode() {
+        preferenceStore.toggleCalendarViewMode()
     }
     
 }

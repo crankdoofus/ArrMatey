@@ -14,7 +14,11 @@ data class CalendarFilterState(
     val showPremiersOnly: Boolean = false,
     val showFinalesOnly: Boolean = false,
     val instanceId: Long? = null
-)
+) {
+    companion object {
+        fun empty() = CalendarFilterState()
+    }
+}
 
 enum class CalendarViewMode {
     List, Month
@@ -22,9 +26,14 @@ enum class CalendarViewMode {
 
 enum class ContentFilter(
     val resource: StringResource,
-    val imageVector: ImageVector
+    val imageVector: ImageVector,
+    val systemImage: String
 ) {
-    All(MR.strings.all, Icons.Default.VideoLibrary),
-    MoviesOnly(MR.strings.movies, Icons.Default.Movie),
-    EpisodesOnly(MR.strings.episodes, Icons.Default.Tv)
+    All(MR.strings.all, Icons.Default.VideoLibrary, "play.square.stack"),
+    MoviesOnly(MR.strings.movies, Icons.Default.Movie, "movieclapper"),
+    EpisodesOnly(MR.strings.episodes, Icons.Default.Tv, "tv");
+
+    companion object {
+        fun allEntries() = entries.toList()
+    }
 }

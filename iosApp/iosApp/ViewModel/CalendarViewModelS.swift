@@ -1,0 +1,61 @@
+//
+//  CalendarViewModelS.swift
+//  iosApp
+//
+//  Created by Owen LeJeune on 2026-02-09.
+//
+
+import Shared
+import SwiftUI
+
+@MainActor
+class CalendarViewModelS: ObservableObject {
+    private let viewModel: CalendarViewModel
+    
+    @Published private(set) var filterState: CalendarFilterState = CalendarFilterState.companion.empty()
+    @Published private(set) var calendarState: CalendarState = CalendarState.companion.empty()
+    @Published private(set) var instances: [Instance] = []
+    
+    init() {
+        self.viewModel = KoinBridge.shared.getCalendarViewModel()
+        startObserving()
+    }
+    
+    private func startObserving() {
+        viewModel.filterState.observeAsync { self.filterState = $0 }
+        viewModel.calendarState.observeAsync { self.calendarState = $0 }
+        viewModel.instances.observeAsync { self.instances = $0 }
+    }
+    
+    func load() {
+        viewModel.load()
+    }
+    
+    func loadMore() {
+        viewModel.loadMore()
+    }
+    
+    func reset() {
+        viewModel.reset()
+    }
+    
+    func setContentFilter(_ contentFilter: ContentFilter) {
+        viewModel.setContentFilter(contentFilter: contentFilter)
+    }
+    
+    func toggleShowMonitoredOnly() {
+        viewModel.toggleShowMonitoredOnly()
+    }
+    
+    func toggleShowPremiersOnly() {
+        viewModel.toggleShowPremiersOnly()
+    }
+    
+    func toggleShowFinalesOnly() {
+        viewModel.toggleShowFinalesOnly()
+    }
+    
+    func setFilterInstanceId(_ instanceId: Int64?) {
+        viewModel.setFilterInstanceId(id: instanceId?.asKotlinLong)
+    }
+}

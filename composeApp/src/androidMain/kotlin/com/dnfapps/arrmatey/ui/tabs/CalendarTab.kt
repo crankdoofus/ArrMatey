@@ -45,12 +45,12 @@ fun CalendarTab(
 
     val instances by viewModel.instances.collectAsStateWithLifecycle()
 
-    var showFilterSheet by remember { mutableStateOf(false) }
+    var showFilterMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(mokoString(MR.strings.release_schedule)) },
+                title = { Text(mokoString(MR.strings.schedule)) },
                 actions = {
                     IconButton(onClick = {
                         preferencesStore.toggleCalendarViewMode()
@@ -66,7 +66,7 @@ fun CalendarTab(
 
                     Box {
                         IconButton(onClick = {
-                            showFilterSheet = true
+                            showFilterMenu = true
                         }) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
@@ -74,8 +74,8 @@ fun CalendarTab(
                             )
                         }
                         FilterMenu(
-                            expanded = showFilterSheet,
-                            onDismiss = { showFilterSheet = false },
+                            expanded = showFilterMenu,
+                            onDismiss = { showFilterMenu = false },
                             instances = instances,
                             filterState = filterState,
                             onInstanceChanged = { viewModel.setFilterInstanceId(it) },
