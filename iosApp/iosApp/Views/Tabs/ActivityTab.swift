@@ -23,17 +23,6 @@ struct ActivityTab: View {
         queueItemContent
             .navigationTitle(titleText)
             .toolbar {
-                if viewModel.isPolling {
-                    ToolbarItem(placement: .primaryAction) {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                    }
-                }
-                
-                if #available(iOS 26, *) {
-                    ToolbarSpacer()
-                }
-            
                 ToolbarItem(placement: .primaryAction) {
                     QueueSortPickerMenu(sortBy: Binding(
                         get: { viewModel.uiState.sortBy },

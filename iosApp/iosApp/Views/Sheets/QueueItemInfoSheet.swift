@@ -93,9 +93,9 @@ struct QueueItemInfoSheet: View {
                         }
                         .buttonStyle(.borderedProminent)
                         
-                        if item.needsManualImport {
+                        if item.needsManualImport && isDebug() {
                             NavigationLink {
-                                //
+                                // todo
                             } label : {
                                 Label {
                                     Text(MR.strings().manual_import.localized())

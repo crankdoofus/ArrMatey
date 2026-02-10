@@ -69,6 +69,7 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.bullet
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.instances.model.Instance
+import com.dnfapps.arrmatey.isDebug
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.LabelledSwitch
@@ -419,10 +420,10 @@ fun QueueItemInfoSheet(
                 Box(
                     modifier = Modifier.weight(1f)
                 ) {
-                    if (item.needsManualImport) {
+                    if (isDebug() && item.needsManualImport) {
                         Button(
                             onClick = {
-
+                                // todo
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

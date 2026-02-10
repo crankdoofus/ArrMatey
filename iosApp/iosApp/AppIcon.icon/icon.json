@@ -1,55 +1,15 @@
 {
   "fill" : {
-    "linear-gradient" : [
-      "display-p3:0.92129,0.78884,0.28111,1.00000",
-      "display-p3:0.91747,0.64259,0.02526,1.00000"
-    ],
-    "orientation" : {
-      "start" : {
-        "x" : 0.5,
-        "y" : 0
-      },
-      "stop" : {
-        "x" : 0.5,
-        "y" : 0.7
-      }
-    }
+    "solid" : "display-p3:0.65098,0.27451,0.91765,1.00000"
   },
   "groups" : [
     {
       "layers" : [
         {
-          "glass" : true,
-          "hidden" : true,
-          "image-name" : "parrot-facing-left-svgrepo-com.svg",
-          "name" : "parrot-facing-left-svgrepo-com"
-        },
-        {
-          "fill-specializations" : [
-            {
-              "value" : {
-                "solid" : "srgb:0.00000,0.00000,0.00000,1.00000"
-              }
-            },
-            {
-              "appearance" : "dark",
-              "value" : {
-                "solid" : "srgb:0.96259,0.96027,1.00000,1.00000"
-              }
-            },
-            {
-              "appearance" : "tinted",
-              "value" : {
-                "solid" : "srgb:1.00000,0.98211,0.97582,1.00000"
-              }
-            }
-          ],
-          "hidden" : true,
-          "image-name" : "pirate-scarf-svgrepo-com.svg",
-          "name" : "pirate-scarf-svgrepo-com"
-        },
-        {
           "blend-mode-specializations" : [
+            {
+              "value" : "normal"
+            },
             {
               "appearance" : "dark",
               "value" : "normal"
@@ -57,9 +17,12 @@
           ],
           "fill-specializations" : [
             {
+              "value" : "automatic"
+            },
+            {
               "appearance" : "dark",
               "value" : {
-                "solid" : "display-p3:0.96611,0.81009,0.27209,1.00000"
+                "solid" : "display-p3:0.65098,0.27451,0.91765,1.00000"
               }
             },
             {
