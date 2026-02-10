@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,10 +14,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
 
 @Composable
@@ -25,8 +21,6 @@ fun DetailHeaderBanner(
     bannerUrl: String?,
     height: Dp = 400.dp
 ) {
-    val context = LocalPlatformContext.current
-
     Box(
         modifier = Modifier
             .fillMaxWidth()

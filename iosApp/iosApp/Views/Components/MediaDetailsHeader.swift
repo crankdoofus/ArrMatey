@@ -14,57 +14,62 @@ struct MediaDetailsHeader: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        ZStack {
-            MediaHeaderBanner(bannerUrl: item.getBanner()?.remoteUrl)
-            HStack(alignment: .top, spacing: 12) {
-                PosterItem(item: item)
-                    .frame(width: 150, height: 220)
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                MediaHeaderBanner(bannerUrl: URL(string: item.getBanner()?.remoteUrl ?? ""))
+                    .frame(width: geometry.size.width)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    if let clearLogo = item.getClearLogo()?.remoteUrl {
-                        AsyncImage(url: URL(string: clearLogo)) { phase in
-                            if let image = phase.image {
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(minHeight: 64)
-                                    .background {
-                                        if colorScheme == .light {
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(Color.black.opacity(0.4))
-                                                .blur(radius: 5)
-                                                .padding(-4)
+                HStack(alignment: .top, spacing: 12) {
+                    PosterItem(item: item)
+                        .frame(width: 150, height: 220)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let clearLogo = item.getClearLogo()?.remoteUrl {
+                            AsyncImage(url: URL(string: clearLogo)) { phase in
+                                if let image = phase.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(minHeight: 64)
+                                        .background {
+                                            if colorScheme == .light {
+                                                RoundedRectangle(cornerRadius: 16)
+                                                    .fill(Color.black.opacity(0.4))
+                                                    .blur(radius: 5)
+                                                    .padding(-4)
+                                            }
                                         }
-                                    }
-                            } else {
-                                Color.clear.frame(height: 64)
+                                } else {
+                                    Color.clear.frame(height: 64)
+                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            Text(item.title)
+                                .font(.system(size: 36, weight: .bold))
+                                .lineLimit(3)
+                                .truncationMode(.tail)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
                         }
-                    } else {
-                        Text(item.title)
-                            .font(.system(size: 36, weight: .bold))
-                            .lineLimit(3)
-                            .truncationMode(.tail)
+                        
+                        Text([String(item.year), item.runtimeString, item.certification ?? "NA"].joined(separator: " • "))
+                            .font(.system(size: 16))
+                        
+                        Text([item.releasedBy ?? "", item.statusString].joined(separator: " • "))
+                            .font(.system(size: 14))
+                        
+                        Text(item.genres.joined(separator: " • "))
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                        
                     }
-                    
-                    Text([String(item.year), item.runtimeString, item.certification ?? "NA"].joined(separator: " • "))
-                        .font(.system(size: 16))
-                    
-                    Text([item.releasedBy ?? "", item.statusString].joined(separator: " • "))
-                        .font(.system(size: 14))
-                    
-                    Text(item.genres.joined(separator: " • "))
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                    
+                    .frame(maxWidth: .infinity, alignment: .top)
                 }
-                .frame(maxWidth: .infinity, alignment: .top)
-                
-                Spacer()
+                .padding(.top, 170)
+                .padding(.horizontal, 12)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 170)
-            .padding(.horizontal, 12)
         }
+        .frame(maxWidth: .infinity)
     }
 }

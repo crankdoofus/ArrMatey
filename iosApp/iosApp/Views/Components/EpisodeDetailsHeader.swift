@@ -14,7 +14,7 @@ struct EpisodeDetailsHeader: View {
     
     var body: some View {
         ZStack {
-            MediaHeaderBanner(bannerUrl: episode.getBanner()?.remoteUrl)
+            MediaHeaderBanner(bannerUrl: URL(string: episode.getBanner()?.remoteUrl ?? ""))
             HStack(alignment: .top, spacing: 12) {
                 if let url = episode.getBanner()?.remoteUrl {
                     AsyncImage(url: URL(string: url)) { image in

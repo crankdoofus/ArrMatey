@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,8 +43,8 @@ fun <T: ArrMedia> PosterGrid(
     items: List<T>,
     onItemClick: (T) -> Unit,
     itemIsActive: (T) -> Boolean,
-    userScrollEnabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true
 ) {
     LazyVerticalGrid(
         modifier = modifier,

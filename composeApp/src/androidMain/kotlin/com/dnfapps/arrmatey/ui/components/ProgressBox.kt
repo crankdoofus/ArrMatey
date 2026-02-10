@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -23,12 +23,12 @@ import com.dnfapps.arrmatey.ui.theme.DownloadGreen
 @Composable
 fun ProgressBox(
     animate: Boolean,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     gradientColors: List<Color> = listOf(
         DownloadGreen.copy(alpha = .2f),
         DownloadGreen.copy(alpha = .7f)
     ),
-    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition("gradientProgress-transition")

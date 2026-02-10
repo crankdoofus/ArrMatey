@@ -1,4 +1,4 @@
-package com.dnfapps.arrmatey.compose.components
+package com.dnfapps.arrmatey.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,16 +22,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,13 +38,13 @@ import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.MediaStatus
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.rememberRemoteUrlData
-import com.dnfapps.arrmatey.extensions.pxToDp
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
 import com.dnfapps.arrmatey.utils.format
 import com.dnfapps.arrmatey.utils.mokoString
 import com.skydoves.cloudy.cloudy
+import kotlin.time.ExperimentalTime
 
 private val defaultHeight = 100.dp
 
@@ -58,8 +53,8 @@ fun <T: ArrMedia> MediaList(
     items: List<T>,
     onItemClick: (T) -> Unit,
     itemIsActive: (T) -> Boolean,
-    userScrollEnabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true
 ) {
     LazyColumn(
         modifier = modifier,
@@ -138,12 +133,12 @@ private fun ColumnScope.MediaDetails(item: ArrMedia, isActive: Boolean) {
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun ColumnScope.SeriesDetails(
     item: ArrSeries,
     isActive: Boolean
 ) {
-    val countStr = "${item.episodeFileCount}/${item.episodeCount} (${(item.statusProgress).toInt()}%)"
     val seasonText = if (item.seasonCount > 1) MR.strings.seasons else MR.strings.season_singular
     val seasonLabel = "${item.seasonCount} ${mokoString(seasonText)}"
     val seasonCountStr = "${item.seasonCount} $seasonLabel"
@@ -177,6 +172,7 @@ private fun ColumnScope.SeriesDetails(
     )
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun ColumnScope.MovieDetails(item: ArrMovie) {
     item.releaseDate?.format()?.let {

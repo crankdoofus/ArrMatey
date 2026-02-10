@@ -16,8 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.Episode
-import com.dnfapps.arrmatey.compose.components.DetailHeaderBanner
-import com.dnfapps.arrmatey.compose.components.EpisodePosterItem
 import com.dnfapps.arrmatey.entensions.Bullet
 
 @Composable

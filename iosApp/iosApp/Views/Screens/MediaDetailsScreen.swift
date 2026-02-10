@@ -137,8 +137,9 @@ struct MediaDetailsScreen: View {
             let extraFiles = state.extraFiles
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 12){
+                VStack(alignment: .leading, spacing: 0){
                     MediaDetailsHeader(item: item)
+                        .frame(height: 400)
                     
                     VStack(alignment: .leading, spacing: 12) {
                         if let airingString = makeAiringString(for: item) {
@@ -157,8 +158,8 @@ struct MediaDetailsScreen: View {
                             .frame(height: 12)
                     }
                     .padding(.horizontal, 24)
+                    .padding(.top, 12)
                 }
-                .frame(alignment: .top)
             }
             .ignoresSafeArea(edges: .top)
         case _ as MediaDetailsUiStateError:

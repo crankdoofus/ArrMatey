@@ -55,7 +55,6 @@ import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
 import com.dnfapps.arrmatey.arr.state.DownloadState
 import com.dnfapps.arrmatey.arr.state.ReleaseLibrary
 import com.dnfapps.arrmatey.arr.viewmodel.InteractiveSearchViewModel
-import com.dnfapps.arrmatey.compose.components.ProgressBox
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.singleLanguageLabel
@@ -72,6 +71,7 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.ui.components.ProgressBox
 import com.dnfapps.arrmatey.ui.menu.InteractiveSearchMenu
 import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject

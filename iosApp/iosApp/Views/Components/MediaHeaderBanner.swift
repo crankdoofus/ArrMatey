@@ -6,16 +6,52 @@
 //
 
 import SwiftUI
-import Shared
 
-struct MediaHeaderBanner: UIViewControllerRepresentable {
-    let bannerUrl: String?
+struct MediaHeaderBanner: View {
+    let bannerUrl: URL?
+    let height: CGFloat
     
-    func makeUIViewController(context: Context) -> some UIViewController {
-        return MediaHeaderBannerViewController(bannerUrl: bannerUrl)
+    init(bannerUrl: URL?, height: CGFloat = 400) {
+        self.bannerUrl = bannerUrl
+        self.height = height
     }
     
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        // left blank
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color(.systemBackground)
+                
+                if let url = bannerUrl {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                        case .failure(_):
+                            Color.gray.opacity(0.3)
+                        case .empty:
+                            ProgressView()
+                        @unknown default:
+                            Color.clear
+                        }
+                    }
+                }
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        .clear,
+                        Color(.systemBackground).opacity(0.8),
+                        Color(.systemBackground)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .frame(height: height)
+        .clipped()
     }
 }
