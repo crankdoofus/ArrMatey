@@ -43,7 +43,7 @@ fun ArrTab(
             }
             entry<ArrScreen.MovieReleases> { params ->
                 val releaseParams = ReleaseParams.Movie(params.movieId)
-                InteractiveSearchScreen(type, releaseParams, canFilter = false)
+                InteractiveSearchScreen(type, releaseParams)
             }
             entry<ArrScreen.SeriesRelease> { params ->
                 val releaseParams = ReleaseParams.Series(
@@ -54,7 +54,6 @@ fun ArrTab(
                 InteractiveSearchScreen(
                     type,
                     releaseParams = releaseParams,
-                    canFilter = true,
                     defaultFilter = if (params.episodeId != null) {
                         ReleaseFilterBy.SingleEpisode
                     } else ReleaseFilterBy.SeasonPack

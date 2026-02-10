@@ -6,7 +6,7 @@ import com.dnfapps.arrmatey.datastore.InstancePreferences
 class UpdatePreferencesUseCase(
     private val instancePreferencesStoreRepository: InstancePreferenceStoreRepository
 ) {
-    suspend fun savePreferences(instanceId: Long, preferences: InstancePreferences) {
+    suspend operator fun invoke(instanceId: Long, preferences: InstancePreferences) {
         val preferenceStore = instancePreferencesStoreRepository.getInstancePreferences(instanceId)
         preferenceStore.savePreferences(preferences)
     }

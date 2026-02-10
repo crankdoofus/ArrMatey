@@ -64,8 +64,7 @@ struct SortByPickerMenu: View {
                 .pickerStyle(.inline)
             }
         } label: {
-            Image(systemName: "arrow.up.arrow.down")
-                .imageScale(.medium)
+            Label(sortedBy.resource.localized(), systemImage: "arrow.up.arrow.down")
         }
         .onChange(of: sortedBy, { _, newValue in
             changeSortBy(newValue)

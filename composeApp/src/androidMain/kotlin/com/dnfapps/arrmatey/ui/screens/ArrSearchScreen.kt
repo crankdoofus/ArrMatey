@@ -1,6 +1,5 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,7 +43,8 @@ import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
-import com.dnfapps.arrmatey.ui.components.SortMenuButton
+import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.ui.menu.SearchSortMenu
 import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -100,13 +100,11 @@ fun ArrSearchScreen(
                 },
                 title = {},
                 actions = {
-                    SortMenuButton(
-                        instanceType = type,
+                    SearchSortMenu(
                         sortBy = sortBy,
                         onSortChanged = { viewModel.setSortBy(it) },
                         sortOrder = sortOrder,
-                        onOrderChanged = { viewModel.setSortOrder(it) },
-                        limitToLookup = true
+                        onOrderChanged = { viewModel.setSortOrder(it) }
                     )
                 }
             )

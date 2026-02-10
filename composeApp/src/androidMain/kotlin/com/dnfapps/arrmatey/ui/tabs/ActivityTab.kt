@@ -71,6 +71,7 @@ import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.LabelledSwitch
+import com.dnfapps.arrmatey.ui.menu.ActivityFilterMenu
 import com.dnfapps.arrmatey.utils.format
 import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
@@ -87,7 +88,6 @@ fun ActivityTab(
     val removeItemStatus by viewModel.removeItemState.collectAsStateWithLifecycle()
 
     var showConfirmRemove by remember { mutableStateOf(false) }
-    var showFilterSheet by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf<QueueItem?>(null) }
 
     LaunchedEffect(removeItemStatus) {
@@ -107,14 +107,15 @@ fun ActivityTab(
                 },
                 actions = {
                     if (queueItems.isNotEmpty()) {
-                        IconButton(
-                            onClick = { showFilterSheet = true }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FilterList,
-                                contentDescription = mokoString(MR.strings.filter)
-                            )
-                        }
+                        ActivityFilterMenu(
+                            instances,
+                            selectedInstanceId = uiState.instanceId,
+                            onInstanceChange = { viewModel.setInstanceId(it) },
+                            sortBy = uiState.sortBy,
+                            onSortByChanged = { viewModel.setSortBy(it) },
+                            sortOrder = uiState.sortOrder,
+                            onSortOrderChanged = { viewModel.setSortOrder(it)}
+                        )
                     }
                 }
             )
@@ -145,19 +146,6 @@ fun ActivityTab(
                     }
                 }
             }
-        }
-
-        if (showFilterSheet) {
-            FilterSheet(
-                onDismiss = { showFilterSheet = false },
-                instances = instances,
-                selectedInstanceId = uiState.instanceId,
-                onInstanceChange = { viewModel.setInstanceId(it) },
-                sortBy = uiState.sortBy,
-                onSortByChanged = { viewModel.setSortBy(it) },
-                sortOrder = uiState.sortOrder,
-                onSortOrderChanged = { viewModel.setSortOrder(it)}
-            )
         }
 
         selectedItem?.let { item ->
@@ -248,64 +236,6 @@ fun ActivityItem(
                     imageVector = Icons.Default.ErrorOutline,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FilterSheet(
-    onDismiss: () -> Unit,
-    instances: List<Instance>,
-    selectedInstanceId: Long?,
-    onInstanceChange: (Long?) -> Unit,
-    sortBy: QueueSortBy,
-    onSortByChanged: (QueueSortBy) -> Unit,
-    sortOrder: SortOrder,
-    onSortOrderChanged: (SortOrder) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
-        ) {
-            DropdownPicker(
-                options = instances.map { it.id },
-                selectedOption = selectedInstanceId,
-                onOptionSelected = onInstanceChange,
-                getOptionLabel = { id -> instances.first { it.id == id }.label },
-                label = { Text(mokoString(MR.strings.instances)) },
-                includeAllOption = true,
-                onAllSelected = { onInstanceChange(null) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                DropdownPicker(
-                    options = QueueSortBy.entries,
-                    selectedOption = sortBy,
-                    onOptionSelected = onSortByChanged,
-                    label = { Text(mokoString(MR.strings.sort_by)) },
-                    getOptionLabel = { mokoString(it.resource) },
-                    modifier = Modifier.weight(1f)
-                )
-                DropdownPicker(
-                    options = SortOrder.entries,
-                    selectedOption = sortOrder,
-                    onOptionSelected = onSortOrderChanged,
-                    label = { Text(mokoString(MR.strings.sort_order)) },
-                    getOptionLabel = { mokoString(it.resource) },
-                    getOptionIcon = { it.androidIcon },
-                    modifier = Modifier.weight(1f)
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +26,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -425,6 +429,7 @@ private fun EditMediaSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MenuButton(
     onEdit: () -> Unit,
@@ -435,6 +440,7 @@ private fun MenuButton(
     onSearchMonitored: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box {
         IconButton(
@@ -447,70 +453,81 @@ private fun MenuButton(
             )
         }
 
-        DropdownMenu(
+        DropdownMenuPopup(
             expanded = showMenu,
             onDismissRequest = { showMenu = false }
         ) {
-            DropdownMenuItem(
-                text = { Text(mokoString(MR.strings.refresh)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    showMenu = false
-                    onRefresh()
-                }
-            )
-            if (showSearch) {
+            DropdownMenuGroup(
+                shapes = MenuDefaults.groupShape(0, 2),
+                interactionSource = interactionSource
+            ) {
                 DropdownMenuItem(
-                    text = { Text(mokoString(MR.strings.search_monitored)) },
+                    text = { Text(mokoString(MR.strings.refresh)) },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Search,
+                            imageVector = Icons.Default.Refresh,
                             contentDescription = null
                         )
                     },
-                    enabled = enableSearch,
                     onClick = {
                         showMenu = false
-                        onSearchMonitored()
+                        onRefresh()
+                    }
+                )
+                if (showSearch) {
+                    DropdownMenuItem(
+                        text = { Text(mokoString(MR.strings.search_monitored)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        },
+                        enabled = enableSearch,
+                        onClick = {
+                            showMenu = false
+                            onSearchMonitored()
+                        }
+                    )
+                }
+            }
+            DropdownMenuGroup(
+                shapes = MenuDefaults.groupShape(1, 2),
+                interactionSource = interactionSource
+            ) {
+                DropdownMenuItem(
+                    text = { Text(mokoString(MR.strings.edit)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = {
+                        showMenu = false
+                        onEdit()
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = mokoString(MR.strings.delete),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    onClick = {
+                        showMenu = false
+                        onDelete()
                     }
                 )
             }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(mokoString(MR.strings.edit)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    showMenu = false
-                    onEdit()
-                }
-            )
-            DropdownMenuItem(
-                text = { Text(
-                    text = mokoString(MR.strings.delete),
-                    color = MaterialTheme.colorScheme.error
-                ) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                },
-                onClick = {
-                    showMenu = false
-                    onDelete()
-                }
-            )
         }
     }
 }

@@ -14,15 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -32,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -56,18 +51,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.arr.api.model.ArrRelease
-import com.dnfapps.arrmatey.arr.api.model.CustomFormat
-import com.dnfapps.arrmatey.arr.api.model.Language
-import com.dnfapps.arrmatey.arr.api.model.QualityInfo
 import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
-import com.dnfapps.arrmatey.arr.api.model.ReleaseProtocol
 import com.dnfapps.arrmatey.arr.state.DownloadState
 import com.dnfapps.arrmatey.arr.state.ReleaseLibrary
 import com.dnfapps.arrmatey.arr.viewmodel.InteractiveSearchViewModel
 import com.dnfapps.arrmatey.compose.components.ProgressBox
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
-import com.dnfapps.arrmatey.compose.utils.ReleaseSortBy
-import com.dnfapps.arrmatey.compose.utils.SortOrder
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.singleLanguageLabel
 import com.dnfapps.arrmatey.di.koinInjectParams
@@ -83,7 +72,7 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.shared.MR
-import com.dnfapps.arrmatey.ui.components.DropdownPicker
+import com.dnfapps.arrmatey.ui.menu.InteractiveSearchMenu
 import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
@@ -92,7 +81,6 @@ import org.koin.compose.koinInject
 fun InteractiveSearchScreen(
     instanceType: InstanceType,
     releaseParams: ReleaseParams,
-    canFilter: Boolean,
     defaultFilter: ReleaseFilterBy = ReleaseFilterBy.Any,
     viewModel: InteractiveSearchViewModel = koinInjectParams(instanceType, defaultFilter),
     navigationManager: NavigationManager = koinInject(),
@@ -109,8 +97,6 @@ fun InteractiveSearchScreen(
 
     val downloadQueueSuccessMessage = mokoString(MR.strings.download_queue_success)
     val downloadQueueErrorMessage = mokoString(MR.strings.download_queue_error)
-
-    var showFilterSheet by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -157,14 +143,26 @@ fun InteractiveSearchScreen(
                             contentDescription = mokoString(MR.strings.search)
                         )
                     }
-                    IconButton(
-                        onClick = { showFilterSheet = true }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = mokoString(MR.strings.filter)
-                        )
-                    }
+                    InteractiveSearchMenu(
+                        type = instanceType,
+                        selectedSortBy = filterState.sortBy,
+                        onSortByChanged = { viewModel.setSortBy(it) },
+                        selectedSortOrder = filterState.sortOrder,
+                        onSortOrderChanged = { viewModel.setSortOrder(it) },
+                        selectedFilter = filterState.filterBy,
+                        onFilterChanged = { viewModel.setFilterBy(it) },
+                        libraryState = (releaseUiState as? ReleaseLibrary.Success),
+                        filterLanguage = filterState.language,
+                        onLanguageChange = { viewModel.setFilterLanguage(it) },
+                        filterCustomFormat = filterState.customFormat,
+                        onCustomFormatChange = { viewModel.setFilterCustomFormat(it) },
+                        filterQualityInfo = filterState.quality,
+                        onQualityChange = { viewModel.setFilterQuality(it) },
+                        filterIndexer = filterState.indexer,
+                        onIndexerChange = { viewModel.setFilterIndexer(it) },
+                        filterProtocol = filterState.protocol,
+                        onProtocolChange = { viewModel.setFilterProtocol(it) }
+                    )
                 }
             )
         },
@@ -294,30 +292,6 @@ fun InteractiveSearchScreen(
                 )
             }
         }
-
-        if (showFilterSheet) {
-            FilterSheet(
-                canFilter = canFilter,
-                onDismiss = { showFilterSheet = false },
-                selectedSortBy = filterState.sortBy,
-                onSortByChanged = { viewModel.setSortBy(it) },
-                selectedSortOrder = filterState.sortOrder,
-                onSortOrderChanged = { viewModel.setSortOrder(it) },
-                selectedFilter = filterState.filterBy,
-                onFilterChanged = { viewModel.setFilterBy(it) },
-                libraryState = (releaseUiState as? ReleaseLibrary.Success),
-                filterLanguage = filterState.language,
-                onLanguageChange = { viewModel.setFilterLanguage(it) },
-                filterCustomFormat = filterState.customFormat,
-                onCustomFormatChange = { viewModel.setFilterCustomFormat(it) },
-                filterQualityInfo = filterState.quality,
-                onQualityChange = { viewModel.setFilterQuality(it) },
-                filterIndexer = filterState.indexer,
-                onIndexerChange = { viewModel.setFilterIndexer(it) },
-                filterProtocol = filterState.protocol,
-                onProtocolChange = { viewModel.setFilterProtocol(it) }
-            )
-        }
     }
 }
 
@@ -375,145 +349,6 @@ fun <T: ArrRelease> ReleaseItem(
                     text = thirdLine,
                     maxLines = 1
                 )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FilterSheet(
-    canFilter: Boolean,
-    onDismiss: () -> Unit,
-    selectedFilter: ReleaseFilterBy,
-    onFilterChanged: (ReleaseFilterBy) -> Unit,
-    selectedSortOrder: SortOrder,
-    onSortOrderChanged: (SortOrder) -> Unit,
-    selectedSortBy: ReleaseSortBy,
-    onSortByChanged: (ReleaseSortBy) -> Unit,
-    libraryState: ReleaseLibrary.Success?,
-    filterLanguage: Language?,
-    onLanguageChange: (Language?) -> Unit,
-    filterCustomFormat: CustomFormat?,
-    onCustomFormatChange: (CustomFormat?) -> Unit,
-    filterQualityInfo: QualityInfo?,
-    onQualityChange: (QualityInfo?) -> Unit,
-    filterIndexer: String?,
-    onIndexerChange: (String?) -> Unit,
-    filterProtocol: ReleaseProtocol?,
-    onProtocolChange: (ReleaseProtocol?) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
-        ) {
-            item {
-                DropdownPicker(
-                    options = ReleaseSortBy.entries,
-                    selectedOption = selectedSortBy,
-                    onOptionSelected = onSortByChanged,
-                    label = { Text(mokoString(MR.strings.sort_by)) },
-                    getOptionLabel = { mokoString(it.resource) }
-                )
-            }
-            item {
-                DropdownPicker(
-                    options = SortOrder.entries,
-                    selectedOption = selectedSortOrder,
-                    onOptionSelected = onSortOrderChanged,
-                    label = { Text(mokoString(MR.strings.sort_order)) },
-                    getOptionLabel = { mokoString(it.resource) },
-                    getOptionIcon = { it.androidIcon }
-                )
-            }
-
-            if (canFilter) {
-                item(span = { GridItemSpan(maxLineSpan)} ) {
-                    DropdownPicker(
-                        options = ReleaseFilterBy.entries,
-                        selectedOption = selectedFilter,
-                        onOptionSelected = onFilterChanged,
-                        label = { Text(mokoString(MR.strings.filter_by)) },
-                        getOptionLabel = { mokoString(it.resource) }
-                    )
-                }
-            }
-
-            libraryState?.filterQualities?.takeUnless { it.size < 2 }?.let { qualities ->
-                item {
-                    DropdownPicker(
-                        options = qualities,
-                        selectedOption = filterQualityInfo,
-                        onOptionSelected = onQualityChange,
-                        label = { Text(mokoString(MR.strings.quality))},
-                        getOptionLabel = { it.qualityLabel },
-                        includeAllOption = true,
-                        allLabel = mokoString(MR.strings.any),
-                        onAllSelected = { onQualityChange(null) }
-                    )
-                }
-            }
-            libraryState?.filterLanguages?.takeUnless { it.size < 2 }?.let { languages ->
-                item {
-                    DropdownPicker(
-                        options = languages,
-                        selectedOption = filterLanguage,
-                        onOptionSelected = onLanguageChange,
-                        label = { Text(mokoString(MR.strings.language)) },
-                        getOptionLabel = { it.name ?: mokoString(MR.strings.unknown) },
-                        includeAllOption = true,
-                        allLabel = mokoString(MR.strings.any),
-                        onAllSelected = { onLanguageChange(null) }
-                    )
-                }
-            }
-            libraryState?.filterCustomFormats?.takeUnless { it.size < 2 }?.let { customFormats ->
-                item {
-                    DropdownPicker(
-                        options = customFormats,
-                        selectedOption = filterCustomFormat,
-                        onOptionSelected = onCustomFormatChange,
-                        label = { Text(mokoString(MR.strings.custom_format)) },
-                        getOptionLabel = { it.name },
-                        includeAllOption = true,
-                        allLabel = mokoString(MR.strings.any),
-                        onAllSelected = { onLanguageChange(null) }
-                    )
-                }
-            }
-            libraryState?.filterProtocols?.takeUnless { it.size < 2 }?.let { protocols ->
-                item {
-                    DropdownPicker(
-                        options = protocols,
-                        selectedOption = filterProtocol,
-                        onOptionSelected = onProtocolChange,
-                        label = { Text(mokoString(MR.strings.protocol)) },
-                        getOptionLabel = { it.name },
-                        includeAllOption = true,
-                        allLabel = mokoString(MR.strings.any),
-                        onAllSelected = { onProtocolChange(null) }
-                    )
-                }
-            }
-            libraryState?.filterIndexers?.takeUnless { it.size < 2 }?.let { indexers ->
-                item {
-                    DropdownPicker(
-                        options = indexers,
-                        selectedOption = filterIndexer,
-                        onOptionSelected = onIndexerChange,
-                        label = { Text(mokoString(MR.strings.indexer)) },
-                        includeAllOption = true,
-                        allLabel = mokoString(MR.strings.any),
-                        onAllSelected = { onIndexerChange(null) }
-                    )
-                }
             }
         }
     }

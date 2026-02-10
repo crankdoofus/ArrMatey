@@ -22,37 +22,14 @@ class ArrSearchViewModel(
     private val performLookupUseCase: PerformLookupUseCase
 ): ViewModel() {
 
-    private val _lookupUiState = MutableStateFlow<ArrLibrary>(ArrLibrary.Initial)
-
     private val _sortBy = MutableStateFlow(SortBy.Relevance)
     val sortBy: StateFlow<SortBy> = _sortBy.asStateFlow()
 
     private val _sortOrder = MutableStateFlow(SortOrder.Asc)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
 
-    val lookupUiState: StateFlow<ArrLibrary> = combine(
-        _lookupUiState,
-        _sortBy,
-        _sortOrder
-    ) { state, sortBy, sortOrder ->
-        when (state) {
-            is ArrLibrary.Success -> {
-                val sorted = when (sortBy) {
-                    SortBy.Relevance -> state.items
-                    SortBy.Year -> state.items.sortedBy { it.year }
-                    SortBy.Rating -> state.items.sortedBy { it.ratingScore() }
-                    else -> state.items
-                }
-                val finalList = if (sortOrder == SortOrder.Desc) sorted.reversed() else sorted
-                ArrLibrary.Success(items = finalList, preferences = state.preferences)
-            }
-            else -> state
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ArrLibrary.Initial
-    )
+    private val _lookupUiState = MutableStateFlow<ArrLibrary>(ArrLibrary.Initial)
+    val lookupUiState: StateFlow<ArrLibrary> = _lookupUiState.asStateFlow()
 
     init {
         observeLookupResults()
@@ -60,10 +37,28 @@ class ArrSearchViewModel(
 
     private fun observeLookupResults() {
         viewModelScope.launch {
-            getLookupResultsUseCase(instanceType)
-                .collect { state ->
-                    _lookupUiState.value = state
+            combine(
+                getLookupResultsUseCase(instanceType),
+                _sortBy,
+                _sortOrder
+            ) { state, sortBy, sortOrder ->
+                when (state) {
+                    is ArrLibrary.Success -> {
+                        val sorted = when (sortBy) {
+                            SortBy.Relevance -> state.items
+                            SortBy.Year -> state.items.sortedBy { it.year }
+                            SortBy.Rating -> state.items.sortedBy { it.ratingScore() }
+                            else -> state.items
+                        }
+                        val finalList = if (sortOrder == SortOrder.Desc) sorted.reversed() else sorted
+                        ArrLibrary.Success(items = finalList, preferences = state.preferences)
+                    }
+                    else -> state
                 }
+            }
+            .collect { state ->
+                _lookupUiState.value = state
+            }
         }
     }
 

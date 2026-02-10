@@ -99,44 +99,11 @@ struct ArrTab: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        if !networkViewModel.isConnected {
-            ToolbarItem(placement: .navigation) {
-                Image(systemName: "wifi.slash")
-                    .imageScale(.medium)
-                    .foregroundColor(.red)
-                    .onTapGesture {
-//                        let errTitle = String(localized: LocalizedStringResource("no_network"))
-//                        let toast = Toast.text(errTitle)
-//                        toast.show()
-                    }
-            }
-        }
-        
-        if let error = uiState as? ArrLibraryError {
-            if error.type == .network {
-                ToolbarItem(placement: .navigation) {
-                    Image(systemName: "externaldrive.badge.xmark")
-                        .imageScale(.medium)
-                        .foregroundColor(.red)
-                        .onTapGesture {
-//                            let errTitle = String(localized: LocalizedStringResource("instance_connect_error_ios"))
-//                            let errSubtitle = "\(instanceState.selectedInstance?.label ?? instanceState.selectedInstance?.type.name ?? "") - \(instanceState.selectedInstance?.url ?? "")"
-//                            let toast = Toast.text(errTitle, subtitle: errSubtitle)
-//                            toast.show()
-                        }
-                }
-            }
-        }
-        
         if uiState is ArrLibrarySuccess {
             toolbarViewOptions
         }
         
-        if #available(iOS 26, *) {
-            ToolbarSpacer(.flexible, placement: .navigation)
-        }
-        
-        ToolbarItem(placement: .navigation) {
+        ToolbarItem(placement: .topBarLeading) {
             InstancePickerMenu(
                 instances: instanceState.instances,
                 onChangeInstance: { instancesViewModel.setInstanceActive($0) }
@@ -147,71 +114,52 @@ struct ArrTab: View {
     
     @ToolbarContentBuilder
     private var toolbarViewOptions: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) {
-            SortByPickerMenu(
-                type: type,
-                sortBy: preferences.sortBy,
-                sortOrder: preferences.sortOrder,
-                changeSortBy: { newValue in
-                    arrMediaViewModel.updateSortBy(newValue)
-                },
-                changeSortOrder: { newValue in
-                    arrMediaViewModel.updateSortOrder(newValue)
-                }
-            )
-            .menuIndicator(.hidden)
-        }
-        
-        ToolbarItem(placement: .primaryAction) {
-            FilterByPickerMenu(
-                type: type,
-                filterBy: preferences.filterBy,
-                changeFilterBy: { newValue in
-                    arrMediaViewModel.updateFilterBy(newValue)
-                })
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button(action: {
+                navigation.go(to: .search(""), of: type)
+            }) {
+                Image(systemName: "plus")
+                    .imageScale(.medium)
+            }
+            
+            Menu {
+                viewTypeToggle
+                FilterByPickerMenu(
+                    type: type,
+                    filterBy: preferences.filterBy,
+                    changeFilterBy: { newValue in
+                        arrMediaViewModel.updateFilterBy(newValue)
+                    })
+                    .menuIndicator(.hidden)
+                
+                SortByPickerMenu(
+                    type: type,
+                    sortBy: preferences.sortBy,
+                    sortOrder: preferences.sortOrder,
+                    changeSortBy: { newValue in
+                        arrMediaViewModel.updateSortBy(newValue)
+                    },
+                    changeSortOrder: { newValue in
+                        arrMediaViewModel.updateSortOrder(newValue)
+                    }
+                )
                 .menuIndicator(.hidden)
-        }
-        
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.flexible, placement: .navigation)
-        }
-        
-        
-        let newType = switch preferences.viewType {
-        case .grid: ViewType.list
-        case .list: ViewType.grid
-        }
-        let image = switch newType {
-        case .grid: "rectangle.grid.2x2"
-        case .list: "rectangle.grid.1x2"
-        }
-        ToolbarItem(placement: .navigation) {
-            Image(systemName: image)
-                .imageScale(.medium)
-                .onTapGesture {
-                    arrMediaViewModel.updateViewType(newType)
-                }
-        }
-        
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.flexible, placement: .primaryAction)
-        }
-        
-        ToolbarItem(placement: .navigation) {
-            Image(systemName: "plus")
-                .imageScale(.medium)
-                .onTapGesture {
-                    navigation.go(to: .search(""), of: type)
-                }
-        }
-        
-        ToolbarItem(placement: .bottomBar) {
-            Image(systemName: "magnifyingglass")
-                .imageScale(.medium)
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease")
+            }
         }
     }
     
-    
+    private var viewTypeToggle: some View {
+        let viewType = preferences.viewType
+        let newType: ViewType = viewType == .grid ? .list : .grid
+        
+        return Button(action: {
+            arrMediaViewModel.updateViewType(newType)
+        }) {
+            Label(preferences.viewType.name, systemImage: viewType == .grid ? "rectangle.grid.2x2" : "rectangle.grid.1x2")
+        }
+    }
     
     @ViewBuilder
     private func errorView() -> some View {

@@ -157,7 +157,7 @@ class ArrMediaViewModel(
             val preferences = currentState.preferences
 
             val updatedPreferences = transform(preferences)
-            updatePreferencesUseCase.savePreferences(repository.instance.id, updatedPreferences)
+            updatePreferencesUseCase(repository.instance.id, updatedPreferences)
         }
     }
 

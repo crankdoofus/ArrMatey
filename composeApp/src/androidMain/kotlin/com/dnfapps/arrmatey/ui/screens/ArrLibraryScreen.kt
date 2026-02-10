@@ -4,41 +4,48 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.SignalWifiOff
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -55,19 +62,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.state.ArrLibrary
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
@@ -88,12 +92,10 @@ import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.navigation.SettingsScreen
 import com.dnfapps.arrmatey.shared.MR
-import com.dnfapps.arrmatey.ui.components.DropdownPicker
 import com.dnfapps.arrmatey.ui.components.InstancePicker
+import com.dnfapps.arrmatey.ui.menu.LibraryFilterMenu
 import com.dnfapps.arrmatey.ui.theme.ViewType
-import com.dnfapps.arrmatey.ui.viewmodel.NetworkConnectivityViewModel
 import com.dnfapps.arrmatey.utils.mokoString
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -104,11 +106,9 @@ fun ArrLibraryScreen(
     arrMediaViewModel: ArrMediaViewModel = koinInjectParams(type),
     instancesViewModel: InstancesViewModel = koinInjectParams(type),
     activityQueueViewModel: ActivityQueueViewModel = koinInject(),
-    navigationManager: NavigationManager = koinInject(),
-    networkViewModel: NetworkConnectivityViewModel = viewModel<NetworkConnectivityViewModel>()
+    navigationManager: NavigationManager = koinInject()
 ) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     val navigation = navigationManager.arr(type)
 
@@ -118,11 +118,8 @@ fun ArrLibraryScreen(
     val preferences by arrMediaViewModel.preferences.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val hasServerConnectivityError by arrMediaViewModel.hasServerConnectivityError.collectAsStateWithLifecycle()
-    val hasNetworkConnection by networkViewModel.isConnected.collectAsStateWithLifecycle()
     val errorMessage by arrMediaViewModel.errorMessage.collectAsStateWithLifecycle()
 
-    var showFilterSheet by remember { mutableStateOf(false) }
     var showSearchBar by remember { mutableStateOf(false) }
     val searchQuery by arrMediaViewModel.searchQuery.collectAsStateWithLifecycle()
 
@@ -138,46 +135,22 @@ fun ArrLibraryScreen(
                 SafeSnackbar(snackbarData = data)
             }
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navigation.navigateTo(ArrScreen.Search()) },
+                modifier = Modifier.offset(y = 25.dp, x = 5.dp)
+            ) {
+                Icon(Icons.Default.Add, null)
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        InstancePicker(
-                            currentInstance = instancesState.selectedInstance,
-                            typeInstances = instancesState.instances,
-                            onInstanceSelected = { instancesViewModel.setInstanceActive(it) }
-                        )
-
-                        if (hasServerConnectivityError) {
-                            val connectError = mokoString(MR.strings.instance_connect_error, instancesState.selectedInstance?.url ?: "")
-                            Icon(
-                                imageVector = Icons.Default.CloudOff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.clickable {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbarImmediately(message = connectError)
-                                    }
-                                }
-                            )
-                        }
-                        if (!hasNetworkConnection) {
-                            val noNetworkError = mokoString(MR.strings.no_network)
-                            Icon(
-                                imageVector = Icons.Default.SignalWifiOff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.clickable {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbarImmediately(message = noNetworkError)
-                                    }
-                                }
-                            )
-                        }
-                    }
+                    InstancePicker(
+                        currentInstance = instancesState.selectedInstance,
+                        typeInstances = instancesState.instances,
+                        onInstanceSelected = { instancesViewModel.setInstanceActive(it) }
+                    )
                 },
                 actions = {
                     instancesState.selectedInstance?.let {
@@ -189,24 +162,16 @@ fun ArrLibraryScreen(
                                 contentDescription = mokoString(MR.strings.search)
                             )
                         }
-                        IconButton(
-                            onClick = {
-                                navigation.navigateTo(ArrScreen.Search())
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null
-                            )
-                        }
-                        IconButton(
-                            onClick = { showFilterSheet = true }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FilterList,
-                                contentDescription = mokoString(MR.strings.filter)
-                            )
-                        }
+
+                        LibraryFilterMenu(
+                            type = type,
+                            filterBy = preferences.filterBy,
+                            onFilterByChanged = { arrMediaViewModel.updateFilterBy(it) },
+                            sortBy = preferences.sortBy,
+                            onSortByChanged = { arrMediaViewModel.updateSortBy(it) },
+                            sortOrder = preferences.sortOrder,
+                            onSortOrderChanged = { arrMediaViewModel.updateSortOrder(it) },
+                        )
                     }
                 }
             )
@@ -307,21 +272,6 @@ fun ArrLibraryScreen(
                     }
                 }
             }
-
-            if (showFilterSheet) {
-                FilterSheet(
-                    type = type,
-                    onDismiss = { showFilterSheet = false },
-                    selectedViewType = preferences.viewType,
-                    onViewTypeChanged = { arrMediaViewModel.updateViewType(it) },
-                    selectedFilter = preferences.filterBy,
-                    onFilterChanged = { arrMediaViewModel.updateFilterBy(it) },
-                    selectedSortOrder = preferences.sortOrder,
-                    onSortOrderChanged = { arrMediaViewModel.updateSortOrder(it) },
-                    selectedSortBy = preferences.sortBy,
-                    onSortByChanged = { arrMediaViewModel.updateSortBy(it) }
-                )
-            }
         }
     }
 }
@@ -339,7 +289,8 @@ private fun EmptySearchResultsView(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
             .fillMaxSize()
     ) {
         Text(
@@ -494,126 +445,4 @@ fun MediaView(
                 .fillMaxSize()
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FilterSheet(
-    type: InstanceType,
-    onDismiss: () -> Unit,
-    selectedViewType: ViewType,
-    onViewTypeChanged: (ViewType) -> Unit,
-    selectedFilter: FilterBy,
-    onFilterChanged: (FilterBy) -> Unit,
-    selectedSortOrder: SortOrder,
-    onSortOrderChanged: (SortOrder) -> Unit,
-    selectedSortBy: SortBy,
-    onSortByChanged: (SortBy) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
-        ) {
-            ViewTypePicker(
-                viewType = selectedViewType,
-                onViewTypeChanged = onViewTypeChanged
-            )
-
-            DropdownPicker(
-                options = FilterBy.typeEntries(type),
-                selectedOption = selectedFilter,
-                onOptionSelected = onFilterChanged,
-                label = { Text(mokoString(MR.strings.filter_by)) },
-                getOptionLabel = { mokoString(it.resource) }
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                DropdownPicker(
-                    options = SortBy.typeEntries(type),
-                    selectedOption = selectedSortBy,
-                    onOptionSelected = onSortByChanged,
-                    label = { Text(mokoString(MR.strings.sort_by)) },
-                    getOptionLabel = { mokoString(it.resource) },
-                    getOptionIcon = { it.androidIcon },
-                    modifier = Modifier.weight(1f)
-                )
-                DropdownPicker(
-                    options = SortOrder.entries,
-                    selectedOption = selectedSortOrder,
-                    onOptionSelected = onSortOrderChanged,
-                    label = { Text(mokoString(MR.strings.sort_order)) },
-                    getOptionLabel = { mokoString(it.resource) },
-                    getOptionIcon = { it.androidIcon },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ViewTypePicker(
-    viewType: ViewType,
-    onViewTypeChanged: (ViewType) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        ViewTypeButton(
-            selected = viewType == ViewType.Grid,
-            modifier = Modifier.weight(1f),
-            onClick = { onViewTypeChanged(ViewType.Grid) },
-            icon = Icons.Default.GridView,
-            label = "Grid"
-        )
-        ViewTypeButton(
-            selected = viewType == ViewType.List,
-            modifier = Modifier.weight(1f),
-            onClick = { onViewTypeChanged(ViewType.List) },
-            icon = Icons.AutoMirrored.Default.List,
-            label = "List"
-        )
-    }
-}
-
-@Composable
-fun ViewTypeButton(
-    selected: Boolean,
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier
-) {
-    val defaultButtonColors = ButtonDefaults.buttonColors()
-    val borderStroke = BorderStroke(1.dp, defaultButtonColors.containerColor)
-
-    val colors = if (selected) defaultButtonColors else {
-        ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary
-        )
-    }
-
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
-        border = borderStroke,
-        colors = colors
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null
-        )
-        Text(text = label)
-    }
-
 }

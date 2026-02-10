@@ -35,8 +35,7 @@ struct FilterByPickerMenu: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Image(systemName: "line.3.horizontal.decrease")
-                .imageScale(.medium)
+            Label(filteredBy.resource.localized(), systemImage: "line.3.horizontal.decrease")
         }
         .onChange(of: filteredBy, { _, newValue in
             changeFilterBy(newValue)
