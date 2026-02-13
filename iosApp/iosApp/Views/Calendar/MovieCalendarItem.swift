@@ -11,6 +11,8 @@ import Shared
 struct MovieCalendarItem: View {
     let movie: ArrMovie
     
+    @EnvironmentObject private var navigation: NavigationManager
+    
     private var statusIcon: String? {
         if movie.isDownloaded {
             return "checkmark.circle.fill"
@@ -35,10 +37,17 @@ struct MovieCalendarItem: View {
     
     var body: some View {
         Button(action: {
-            // Navigation action would go here
-            // Similar to navigationManager.setSelectedTab(TabItem.MOVIES)
+            if let id = movie.id?.int64Value {
+                navigation.selectedTab = .movies
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    navigation.go(to: .details(id), of: .radarr)
+                }
+            }
         }) {
             HStack(spacing: 12) {
+                PosterItem(item: movie)
+                    .frame(width: 50)
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text(movie.title)
                         .font(.headline)

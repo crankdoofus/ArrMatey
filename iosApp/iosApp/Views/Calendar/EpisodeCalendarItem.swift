@@ -11,6 +11,8 @@ import Shared
 struct EpisodeCalendarItem: View {
     let episodeGroup: EpisodeGroup
     
+    @EnvironmentObject private var navigation: NavigationManager
+    
     private var episode: Episode {
         episodeGroup.first
     }
@@ -28,6 +30,8 @@ struct EpisodeCalendarItem: View {
             return "clock.fill"
         } else if episode.monitored {
             return "bookmark.fill"
+        } else if !episode.monitored {
+            return "bookmark"
         }
         return nil
     }
@@ -39,7 +43,6 @@ struct EpisodeCalendarItem: View {
         formatter.dateFormat = "HH:mm"
         formatter.timeZone = TimeZone.current
         
-        // Convert Kotlin Instant to Swift Date
         let timeInterval = TimeInterval(airDateUtc.epochSeconds)
         let date = Date(timeIntervalSince1970: timeInterval)
         
@@ -48,10 +51,19 @@ struct EpisodeCalendarItem: View {
     
     var body: some View {
         Button(action: {
-            // Navigation action would go here
-            // Similar to navigationManager.setSelectedTab(TabItem.SHOWS)
+            if let id = episode.series?.id?.int64Value {
+                navigation.selectedTab = .shows
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    navigation.go(to: .details(id), of: .sonarr)
+                }
+            }
         }) {
             HStack(spacing: 12) {
+                if let series = episode.series {
+                    PosterItem(item: series)
+                        .frame(width: 50)
+                }
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text(episode.series?.title ?? MR.strings().unknown.localized())
                         .font(.headline)

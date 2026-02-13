@@ -79,11 +79,13 @@ struct CalendarMonthView: View {
     private var selectedDateContent: some View {
         let dayMovies = state.movies[selectedDate] ?? []
         let dayEpisodeGroups = state.groupedEpisodes[selectedDate] ?? []
+        let dayAlbums = state.albums[selectedDate] ?? []
         
         CalendarDaySection(
             date: selectedDate,
             movies: dayMovies,
             episodeGroups: dayEpisodeGroups,
+            albums: dayAlbums,
             isToday: selectedDate.isEqual(state.today)
         )
     }
