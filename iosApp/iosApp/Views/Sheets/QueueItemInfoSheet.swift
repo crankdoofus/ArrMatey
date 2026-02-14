@@ -23,7 +23,7 @@ struct QueueItemInfoSheet: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.titleLabel)
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.themePrimary)
                         
                         Text(item.title ?? MR.strings().unknown.localized())
                             .font(.system(size: 18, weight: .semibold))

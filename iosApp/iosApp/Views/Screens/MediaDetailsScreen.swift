@@ -88,7 +88,7 @@ struct MediaDetailsScreen: View {
                         if let airingString = makeAiringString(for: item) {
                             Text(airingString)
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.themePrimary)
                         }
                         
                         ItemDescriptionCard(overview: item.overview)

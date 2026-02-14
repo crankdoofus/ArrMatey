@@ -61,7 +61,7 @@ struct EpisodeRow: View {
                         Text(airDateText)
                             .font(.system(size: 14))
                             .fontWeight(episode.airDate?.isToday() == true ? .medium : .regular)
-                            .foregroundColor(episode.airDate?.isToday() == true ? .accentColor : .primary)
+                            .foregroundColor(episode.airDate?.isToday() == true ? .themePrimary : .primary)
                     }
                 }
                 

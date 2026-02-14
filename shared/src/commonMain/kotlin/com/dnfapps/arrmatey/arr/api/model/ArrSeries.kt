@@ -1,10 +1,10 @@
 package com.dnfapps.arrmatey.arr.api.model
 
 import androidx.compose.ui.graphics.Color
-import com.dnfapps.arrmatey.ui.theme.SonarrContinuingAllDownloaded
-import com.dnfapps.arrmatey.ui.theme.SonarrEndedAllDownloaded
-import com.dnfapps.arrmatey.ui.theme.SonarrMissingEpsSeriesMonitored
-import com.dnfapps.arrmatey.ui.theme.SonarrMissingEpsSeriesUnmonitored
+import com.dnfapps.arrmatey.ui.theme.ArrBlue
+import com.dnfapps.arrmatey.ui.theme.ArrGreen
+import com.dnfapps.arrmatey.ui.theme.ArrOrange
+import com.dnfapps.arrmatey.ui.theme.ArrRed
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -82,10 +82,10 @@ data class ArrSeries(
 
     override val statusColor: Color
         get() = when {
-            status == MediaStatus.Ended && statistics?.percentOfEpisodes == 100.toDouble() -> SonarrEndedAllDownloaded
-            status == MediaStatus.Continuing && statistics?.percentOfEpisodes == 100.toDouble() -> SonarrContinuingAllDownloaded
-            statistics?.percentOfEpisodes != 100.toDouble() && monitored -> SonarrMissingEpsSeriesMonitored
-            statistics?.percentOfEpisodes != 100.toDouble() && !monitored -> SonarrMissingEpsSeriesUnmonitored
+            status == MediaStatus.Ended && statistics?.percentOfEpisodes == 100.toDouble() -> ArrGreen
+            status == MediaStatus.Continuing && statistics?.percentOfEpisodes == 100.toDouble() -> ArrBlue
+            statistics?.percentOfEpisodes != 100.toDouble() && monitored -> ArrRed
+            statistics?.percentOfEpisodes != 100.toDouble() && !monitored -> ArrOrange
             else -> Color.Unspecified
         }
 

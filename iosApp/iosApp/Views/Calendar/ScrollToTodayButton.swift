@@ -21,7 +21,7 @@ struct ScrollToTodayButton: View {
             .foregroundColor(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(Color.accentColor)
+            .background(.themePrimary)
             .cornerRadius(25)
             .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
         }

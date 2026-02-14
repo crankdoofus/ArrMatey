@@ -24,7 +24,7 @@ struct ReleaseDownloadButtons: View {
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.accentColor)
+            .tint(.themePrimary)
             .controlSize(.regular)
             
             Button(action: onAutomaticClicked) {

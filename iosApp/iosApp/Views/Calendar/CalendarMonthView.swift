@@ -43,7 +43,7 @@ struct CalendarMonthView: View {
                     Text(monthYearString)
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundColor(isCurrentMonth ? .accentColor : .primary)
+                        .foregroundColor(isCurrentMonth ? .themePrimary : .primary)
                 }
                 
                 Spacer()

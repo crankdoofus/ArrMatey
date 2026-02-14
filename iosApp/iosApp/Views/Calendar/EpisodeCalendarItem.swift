@@ -57,25 +57,24 @@ struct EpisodeCalendarItem: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(episode.series?.title ?? MR.strings().unknown.localized())
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.themeOnTertiaryContainer)
                 
                 Text("S\(episode.seasonNumber)E\(episode.episodeNumber) • \(episode.title ?? "")")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
                 
                 HStack(spacing: 8) {
                     if let airTime = airTime {
                         Text(airTime)
-                            .font(.caption)
-                            .foregroundColor(.primary)
+                            .font(.footnote)
+                            .foregroundColor(.themeOnTertiaryContainer)
                     }
                     
                     if isPremier {
-                        BadgeView(text: MR.strings().premier.localized(), color: .blue)
+                        BadgeView(text: MR.strings().premier.localized(), color: .themeOnTertiaryContainer)
                     }
                     
                     if let finaleType = episode.finaleType {
-                        BadgeView(text: finaleType.name, color: .red)
+                        BadgeView(text: finaleType.resource.localized(), color: .themeOnTertiaryContainer)
                     }
                     
                     if !episodeGroup.additional.isEmpty {
@@ -91,11 +90,11 @@ struct EpisodeCalendarItem: View {
             if let icon = statusIcon {
                 Image(systemName: icon)
                     .font(.system(size: 18))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.themeOnTertiaryContainer)
             }
         }
         .padding()
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.themeTertiaryContainer))
         .cornerRadius(12)
     }
 }

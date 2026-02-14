@@ -1,11 +1,11 @@
 package com.dnfapps.arrmatey.arr.api.model
 
 import androidx.compose.ui.graphics.Color
-import com.dnfapps.arrmatey.ui.theme.RadarrDownloadedMonitored
-import com.dnfapps.arrmatey.ui.theme.RadarrDownloadedUnmonitored
-import com.dnfapps.arrmatey.ui.theme.RadarrMissingMonitored
-import com.dnfapps.arrmatey.ui.theme.RadarrMissingUnmonitored
-import com.dnfapps.arrmatey.ui.theme.RadarrUnreleased
+import com.dnfapps.arrmatey.ui.theme.ArrGreen
+import com.dnfapps.arrmatey.ui.theme.ArrGrey
+import com.dnfapps.arrmatey.ui.theme.ArrRed
+import com.dnfapps.arrmatey.ui.theme.ArrOrange
+import com.dnfapps.arrmatey.ui.theme.ArrBlue
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -94,11 +94,11 @@ data class ArrMovie(
 
     override val statusColor: Color
         get() = when {
-            status == MediaStatus.Tba || status == MediaStatus.Announced -> RadarrUnreleased
-            movieFile != null && monitored -> RadarrDownloadedMonitored
-            movieFile != null && !monitored -> RadarrDownloadedUnmonitored
-            movieFile == null && monitored -> RadarrMissingMonitored
-            movieFile == null && !monitored -> RadarrMissingUnmonitored
+            status == MediaStatus.Tba || status == MediaStatus.Announced -> ArrBlue
+            movieFile != null && monitored -> ArrGreen
+            movieFile != null && !monitored -> ArrGrey
+            movieFile == null && monitored -> ArrRed
+            movieFile == null && !monitored -> ArrOrange
             else -> Color.Unspecified
         }
 

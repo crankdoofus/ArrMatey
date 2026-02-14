@@ -38,7 +38,7 @@ struct CalendarTab: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigation) {
+        ToolbarItem(placement: .topBarTrailing) {
             Button(action: {
                 preferences.toggleCalendarViewMode()
             }) {

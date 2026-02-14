@@ -33,7 +33,7 @@ struct MediaInfoArea: View {
                         Spacer()
                         Text(info.value)
                             .font(.system(size: 14))
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.themePrimary)
                             .lineLimit(1)
                             .truncationMode(.tail)
                             .multilineTextAlignment(.trailing)

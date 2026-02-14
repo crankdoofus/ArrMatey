@@ -36,7 +36,7 @@ import com.dnfapps.arrmatey.extensions.isTodayOrAfter
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
-import com.dnfapps.arrmatey.ui.theme.SonarrDownloadingText
+import com.dnfapps.arrmatey.ui.theme.ArrLightPurple
 import com.dnfapps.arrmatey.utils.mokoString
 import org.koin.compose.koinInject
 
@@ -92,7 +92,7 @@ fun EpisodeRow(
 
             val airDate = episode.airDate?.takeIf { it.isTodayOrAfter() }
             val (statusText, statusColor) = when {
-                isActive && progressLabel != null -> progressLabel to SonarrDownloadingText
+                isActive && progressLabel != null -> progressLabel to ArrLightPurple
                 episode.fileQualityName != null -> episode.fileQualityName!! to MaterialTheme.colorScheme.tertiary
                 airDate != null -> mokoString(MR.strings.unaired) to Color.Unspecified
                 else -> mokoString(MR.strings.missing) to MaterialTheme.colorScheme.error

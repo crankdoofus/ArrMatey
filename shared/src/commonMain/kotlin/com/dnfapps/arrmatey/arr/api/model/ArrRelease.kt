@@ -1,10 +1,10 @@
 package com.dnfapps.arrmatey.arr.api.model
 
 import androidx.compose.ui.graphics.Color
-import com.dnfapps.arrmatey.ui.theme.DownloadBlue
-import com.dnfapps.arrmatey.ui.theme.DownloadGreen
-import com.dnfapps.arrmatey.ui.theme.DownloadOrange
-import com.dnfapps.arrmatey.ui.theme.DownloadRed
+import com.dnfapps.arrmatey.ui.theme.ArrBlue
+import com.dnfapps.arrmatey.ui.theme.ArrGreen
+import com.dnfapps.arrmatey.ui.theme.ArrOrange
+import com.dnfapps.arrmatey.ui.theme.ArrRed
 import kotlinx.serialization.SerialName
 import kotlin.time.Instant
 
@@ -59,12 +59,12 @@ sealed interface ArrRelease {
 
     val peerColor: Color
         get() = when {
-            protocol == ReleaseProtocol.Usenet -> DownloadGreen
-            rejections.any { it.contains("Not enough seeders") } -> DownloadRed
-            seeders >= 50 -> DownloadGreen
-            seeders >= 10 -> DownloadBlue
-            seeders >= 1 -> DownloadOrange
-            else -> DownloadRed
+            protocol == ReleaseProtocol.Usenet -> ArrGreen
+            rejections.any { it.contains("Not enough seeders") } -> ArrRed
+            seeders >= 50 -> ArrGreen
+            seeders >= 10 -> ArrBlue
+            seeders >= 1 -> ArrOrange
+            else -> ArrRed
         }
 
     val peerColorHex: String

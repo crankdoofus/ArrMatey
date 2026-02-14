@@ -16,7 +16,7 @@ struct HistoryItemView: View {
             HStack(spacing: 12) {
                 Text(item.eventType.resource.localized())
                     .font(.system(size: 14))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.themePrimary)
                 Text(item.date.format(pattern: "MMM d, yyyy"))
                     .font(.system(size: 12))
             }

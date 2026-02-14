@@ -39,7 +39,7 @@ struct CalendarDaySection: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(dateString)
                         .font(isToday ? .title2.bold() : .title2)
-                        .foregroundColor(isToday ? .accentColor : .primary)
+                        .foregroundColor(isToday ? .themePrimary : .primary)
                     
                     Text(dateDetailString)
                         .font(.subheadline)
@@ -54,7 +54,7 @@ struct CalendarDaySection: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color.accentColor)
+                        .background(.themePrimary)
                         .clipShape(Capsule())
                 }
             }

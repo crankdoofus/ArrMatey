@@ -29,7 +29,7 @@ struct EmptySearchResultsView: View {
                 Button(action: onShouldSearch) {
                     Text(MR.strings().no_query_results_link.formatted(args: [mediaType]))
                         .fontWeight(.bold)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.themePrimary)
                 }
             }
         }

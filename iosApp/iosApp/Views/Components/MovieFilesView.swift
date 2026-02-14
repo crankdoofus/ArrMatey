@@ -46,7 +46,7 @@ struct MovieFilesView: View {
                 Spacer()
                 Text(MR.strings().history.localized())
                     .font(.system(size: 16))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.themePrimary)
                     .onTapGesture {
                         let json = movie.toJson()
                         navigation.go(to: .movieFiles(json), of: .radarr)

@@ -2,10 +2,10 @@ package com.dnfapps.arrmatey.arr.api.model
 
 import androidx.compose.ui.graphics.Color
 import com.dnfapps.arrmatey.arr.api.client.HasArrImages
-import com.dnfapps.arrmatey.ui.theme.SonarrContinuingAllDownloaded
-import com.dnfapps.arrmatey.ui.theme.SonarrEndedAllDownloaded
-import com.dnfapps.arrmatey.ui.theme.SonarrMissingEpsSeriesMonitored
-import com.dnfapps.arrmatey.ui.theme.SonarrMissingEpsSeriesUnmonitored
+import com.dnfapps.arrmatey.ui.theme.ArrBlue
+import com.dnfapps.arrmatey.ui.theme.ArrGreen
+import com.dnfapps.arrmatey.ui.theme.ArrOrange
+import com.dnfapps.arrmatey.ui.theme.ArrRed
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -60,10 +60,10 @@ data class Arrtist(
 
     override val statusColor: Color
         get() = when {
-            status == MediaStatus.Ended && statistics?.percentOfTracks == 100f -> SonarrEndedAllDownloaded
-            status == MediaStatus.Continuing && statistics?.percentOfTracks == 100f -> SonarrContinuingAllDownloaded
-            statistics?.percentOfTracks != 100f && monitored -> SonarrMissingEpsSeriesMonitored
-            statistics?.percentOfTracks != 100f && !monitored -> SonarrMissingEpsSeriesUnmonitored
+            status == MediaStatus.Ended && statistics?.percentOfTracks == 100f -> ArrGreen
+            status == MediaStatus.Continuing && statistics?.percentOfTracks == 100f -> ArrBlue
+            statistics?.percentOfTracks != 100f && monitored -> ArrRed
+            statistics?.percentOfTracks != 100f && !monitored -> ArrOrange
             else -> Color.Unspecified
         }
 

@@ -97,14 +97,14 @@ fun EpisodeCalendarItem(
                     }
                     episode.finaleType?.let { finaleType ->
                         Surface(
-                            color = MaterialTheme.colorScheme.error,
+                            color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = mokoString(finaleType.resource),
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onError
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }

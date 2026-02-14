@@ -42,7 +42,7 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.entensions.Bullet
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.helpers.rememberRemoteImageData
-import com.dnfapps.arrmatey.ui.theme.SonarrDownloading
+import com.dnfapps.arrmatey.ui.theme.ArrPurple
 import com.dnfapps.arrmatey.ui.theme.TranslucentBlack
 import com.dnfapps.arrmatey.utils.format
 import com.dnfapps.arrmatey.utils.mokoPlural
@@ -182,7 +182,7 @@ private fun ColumnScope.SeriesDetails(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = if (isActive) SonarrDownloading else item.statusColor
+            color = if (isActive) ArrPurple else item.statusColor
         )
     }
 }
@@ -245,7 +245,7 @@ private fun ColumnScope.ArtistDetails(
         }
         LinearProgressIndicator(
             progress = { item.statusProgress },
-            color = if (isActive) SonarrDownloading else item.statusColor,
+            color = if (isActive) ArrPurple else item.statusColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp)

@@ -29,7 +29,7 @@ struct CalendarDayCell: View {
                 Text("\(date.day)")
                     .font(.body)
                     .fontWeight(isToday || isSelected ? .bold : .regular)
-                    .foregroundColor(isSelected ? .white : (isToday ? .accentColor : .primary))
+                    .foregroundColor(isSelected ? .white : (isToday ? .themePrimary : .primary))
                 
                 Spacer()
                 
@@ -57,7 +57,7 @@ struct CalendarDayCell: View {
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isToday && !isSelected ? Color.accentColor : Color.clear, lineWidth: 1)
+                    .stroke(isToday && !isSelected ? Color.themePrimary : Color.clear, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -65,9 +65,9 @@ struct CalendarDayCell: View {
     
     private var backgroundColor: Color {
         if isSelected {
-            return .accentColor
+            return .themePrimary
         } else if isToday {
-            return Color.accentColor.opacity(0.15)
+            return .themePrimary.opacity(0.15)
         } else {
             return .clear
         }

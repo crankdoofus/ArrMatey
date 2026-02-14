@@ -41,13 +41,13 @@ struct MovieCalendarItem: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(movie.title)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.themeOnPrimaryContainer)
                 
                 if let releaseType = releaseTypeText {
                     HStack(spacing: 8) {
                         Text(releaseType)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(.footnote)
+                            .foregroundColor(.themeOnPrimaryContainer)
                     }
                 }
             }
@@ -57,11 +57,11 @@ struct MovieCalendarItem: View {
             if let icon = statusIcon {
                 Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.themeOnPrimaryContainer)
             }
         }
         .padding()
-        .background(Color(.secondarySystemBackground))
+        .background(Color(.themePrimaryContainer))
         .cornerRadius(12)
     }
 }

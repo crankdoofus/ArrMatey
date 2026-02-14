@@ -24,7 +24,7 @@ struct InstancePickerMenu: View {
                             Spacer()
                             if i.selected {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(.themePrimary)
                             }
                         }
                     }

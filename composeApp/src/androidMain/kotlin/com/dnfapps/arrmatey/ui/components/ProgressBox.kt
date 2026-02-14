@@ -18,7 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.dnfapps.arrmatey.ui.theme.DownloadGreen
+import com.dnfapps.arrmatey.ui.theme.ArrGreen
 
 @Composable
 fun ProgressBox(
@@ -26,8 +26,8 @@ fun ProgressBox(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     gradientColors: List<Color> = listOf(
-        DownloadGreen.copy(alpha = .2f),
-        DownloadGreen.copy(alpha = .7f)
+        ArrGreen.copy(alpha = .2f),
+        ArrGreen.copy(alpha = .7f)
     ),
     content: @Composable BoxScope.() -> Unit
 ) {
