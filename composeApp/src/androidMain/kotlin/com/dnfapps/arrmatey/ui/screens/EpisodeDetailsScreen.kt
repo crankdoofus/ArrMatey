@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import com.dnfapps.arrmatey.shared.MR
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,8 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,14 +45,12 @@ import com.dnfapps.arrmatey.arr.state.HistoryState
 import com.dnfapps.arrmatey.arr.viewmodel.EpisodeDetailsViewModel
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.di.koinInjectParams
-import com.dnfapps.arrmatey.entensions.SafeSnackbar
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
-import com.dnfapps.arrmatey.entensions.showErrorImmediately
-import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.EpisodeDetailsHeader
 import com.dnfapps.arrmatey.ui.components.FileCard
 import com.dnfapps.arrmatey.ui.components.HistoryItemView
@@ -71,6 +68,7 @@ fun EpisodeDetailsScreen(
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.series()
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     val currentEpisode by viewModel.episode.collectAsStateWithLifecycle()
@@ -78,22 +76,18 @@ fun EpisodeDetailsScreen(
     val monitorStatus by viewModel.monitorStatus.collectAsStateWithLifecycle()
     val deleteStatus by viewModel.deleteStatus.collectAsStateWithLifecycle()
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
     var confirmDelete by remember { mutableStateOf(false) }
 
     LaunchedEffect(monitorStatus) {
-        when (monitorStatus) {
+        when (val status = monitorStatus) {
             is OperationStatus.Success -> {
-                snackbarHostState.showSnackbar(
-                    (monitorStatus as OperationStatus.Success).message ?: "Updated"
-                )
+                Toast.makeText(context, status.message ?: "Updated", Toast.LENGTH_SHORT).show()
                 viewModel.resetMonitorStatus()
             }
             is OperationStatus.Error -> {
-                snackbarHostState.showSnackbar(
-                    (monitorStatus as OperationStatus.Error).message ?: ""
-                )
+                status.message?.let { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
                 viewModel.resetMonitorStatus()
             }
             else -> {}
@@ -103,22 +97,18 @@ fun EpisodeDetailsScreen(
     LaunchedEffect(deleteStatus) {
         when (val status = deleteStatus) {
             is OperationStatus.Success -> {
-                snackbarHostState.showSnackbarImmediately(status.message ?: "")
+                Toast.makeText(context, status.message ?: "Deleted", Toast.LENGTH_SHORT).show()
             }
             is OperationStatus.Error -> {
-                snackbarHostState.showErrorImmediately(status.message ?: "")
+                status.message?.let { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             }
             else -> {}
         }
     }
 
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
-                SafeSnackbar(data)
-            }
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .padding(paddingValues.copy(top = 0.dp, bottom = 0.dp))

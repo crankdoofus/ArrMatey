@@ -1,6 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import com.dnfapps.arrmatey.shared.MR
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
@@ -38,14 +37,13 @@ import com.dnfapps.arrmatey.arr.api.model.Tag
 import com.dnfapps.arrmatey.arr.viewmodel.MediaPreviewViewModel
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.di.koinInjectParams
-import com.dnfapps.arrmatey.entensions.SafeSnackbar
 import com.dnfapps.arrmatey.entensions.copy
 import com.dnfapps.arrmatey.entensions.headerBarColors
-import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
 import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.DetailsHeader
 import com.dnfapps.arrmatey.ui.components.ItemDescriptionCard
 import com.dnfapps.arrmatey.ui.components.OverlayTopAppBar
@@ -65,6 +63,7 @@ fun MediaPreviewScreen(
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.arr(type)
 ) {
+    val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
@@ -76,16 +75,16 @@ fun MediaPreviewScreen(
 
     val successMessage = mokoString(MR.strings.success)
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
     LaunchedEffect(addItemStatus) {
         when (val status = addItemStatus) {
             is OperationStatus.Success -> {
                 showBottomSheet = false
-                snackbarHostState.showSnackbarImmediately(status.message ?: successMessage)
+                Toast.makeText(context, status.message ?: successMessage, Toast.LENGTH_SHORT).show()
             }
             is OperationStatus.Error -> {
-                snackbarHostState.showSnackbarImmediately(status.message ?: "")
+                status.message?.let { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             }
             else -> {}
         }
@@ -99,13 +98,7 @@ fun MediaPreviewScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
-                SafeSnackbar(data)
-            }
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Box(modifier = Modifier
             .padding(paddingValues.copy(bottom = 0.dp, top = 0.dp))
             .fillMaxSize()

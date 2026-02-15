@@ -1,5 +1,6 @@
 package com.dnfapps.arrmatey.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,8 +24,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -53,10 +53,7 @@ import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
 import com.dnfapps.arrmatey.compose.utils.singleLanguageLabel
 import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.entensions.Bullet
-import com.dnfapps.arrmatey.entensions.SafeSnackbar
 import com.dnfapps.arrmatey.entensions.bullet
-import com.dnfapps.arrmatey.entensions.showErrorImmediately
-import com.dnfapps.arrmatey.entensions.showSnackbarImmediately
 import com.dnfapps.arrmatey.extensions.formatAgeMinutes
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.ArrScreen
@@ -81,6 +78,7 @@ fun InteractiveSearchScreen(
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.arr(instanceType)
 ) {
+    val context = LocalContext.current
     val releaseUiState by viewModel.releaseUiState.collectAsStateWithLifecycle()
     val downloadState by viewModel.downloadReleaseState.collectAsStateWithLifecycle()
     val downloadStatus by viewModel.downloadStatus.collectAsStateWithLifecycle()
@@ -91,8 +89,6 @@ fun InteractiveSearchScreen(
 
     val downloadQueueSuccessMessage = mokoString(MR.strings.download_queue_success)
     val downloadQueueErrorMessage = mokoString(MR.strings.download_queue_error)
-
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         snapshotFlow { textFieldState.text.toString() }
@@ -108,18 +104,13 @@ fun InteractiveSearchScreen(
 
     LaunchedEffect(downloadStatus) {
         when (downloadStatus) {
-            true -> snackbarHostState.showSnackbarImmediately(downloadQueueSuccessMessage)
-            false -> snackbarHostState.showErrorImmediately(downloadQueueErrorMessage)
+            true -> Toast.makeText(context, downloadQueueSuccessMessage, Toast.LENGTH_SHORT).show()
+            false -> Toast.makeText(context, downloadQueueErrorMessage, Toast.LENGTH_SHORT).show()
             else -> {}
         }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
-                SafeSnackbar(data)
-            }
-        },
         topBar = {
             ArrAppBarWithSearch(
                 textFieldState = textFieldState,
