@@ -322,7 +322,8 @@ fun QueueItemInfoSheet(
                     }
                     LinearProgressIndicator(
                         progress = { item.progressPercent / 100f },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 }
             }

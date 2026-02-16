@@ -24,7 +24,7 @@ fun CalendarMonthGrid(
 ) {
     val firstDayOfMonth = LocalDate(currentMonth.year, currentMonth.month, 1)
     val daysInMonth = currentMonth.daysInMonth()
-    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.ordinal
+    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.ordinal+1
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth()) {

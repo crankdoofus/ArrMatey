@@ -1,6 +1,115 @@
-# ArrMatey
+<div align="center">
+  <img src="composeApp/src/androidMain/ic_launcher-playstore.png" width="100px" />
+  <h1 style="font-size: 28px; margin: 10px 0;">ArrMatey</h1>
+  <p>A modern, all-in-one mobile client for managing your *arr stack. Built using KMP with native Jetpack Compose UI for Android and SwiftUI for iOS.</p>
+</div>
 
-An all-in-one mobile too for your Arr stack
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
+[![iOS](https://img.shields.io/badge/Platform-iOS-purple.svg)](https://www.apple.com/ios)
+[![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple.svg)](https://kotlinlang.org)
+[![Swift](https://img.shields.io/badge/Language-Swift-orange.svg)](https://swift.org)
+
+## Features
+
+### Multi-Instance Support
+- Manage multiple Sonarr, Radarr, and Lidarr instances
+- Quick instance switching
+- Custom instance labels and configurations
+
+### Library Management
+- Browse your entire media library with list and grid views
+- Search and filter by title, quality, monitored status
+- Sort by name, date added, size, and more
+- View detailed media information including:
+  - Episode lists with file status
+  - Season management
+  - Quality profiles and custom formats
+  - File sizes and storage information
+
+### Interactive Search
+- Manual search for releases
+- Filter by quality, language, indexer, protocol
+- View seeders, size, age, and custom format scores
+- One-tap download with confirmation for rejected releases
+
+### Calendar View
+- View upcoming episodes and movie releases
+- Switch between list and month views
+- Filter by content type, monitored status, premieres/finales
+- Scroll-to-today for easy navigation
+
+### Activity Queue
+- Real-time download monitoring
+- View progress, ETA, and status
+- Cancel downloads with blocklist options
+- Detailed queue item information
+
+### Advanced Features
+- **Custom Headers**: Add custom HTTP headers per instance
+- **Slow Instance Mode**: Configurable timeout for remote instances
+- **Pull-to-refresh**: Update data across all screens
+- **Material 3/Liquid Glass Design**: Beautiful, modern UI with dynamic theming on Android and Liquid Glass on iOS
+- **Search Everywhere**: Unified search across your library
+
+### Planned Features
+- [ ] Tablet/Large screen support
+- [ ] Home screen widgets
+- [ ] Schedule notifications
+- [ ] Additional instances types
+  - [ ] Seer
+  - [ ] Readarr/Chaptarr
+  - [ ] Bazarr
+  - [ ] Kapowarr
+  - [ ] tautulli
+  - [ ] prowlarr
+- and more to com
+
+## Screenshots
+
+### Library Views
+<table>
+  <tr>
+    <td><img src="screenshots/library_list.png" width="250"/><img src="screenshots/library_list_ios.png" width="250"/></td>
+    <td><img src="screenshots/library_grid.png" width="250"/><img src="screenshots/library_grid_ios.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>List View</em></td>
+    <td align="center"><em>Grid View</em></td>
+  </tr>
+</table>
+
+### Media Details
+<table>
+  <tr>
+    <td><img src="screenshots/series_details.png" width="250"/><img src="screenshots/series_details_ios.png" width="250"/></td>
+    <td><img src="screenshots/movie_details.png" width="250"/><img src="screenshots/movie_details_ios.png" width="250"/></td>
+    <td><img src="screenshots/episode_details.png" width="250"/><img src="screenshots/episode_details_ios.png" width="250"/></td>
+    <td><img src="screenshots/artist_details.png" width="250"/><img src="screenshots/artist_details_ios.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Series Details</em></td>
+    <td align="center"><em>Movie Details</em></td>
+    <td align="center"><em>Episode Details</em></td>
+    <td align="center"><em>Artist Details</em></td>
+  </tr>
+</table>
+
+### Calendar & Activity
+<table>
+  <tr>
+    <td><img src="screenshots/calendar_list.png" width="250"/><img src="screenshots/calendar_list_ios.png" width="250"/></td>
+    <td><img src="screenshots/calendar_month.png" width="250"/><img src="screenshots/calendar_month_ios.png" width="250"/></td>
+    <td><img src="screenshots/activity_queue.png" width="250"/><img src="screenshots/activity_queue_ios.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Calendar List</em></td>
+    <td align="center"><em>Calendar Month</em></td>
+    <td align="center"><em>Activity Queue</em></td>
+  </tr>
+</table>
+
+## Getting Started
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 
@@ -39,55 +148,81 @@ in your IDE’s toolbar or build it directly from the terminal:
 To build and run the development version of the iOS app, use the run configuration from the run widget
 in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
 
+Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
 ### Adding Localized String
 
-Strings are generated for each platform from a shared source of truth. Strings can be added to [strings/strings.txt](./strings/strings.txt). Entries in [strings/strings.txt](./strings/strings.txt) follow these rules:
+ArrMatey uses [moko-resources](https://github.com/icerockdev/moko-resources) for string resources across platforms. 
+Any new strings should be added to strings.xml, or plurals.xml for plural strings. Build your targets, and new strings will be accessible using MR.strings
 
-`[[Category]]` - purely organizational, will be displayed as a comment in Android strings.xml and ignored on iOS
+## Configuration
 
-`[key]` - the value to be used as the key for this string
+### Adding Your First Instance
 
-Each `[key]` can have the following properties:
+1. Open the app and navigate to **Settings**
+2. Tap **Add Instance**
+3. Select your instance type (Sonarr/Radarr/Lidarr)
+4. Enter your instance details:
+  - **Label**: A friendly name for this instance
+  - **Host**: Your instance URL (e.g., `http://192.168.1.100:8989`)
+  - **API Key**: Found in your instance settings under General → Security
+5. (Optional) Configure advanced settings:
+  - **Slow Instance**: Enable for remote instances with higher latency
+  - **Custom Timeout**: Set a custom timeout in seconds (default: 60s)
+  - **Custom Headers**: Add additional HTTP headers if needed
+6. Tap **Test Connection** to verify
+7. Save your instance
 
-- `iosKey = {value}` - Allows you to specific a different key for the iOS `Localizeable.xcstrings` file. Because of how SwiftUI handles localization, you may want to use a key specifically for iOS, particularily if using plurals or variables.
+### Custom Headers
 
-- `comment = {value}` - {value} will be added as a comment to the entry is `Localizeable.xcstrings`, will also be show as an XML comment in Android `strings.xml` eg. `<string name="distance">%1$d-%2$d m</strimg> <!-- Represent a distance range -->`
+Custom headers are useful for:
 
-- `{lang} = {value}` - the actual string and any translations, eg.
+- Reverse proxy authentication
+- Additional security headers
+- Custom routing or load balancing
 
-```
-en = Hello
-fr = Bonjour
-es = Hola
-```
+Example:
 
-- `{lang}_plural = {value}` is also supported for plurals. A `_plural` must be specified all languages or generation will fail. You will likely also want to set an `isoKey` for any plural entries, eg.
+- Header: `X-Forwarded-For`
+- Value: `192.168.1.1`
 
-```
-[items]
-iosKey = %lld items
-en = %d item
-en_plural = %d items
-fr = %d article
-fr_plural = %d articles
-```
+## Contributing
 
-- `variables` - The follow variables are supported
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-| Variable | Type   | iOS  | Android | Example   |
-| -------- | ------ | ---- | ------- | --------- |
-| %@       | String | %@   | $s      | Hello %@! |
-| %d       | Int    | %lld | $d      | %d elk    |
-| %f       | Float  | %f   | $f      | %.2f Kb   |
+### Development Guidelines
 
-You can also specify the order of variables using the same format as native Android and iOS strings. eg. `en = Today is %1$d %2$@`
+1. **Code Style**: Follow [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html)
+2. **Commits**: Use conventional commit messages
+3. **Testing**: Add tests for new features
+4. **Documentation**: Update README and code comments
 
-To generate platform specfic files, run
+### How to Contribute
 
-```
-node generate-strings.js
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
----
+## Bug Reports
+Found a bug? Please [open an issue](https://github.com/owenlejeune/ArrMatey/issues) with:
+- A clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Device/Android version
+- Arr instance version (Sonarr/Radarr/Lidarr)
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Sonarr](https://sonarr.tv/) - Smart PVR for newsgroup and bittorrent users
+- [Radarr](https://radarr.video/) - Movie collection manager
+- [Lidarr](https://lidarr.audio/) - Music collection manager
+- [Material Design 3](https://m3.material.io/) - Design system
+- [Jetpack Compose](https://developer.android.com/jetpack/compose) - Modern UI toolkit
+- [SwftUI](https://developer.apple.com/xcode/swiftui/) - Apple's declarative framework for building user interfaces
+- [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) - Kotlin's cross-platform solution

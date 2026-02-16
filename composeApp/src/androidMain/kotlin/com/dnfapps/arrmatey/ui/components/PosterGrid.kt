@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +50,8 @@ fun PosterGrid(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                                 .height(6.dp),
-                            color = if (isActive) ArrPurple else item.statusColor
+                            color = if (isActive) ArrPurple else item.statusColor,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
                         )
                     }
                 }

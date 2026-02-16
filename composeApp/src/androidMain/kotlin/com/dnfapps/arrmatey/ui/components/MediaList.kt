@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -182,7 +183,8 @@ private fun ColumnScope.SeriesDetails(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = if (isActive) ArrPurple else item.statusColor
+            color = if (isActive) ArrPurple else item.statusColor,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }
@@ -208,7 +210,8 @@ private fun ColumnScope.MovieDetails(item: ArrMovie) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = item.statusColor
+            color = item.statusColor,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }
@@ -248,7 +251,8 @@ private fun ColumnScope.ArtistDetails(
             color = if (isActive) ArrPurple else item.statusColor,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp)
+                .height(6.dp),
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }
