@@ -137,6 +137,8 @@ fun MediaDetailsScreen(
     var confirmDelete by remember { mutableStateOf(false) }
     var showEditSheet by remember { mutableStateOf(false) }
     var moveFilesItem by remember { mutableStateOf<ArrMedia?>(null) }
+    var confirmDeleteSeasonNumber by remember { mutableStateOf<Int?>(null) }
+    var confirmDeleteAlbum by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(editStatus) {
         when (val status = editStatus) {
@@ -209,7 +211,8 @@ fun MediaDetailsScreen(
                                             mediaDetailsViewModel.performSeasonAutomaticLookup(it)
                                         },
                                         deleteSeasonFiles = { seasonNumber ->
-                                            mediaDetailsViewModel.deleteSeasonFiles(seasonNumber)
+                                            confirmDeleteSeasonNumber = seasonNumber
+//                                            mediaDetailsViewModel.deleteSeasonFiles(seasonNumber)
                                         },
                                         seasonDeleteInProgress = seasonDeleteStatus is OperationStatus.InProgress
                                     )
@@ -234,7 +237,8 @@ fun MediaDetailsScreen(
                                             mediaDetailsViewModel.performAlbumAutomaticLookup(it)
                                         },
                                         deleteAlbumFiles = {
-                                            mediaDetailsViewModel.deleteAlbumFiles(it)
+                                            confirmDeleteAlbum = it
+//                                            mediaDetailsViewModel.deleteAlbumFiles(it)
                                         },
                                         albumDeleteInProgress = albumDeleteStatus is OperationStatus.InProgress,
                                     )
@@ -324,7 +328,7 @@ fun MediaDetailsScreen(
                 AlertDialog(
                     onDismissRequest = { moveFilesItem = null },
                     title = {
-                        Text("Move files to ${item.rootFolderPath}?")
+                        Text(mokoString(MR.strings.move_files_confirm, item.rootFolderPath ?: ""))
                     },
                     confirmButton = {
                         TextButton(
@@ -341,6 +345,62 @@ fun MediaDetailsScreen(
                             onClick = {
                                 mediaDetailsViewModel.editItem(item)
                                 moveFilesItem = null
+                            }
+                        ) {
+                            Text(mokoString(MR.strings.no))
+                        }
+                    }
+                )
+            }
+
+            confirmDeleteSeasonNumber?.let {
+                AlertDialog(
+                    onDismissRequest = { confirmDeleteSeasonNumber = null },
+                    title = {
+                        Text(mokoString(MR.strings.delete_season, it))
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                mediaDetailsViewModel.deleteSeasonFiles(it)
+                                confirmDeleteSeasonNumber = null
+                            }
+                        ) {
+                            Text(mokoString(MR.strings.yes))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                confirmDeleteSeasonNumber = null
+                            }
+                        ) {
+                            Text(mokoString(MR.strings.no))
+                        }
+                    }
+                )
+            }
+
+            confirmDeleteAlbum?.let {
+                AlertDialog(
+                    onDismissRequest = { confirmDeleteAlbum = null },
+                    title = {
+                        Text(mokoString(MR.strings.delete_season, it))
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                mediaDetailsViewModel.deleteAlbumFiles(it)
+                                confirmDeleteAlbum = null
+                            }
+                        ) {
+                            Text(mokoString(MR.strings.yes))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                confirmDeleteAlbum = null
                             }
                         ) {
                             Text(mokoString(MR.strings.no))
