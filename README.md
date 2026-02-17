@@ -150,6 +150,16 @@ in your IDE’s toolbar or build it directly from the terminal:
 To build and run the development version of the iOS app, use the run configuration from the run widget
 in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
 
+To build the app locally Xcode must be signed into an Apple Account:
+```
+Xcode → Settings → Accounts
+```
+
+Next, select the Apple Account's team for the `iosApp` target:
+```
+iosApp → Signing & Capabilities → Targets → iosApp -> Signing -> Team
+```
+
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
 
 ### Adding Localized String
