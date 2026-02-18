@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.helpers.rememberRemoteImageData
+import com.dnfapps.arrmatey.utils.mokoString
 
 @Composable
 fun ClearLogo(
@@ -65,7 +67,7 @@ fun ClearLogo(
         }
     } ?: run {
         Text(
-            text = item.title,
+            text = item.title ?: mokoString(MR.strings.unknown),
             fontSize = 38.sp,
             fontWeight = FontWeight.Medium,
             lineHeight = 42.sp,

@@ -54,7 +54,7 @@ fun AlbumCalendarItem(
             AlbumCover(album, Modifier.size(50.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = album.title,
+                    text = album.title ?: mokoString(MR.strings.unknown),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )

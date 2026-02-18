@@ -32,7 +32,7 @@ struct EpisodeDetailsHeader: View {
                         .font(.system(size: 32, weight: .bold))
                         .lineLimit(3)
                         .truncationMode(.tail)
-                    Text(series.title)
+                    Text(series.title ?? MR.strings().unknown.localized())
                         .font(.system(size: 18))
                     
                     Text(statusRow)

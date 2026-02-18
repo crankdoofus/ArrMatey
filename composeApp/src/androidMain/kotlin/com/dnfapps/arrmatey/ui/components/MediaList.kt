@@ -118,10 +118,12 @@ fun <T: ArrMedia> MediaItem(
                 ) {
                     Text(
                         text = buildString {
-                            append(item.title)
+                            append(item.title ?: mokoString(MR.strings.unknown))
                             item.year?.let { year ->
-                                if (!item.title.contains("$year")) {
-                                    append(" ($year)")
+                                item.title?.contains("$year")?.let {
+                                    if (!it) {
+                                        append(" ($year)")
+                                    }
                                 }
                             }
                         },

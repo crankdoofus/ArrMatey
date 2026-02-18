@@ -24,11 +24,13 @@ struct AlbumRowView: View {
     @EnvironmentObject private var navigation: NavigationManager
     
     private var titleLabel: String {
-        var title = album.title
-        if let year = album.releaseDate?.format(pattern: "YYYY") {
-            title += " (\(year))"
+        var result = album.title ?? MR.strings().unknown.localized()
+        if let year = album.releaseDate?.format(pattern: "YYYY"),
+           let title = album.title,
+           !title.contains(String(describing: year)) {
+            result += " (\(year))"
         }
-        return title
+        return result
     }
     
     var body: some View {

@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.sp
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.entensions.Bullet
+import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.utils.mokoString
 
 @Composable
 fun EpisodeDetailsHeader(episode: Episode, series: ArrSeries) {
@@ -46,7 +48,7 @@ fun EpisodeDetailsHeader(episode: Episode, series: ArrSeries) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = series.title,
+                    text = series.title ?: mokoString(MR.strings.unknown),
                     fontSize = 18.sp
                 )
                 val statusRow = listOfNotNull(

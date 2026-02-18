@@ -12,7 +12,7 @@ import kotlin.time.Instant
 @Serializable
 data class ArrSeries(
     override val id: Long? = null,
-    override val title: String,
+    override val title: String? = null,
     override val originalLanguage: Language,
     override val year: Int,
     override val qualityProfileId: Int,
@@ -31,7 +31,7 @@ data class ArrSeries(
     override val alternateTitles: List<AlternateTitle> = emptyList(),
     override val genres: List<String> = emptyList(),
     override val tags: List<Int> = emptyList(),
-    override val ratings: SeriesRatings,
+    override val ratings: SeriesRatings? = null,
     override val statistics: SeriesStatistics? = null,
     @Contextual override val added: Instant? = null,
 
@@ -43,8 +43,8 @@ data class ArrSeries(
     val imdbId: String? = null,
     val tmdbId: Long? = null,
     val tvdbId: Long,
-    val tvRageId: Int,
-    val tvMazeId: Int,
+    val tvRageId: Int? = null,
+    val tvMazeId: Int? = null,
     val seriesType: SeriesType,
     val seasons: List<Season> = emptyList(),
     val profileName: String? = null,
@@ -62,7 +62,7 @@ data class ArrSeries(
         get() = id ?: tvdbId.plus(100_000)
 
     override fun ratingScore(): Double {
-        return ratings.value
+        return ratings?.value ?: 0.toDouble()
     }
 
     val episodeFileCount: Int

@@ -39,7 +39,7 @@ struct MovieCalendarItem: View {
                 .frame(width: 50)
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(movie.title)
+                Text(movie.title ?? MR.strings().unknown.localized())
                     .font(.headline)
                     .foregroundColor(.themeOnPrimaryContainer)
                 

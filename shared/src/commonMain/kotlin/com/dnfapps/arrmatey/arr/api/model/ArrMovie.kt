@@ -13,7 +13,7 @@ import kotlin.time.Instant
 @Serializable
 data class ArrMovie(
     override val id: Long? = null,
-    override val title: String,
+    override val title: String? = null,
     override val originalLanguage: Language,
     override val year: Int,
     override val qualityProfileId: Int,
@@ -32,13 +32,13 @@ data class ArrMovie(
     override val alternateTitles: List<AlternateTitle> = emptyList(),
     override val genres: List<String> = emptyList(),
     override val tags: List<Int> = emptyList(),
-    override val ratings: MovieRatings,
+    override val ratings: MovieRatings? = null,
     override val statistics: MovieStatistics? = null,
     @Contextual override val added: Instant? = null,
 
     val imdbId: String? = null,
     val tmdbId: Long,
-    val originalTitle: String,
+    val originalTitle: String? = null,
     val secondaryYear: Int? = null,
     val secondaryYearSourceId: Int,
     val sizeOnDisk: Long = 0,
@@ -47,19 +47,19 @@ data class ArrMovie(
     @Contextual val digitalRelease: Instant? = null,
     @Contextual val releaseDate: Instant? = null,
     val physicalReleaseNote: String? = null,
-    val website: String,
+    val website: String? = null,
     val remotePoster: String? = null,
-    val youTubeTrailerId: String,
-    val studio: String,
+    val youTubeTrailerId: String? = null,
+    val studio: String? = null,
     val hasFile: Boolean = false,
-    val movieFileId: Int,
+    val movieFileId: Int? = null,
     val minimumAvailability: MediaStatus,
-    val isAvailable: Boolean,
-    val folderName: String,
+    val isAvailable: Boolean = false,
+    val folderName: String? = null,
     val keywords: List<String> = emptyList(),
     val movieFile: MovieFile? = null,
     val collection: MovieCollection? = null,
-    val popularity: Double,
+    val popularity: Double = 0.toDouble(),
     val lastSearchTime: String? = null,
 
     val instanceId: Long? = null
@@ -76,11 +76,11 @@ data class ArrMovie(
         }
 
     override fun ratingScore(): Double {
-        val imdb = ratings.imdb?.value
-        val rt = ratings.rottenTomatoes?.value?.apply { this/10 }
-        val tmdb = ratings.tmdb?.value
-        val mtc = ratings.metacritic?.value?.apply { this/10 }
-        val trakt = ratings.trakt?.value
+        val imdb = ratings?.imdb?.value
+        val rt = ratings?.rottenTomatoes?.value?.apply { this/10 }
+        val tmdb = ratings?.tmdb?.value
+        val mtc = ratings?.metacritic?.value?.apply { this/10 }
+        val trakt = ratings?.trakt?.value
 
         val avail = listOfNotNull(imdb, rt, tmdb, mtc, trakt)
         return avail.sum() / avail.size

@@ -18,12 +18,12 @@ struct MediaItemView<T: ArrMedia>: View {
     }
     
     private var itemTitle: String {
-        var result = item.title
-        if let year = item.year {
-            if !item.title.contains(String(describing: year)) {
+        var result = item.title ?? MR.strings().unknown.localized()
+        if let year = item.year,
+            let title = item.title,
+            !title.contains(String(describing: year)) {
                 result += " (\(year))"
             }
-        }
         return result
     }
     

@@ -52,7 +52,7 @@ fun MovieCalendarItem(
             PosterItem(movie, Modifier.width(50.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = movie.title,
+                    text = movie.title ?: mokoString(MR.strings.unknown),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )

@@ -37,7 +37,7 @@ sealed interface ArrMedia {
      * API JSON properties
      */
     val id: Long?
-    val title: String
+    val title: String?
     val originalLanguage: Language?
     val year: Int?
     val qualityProfileId: Int
@@ -55,7 +55,7 @@ sealed interface ArrMedia {
     val genres: List<String>
     val tags: List<Int>
     val alternateTitles: List<AlternateTitle>
-    val ratings: ArrRatings
+    val ratings: ArrRatings?
     val statistics: ArrStatistics?
     @Contextual val added: Instant?
     val status: MediaStatus

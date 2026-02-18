@@ -14,8 +14,8 @@ import kotlin.time.Instant
 @Serializable
 data class Arrtist(
     override val id: Long? = null,
-    @SerialName("artistName") override val title: String,
-    @SerialName("sortName") override val sortTitle: String,
+    @SerialName("artistName") override val title: String? = null,
+    @SerialName("sortName") override val sortTitle: String? = null,
     @SerialName("cleanName") override val cleanTitle: String? = null,
     override val originalLanguage: Language? = null,
     override val year: Int? = null,

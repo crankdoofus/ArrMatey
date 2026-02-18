@@ -7,7 +7,7 @@ import kotlin.time.Instant
 @Serializable
 data class ArrAlbum(
     val id: Long,
-    val title: String,
+    val title: String? = null,
     val overview: String? = null,
     val monitored: Boolean = false,
     val albumType: String? = null,
@@ -21,7 +21,7 @@ data class ArrAlbum(
     val anyReleaseOk: Boolean,
     val profileId: Int,
     val duration: Long,
-    val ratings: LidarrRatings,
+    val ratings: LidarrRatings? = null,
 
     val instanceId: Long? = null
 ) {

@@ -30,7 +30,7 @@ struct AlbumCalendarItem: View {
                 .frame(width: 50, height: 50)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(album.title)
+                Text(album.title ?? MR.strings().unknown.localized())
                     .font(.headline)
                     .foregroundColor(.themeOnSecondaryContainer)
                 
