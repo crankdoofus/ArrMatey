@@ -75,12 +75,12 @@ fun HomeScreen(
         pagerState.scrollToPage(selectedTab.ordinal)
     }
 
-    LaunchedEffect(drawerState.currentValue) {
-        val isInternalOpen = drawerState.currentValue == DrawerValue.Open
-        if (drawerExtendedState != isInternalOpen) {
-            navigationManager.setDrawerOpen(isInternalOpen)
-        }
-    }
+//    LaunchedEffect(drawerState.currentValue) {
+//        val isInternalOpen = drawerState.currentValue == DrawerValue.Open
+//        if (drawerExtendedState != isInternalOpen) {
+//            navigationManager.setDrawerOpen(isInternalOpen)
+//        }
+//    }
 
     LaunchedEffect(drawerExtendedState) {
 //        if (drawerExtendedState && drawerState.isClosed) {
@@ -109,6 +109,7 @@ fun HomeScreen(
                         icon = { Icon(Icons.Default.Home, null) },
                         onClick = {
                             scope.launch {
+                                navigationManager.setDrawerOpen(false)
                                 navigationManager.setSelectedDrawerTab(null)
                                 drawerState.close()
                             }
@@ -122,6 +123,7 @@ fun HomeScreen(
                         label = { Text(mokoString(MR.strings.settings)) },
                         onClick = {
                             scope.launch {
+                                navigationManager.setDrawerOpen(true)
                                 navigationManager.setSelectedDrawerTab(TabItem.SETTINGS)
                                 drawerState.close()
                             }
