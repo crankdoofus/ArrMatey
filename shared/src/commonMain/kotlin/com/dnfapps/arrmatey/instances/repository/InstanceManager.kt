@@ -44,7 +44,6 @@ class InstanceManager(
         currentRepos.keys
             .filterNot { it in instanceIds }
             .forEach { instanceId ->
-                currentRepos[instanceId]?.cleanup()
                 currentRepos.remove(instanceId)
             }
 
@@ -96,7 +95,6 @@ class InstanceManager(
     }
 
     fun cleanup() {
-        _instanceRepositories.value.values.forEach { it.cleanup() }
         scope.cancel()
     }
 }

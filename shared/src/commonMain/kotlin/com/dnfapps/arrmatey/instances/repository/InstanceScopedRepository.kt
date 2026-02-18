@@ -535,10 +535,6 @@ class InstanceScopedRepository(
         }
     }
 
-    fun cleanup() {
-        httpClient.close()
-    }
-
     fun clearReleases() {
         _releases.value = null
     }
