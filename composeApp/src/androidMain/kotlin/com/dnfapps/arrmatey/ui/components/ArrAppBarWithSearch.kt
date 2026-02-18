@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextOverflow
 import com.dnfapps.arrmatey.entensions.isCollapsed
 import com.dnfapps.arrmatey.entensions.isExpanded
 import com.dnfapps.arrmatey.shared.MR
@@ -56,7 +57,12 @@ fun ArrAppBarWithSearch(
                 colors = SearchBarDefaults.inputFieldColors(),
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    Text(modifier = Modifier.clearAndSetSemantics {}, text = searchPlaceholder)
+                    Text(
+                        modifier = Modifier.clearAndSetSemantics {},
+                        text = searchPlaceholder,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 },
                 leadingIcon = {
                     if (searchBarState.isExpanded()) {
