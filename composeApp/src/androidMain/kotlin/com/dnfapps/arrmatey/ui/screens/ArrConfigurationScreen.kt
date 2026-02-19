@@ -114,7 +114,8 @@ fun ArrConfigurationScreen(
                 endpointError -> mokoString(MR.strings.invalid_host)
                 hasUrlConflict -> mokoString(MR.strings.instance_url_exists)
                 else -> null
-            }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
         )
 
         AMOutlinedTextField(
