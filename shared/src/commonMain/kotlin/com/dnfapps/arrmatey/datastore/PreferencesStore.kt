@@ -10,14 +10,17 @@ import com.dnfapps.arrmatey.arr.api.client.LoggerLevel
 import com.dnfapps.arrmatey.arr.state.CalendarFilterState
 import com.dnfapps.arrmatey.arr.state.CalendarViewMode
 import com.dnfapps.arrmatey.arr.state.ContentFilter
+import com.dnfapps.arrmatey.compose.TabItem
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 class PreferencesStore(
     dataStoreFactory: DataStoreFactory
@@ -38,6 +41,7 @@ class PreferencesStore(
     private val httpLogLevelKey = stringPreferencesKey("httpLogLevel")
     private val useDynamicThemeKey = booleanPreferencesKey("useDynamicTheme")
     private val useClearLogoKey = booleanPreferencesKey("useClearLogo")
+    private val tabPreferencesKey = stringPreferencesKey("tabPreferences")
 
     private fun infoCardKey(type: InstanceType): Preferences.Key<Boolean> = when (type) {
         InstanceType.Sonarr -> sonarrInfoCardKey
@@ -46,6 +50,20 @@ class PreferencesStore(
     }
 
     private val scope = CoroutineScope(Dispatchers.IO)
+
+    val tabPreferences: Flow<TabPreferences> = dataStore.data
+        .map { preferences ->
+            val json = preferences[tabPreferencesKey]
+            if (json != null) {
+                try {
+                    Json.decodeFromString<TabPreferences>(json)
+                } catch (e: Exception) {
+                    TabPreferences()
+                }
+            } else {
+                TabPreferences()
+            }
+        }
 
     val showInfoCards: Flow<Map<InstanceType, Boolean>> = dataStore.data
         .map { preferences ->
@@ -182,4 +200,35 @@ class PreferencesStore(
             }
         }
     }
+
+    fun saveTabPreferences(tabPreferences: TabPreferences) {
+        scope.launch {
+            dataStore.edit { preferences ->
+                preferences[tabPreferencesKey] = Json.encodeToString(tabPreferences)
+            }
+        }
+    }
+
+    fun resetTabPreferences() {
+        saveTabPreferences(TabPreferences())
+    }
+
+    fun updateBottomBarTabs(tabs: List<TabItem>) {
+        scope.launch {
+            val validTabs = tabs.filter { !it.drawerOnly }.take(5)
+            if (validTabs.isEmpty()) {
+                throw IllegalArgumentException("At least one tab must be visible")
+            }
+
+            val hidden = TabItem.bottomEntries.filter { !validTabs.contains(it) }
+
+            saveTabPreferences(
+                TabPreferences(
+                    bottomTabItems = validTabs,
+                    hiddenTabs = hidden
+                )
+            )
+        }
+    }
+
 }

@@ -27,5 +27,7 @@ enum class TabItem(
 
     companion object {
         val bottomEntries = entries.filter { !it.drawerOnly }
+        val defaultEntries = listOf(SHOWS, MOVIES, MUSIC, ACTIVITY, CALENDAR)
+        val defaultHidden = bottomEntries.filter { !defaultEntries.contains(it) }
     }
 }

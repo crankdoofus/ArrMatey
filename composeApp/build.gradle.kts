@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.androidx.compose.window.size)
             implementation(libs.androidx.browser)
             implementation(libs.aboutlibraries.compose)
+            implementation(libs.reorderable)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

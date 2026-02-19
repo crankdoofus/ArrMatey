@@ -194,7 +194,10 @@ fun InteractiveSearchScreen(
                     }
                 }
                 is ReleaseLibrary.Error -> {
-                    Text(state.message)
+                    Text(
+                        text = state.message,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
                 else -> {}
             }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -82,7 +83,7 @@ fun SettingsScreen(
             LargeTopAppBar(
                 title = { Text(text = mokoString(MR.strings.settings)) },
                 navigationIcon = {
-                    NavigationDrawerButton(returnToHome = true)
+                    NavigationDrawerButton()
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -181,6 +182,37 @@ fun SettingsScreen(
                                 )
                             }
                         }
+                    }
+                }
+
+                Card(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        settingsNav.navigateTo(SettingsScreen.TabPreferences)
+                    },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Navigation,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.primaryContainer
+                        )
+                        Text(
+                            text = mokoString(MR.strings.navigation_bar_configuration),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 

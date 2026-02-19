@@ -46,9 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dnfapps.arrmatey.compose.TabItem
+import com.dnfapps.arrmatey.datastore.PreferencesStore
+import com.dnfapps.arrmatey.datastore.TabPreferences
 import com.dnfapps.arrmatey.entensions.BadgeContent
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.NavigationManager
+import com.dnfapps.arrmatey.navigation.SettingsScreen
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.tabs.ActivityTab
 import com.dnfapps.arrmatey.ui.tabs.ArrTab
@@ -62,7 +65,8 @@ import org.koin.compose.koinInject
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun HomeScreen(
-    navigationManager: NavigationManager = koinInject()
+    navigationManager: NavigationManager = koinInject(),
+    preferencesStore: PreferencesStore = koinInject()
 ) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -71,26 +75,28 @@ fun HomeScreen(
     val selectedTab by navigationManager.selectedTab.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { TabItem.bottomEntries.size }
 
+    val tabPreferences by preferencesStore.tabPreferences.collectAsStateWithLifecycle(TabPreferences())
+    val visibleTabs = tabPreferences.bottomTabItems
+    val drawerTabs = tabPreferences.hiddenTabs
+
     LaunchedEffect(selectedTab) {
         pagerState.scrollToPage(selectedTab.ordinal)
     }
 
-//    LaunchedEffect(drawerState.currentValue) {
-//        val isInternalOpen = drawerState.currentValue == DrawerValue.Open
-//        if (drawerExtendedState != isInternalOpen) {
-//            navigationManager.setDrawerOpen(isInternalOpen)
-//        }
-//    }
+    LaunchedEffect(drawerState.currentValue) {
+        val isInternalOpen = drawerState.currentValue == DrawerValue.Open
+        if (drawerExtendedState != isInternalOpen) {
+            navigationManager.setDrawerOpen(isInternalOpen)
+        }
+    }
 
     LaunchedEffect(drawerExtendedState) {
-//        if (drawerExtendedState && drawerState.isClosed) {
-//            drawerState.open()
-//        } else if (!drawerExtendedState && drawerState.isOpen) {
-//            navigationManager.setSelectedDrawerTab(null)
-//            drawerState.close()
-//        }
-        val tab = if (drawerExtendedState) TabItem.SETTINGS else null
-        navigationManager.setSelectedDrawerTab(tab)
+        if (drawerExtendedState && drawerState.isClosed) {
+            drawerState.open()
+        } else if (!drawerExtendedState && drawerState.isOpen) {
+            navigationManager.setSelectedDrawerTab(null)
+            drawerState.close()
+        }
     }
 
     ModalNavigationDrawer(
@@ -115,6 +121,21 @@ fun HomeScreen(
                             }
                         }
                     )
+                    HorizontalDivider()
+                    drawerTabs.forEach { item ->
+                        NavigationDrawerItem(
+                            label = { Text(mokoString(item.resource)) },
+                            selected = selectedDrawerTab == item,
+                            icon = { Icon(item.androidIcon, null) },
+                            onClick =  {
+                                scope.launch {
+                                    navigationManager.setDrawerOpen(false)
+                                    navigationManager.setSelectedDrawerTab(item)
+                                    drawerState.close()
+                                }
+                            }
+                        )
+                    }
                     Spacer(Modifier.weight(1f))
                     HorizontalDivider()
                     NavigationDrawerItem(
@@ -157,25 +178,27 @@ fun HomeScreen(
                         TabItemContent(TabItem.bottomEntries[page])
                     }
 
-                    NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-                        TabItem.bottomEntries.forEach { entry ->
-                            NavigationBarItem(
-                                selected = entry == selectedTab,
-                                onClick = {
-                                    navigationManager.setSelectedTab(entry)
-                                },
-                                icon = {
-                                    BadgedBox(
-                                        badge = { BadgeContent(tabItem = entry) }
-                                    ) {
-                                        Icon(
-                                            imageVector = entry.androidIcon,
-                                            contentDescription = mokoString(entry.resource)
-                                        )
-                                    }
-                                },
-                                label = { Text(text = mokoString(entry.resource)) }
-                            )
+                    if (visibleTabs.size > 1) {
+                        NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                            visibleTabs.forEach { entry ->
+                                NavigationBarItem(
+                                    selected = entry == selectedTab,
+                                    onClick = {
+                                        navigationManager.setSelectedTab(entry)
+                                    },
+                                    icon = {
+                                        BadgedBox(
+                                            badge = { BadgeContent(tabItem = entry) }
+                                        ) {
+                                            Icon(
+                                                imageVector = entry.androidIcon,
+                                                contentDescription = mokoString(entry.resource)
+                                            )
+                                        }
+                                    },
+                                    label = { Text(text = mokoString(entry.resource)) }
+                                )
+                            }
                         }
                     }
                 }

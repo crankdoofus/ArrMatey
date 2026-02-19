@@ -4386,6 +4386,54 @@
             ]
         },
         {
+            "uniqueId": "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "organisationUrl": "https://www.jetbrains.com",
+                    "name": "Kotlin Team"
+                }
+            ],
+            "artifactVersion": "1.9.0",
+            "description": "Kotlin Standard Library JDK 7 extension",
+            "scm": {
+                "connection": "scm:git:https://github.com/JetBrains/kotlin.git",
+                "url": "https://github.com/JetBrains/kotlin",
+                "developerConnection": "scm:git:https://github.com/JetBrains/kotlin.git"
+            },
+            "name": "Kotlin Stdlib Jdk7",
+            "website": "https://kotlinlang.org/",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
+            "uniqueId": "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "organisationUrl": "https://www.jetbrains.com",
+                    "name": "Kotlin Team"
+                }
+            ],
+            "artifactVersion": "1.9.0",
+            "description": "Kotlin Standard Library JDK 8 extension",
+            "scm": {
+                "connection": "scm:git:https://github.com/JetBrains/kotlin.git",
+                "url": "https://github.com/JetBrains/kotlin",
+                "developerConnection": "scm:git:https://github.com/JetBrains/kotlin.git"
+            },
+            "name": "Kotlin Stdlib Jdk8",
+            "website": "https://kotlinlang.org/",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
             "uniqueId": "org.jetbrains.kotlin:kotlin-test",
             "funding": [
                 
@@ -4837,6 +4885,29 @@
                 "url": "http://www.qos.ch",
                 "name": "QOS.ch"
             }
+        },
+        {
+            "uniqueId": "sh.calvin.reorderable:reorderable",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "Calvin Liang"
+                }
+            ],
+            "artifactVersion": "3.0.0",
+            "description": "A library for reordering items in a LazyColumn",
+            "scm": {
+                "connection": "scm:git:git://github.com/Calvin-LL/Reorderable.git",
+                "url": "https://github.com/Calvin-LL/Reorderable",
+                "developerConnection": "scm:git:ssh://github.com/Calvin-LL/Reorderable.git"
+            },
+            "name": "Reorderable",
+            "website": "https://github.com/Calvin-LL/Reorderable",
+            "licenses": [
+                "Apache-2.0"
+            ]
         }
     ],
     "licenses": {

@@ -30,4 +30,5 @@ sealed interface SettingsScreen : NavKey {
     data class AddInstance(val type: InstanceType = InstanceType.Sonarr) : SettingsScreen
     data class EditInstance(val id: Long): SettingsScreen
     data object Dev: SettingsScreen
+    data object TabPreferences: SettingsScreen
 }
