@@ -53,6 +53,7 @@ import com.dnfapps.arrmatey.instances.model.InstanceType
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.navigation.SettingsScreen
 import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.ui.components.navigation.DoubleBackToExit
 import com.dnfapps.arrmatey.ui.tabs.ActivityTab
 import com.dnfapps.arrmatey.ui.tabs.ArrTab
 import com.dnfapps.arrmatey.ui.tabs.CalendarTab
@@ -98,6 +99,8 @@ fun HomeScreen(
             drawerState.close()
         }
     }
+
+    DoubleBackToExit()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
