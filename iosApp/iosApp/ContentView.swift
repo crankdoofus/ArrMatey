@@ -5,8 +5,6 @@ struct ContentView: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @ObservedObject private var queueViewModel = ActivityQueueViewModelS()
     @ObservedObject private var preferences = PreferencesViewModel()
-    
-    @State private var showLauncher: Bool = false
 
     var body: some View {
         TabView(selection: $navigationManager.selectedTab) {
@@ -25,8 +23,8 @@ struct ContentView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
-        .fullScreenCover(isPresented: $showLauncher) {
-            AppLauncherGrid(showLauncher: $showLauncher)
+        .fullScreenCover(isPresented: $navigationManager.showLauncher) {
+            AppLauncherGrid()
                 .environmentObject(navigationManager)
         }
     }
@@ -38,7 +36,7 @@ struct ContentView: View {
     private var toolbarItem: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                showLauncher = true
+                navigationManager.showLauncher = true
             } label: {
                 Image(systemName: "line.3.horizontal")
             }
@@ -47,7 +45,6 @@ struct ContentView: View {
 }
 
 struct AppLauncherGrid: View {
-    @Binding var showLauncher: Bool
     @ObservedObject private var preferences = PreferencesViewModel()
     @EnvironmentObject private var navigationManager: NavigationManager
 
@@ -65,7 +62,7 @@ struct AppLauncherGrid: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
-                        showLauncher = false
+                        navigationManager.showLauncher = false
                     }) {
                         Image(systemName: "xmark")
                     }
@@ -79,6 +76,14 @@ struct AppLauncherGrid: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: TabItem.self) { item in
                 TabItemContent(tabItem: item)
+            }
+            .navigationDestination(for: SettingsRoute.self) { route in
+                SettingsRouteView(route: route)
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    navigationManager.applyPendingRoute()
+                }
             }
         }
     }

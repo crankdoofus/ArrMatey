@@ -53,7 +53,6 @@ class NavigationManager(
     }
 
     fun openNewInstanceScreen(type: InstanceType) {
-        openDrawer()
         _selectedDrawerTab.value = TabItem.SETTINGS
         settings().navigateTo(SettingsScreen.AddInstance(type))
     }

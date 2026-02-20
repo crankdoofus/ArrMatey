@@ -18,6 +18,10 @@ class NavigationManager: ObservableObject {
     @Published var selectedTab: TabItem = .shows
     @Published var selectedDrawerTab: TabItem? = nil
     
+    @Published var showLauncher: Bool = false
+    
+    private var pendingSettingsRoute: SettingsRoute? = nil
+    
     func go(to route: MediaRoute, of type: InstanceType) {
         switch type {
         case .sonarr:
@@ -52,8 +56,16 @@ class NavigationManager: ObservableObject {
     }
     
     func goToNewInstance(of type: InstanceType) {
-        setSelectedDrawerTab(.settings)
-        go(to: .newInstance(type))
+        settingsPath = NavigationPath()
+        pendingSettingsRoute = .newInstance(type)
+        showLauncher = true
+    }
+
+    func applyPendingRoute() {
+        if let route = pendingSettingsRoute {
+            launcherPath.append(route)
+            pendingSettingsRoute = nil
+        }
     }
 }
 

@@ -21,9 +21,6 @@ struct TabItemContent: View {
             case .activity: ActivityTab()
             case .calendar: CalendarTab()
             case .settings: SettingsScreen()
-                    .navigationDestination(for: SettingsRoute.self) { route in
-                        SettingsRouteView(route: route)
-                    }
             }
         }
         .navigationTitle(LocalizedStringKey(tabItem.resource.localized()))
