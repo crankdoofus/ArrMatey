@@ -1,6 +1,9 @@
 package com.dnfapps.arrmatey.arr.api.client
 
+import com.dnfapps.arrmatey.arr.api.model.ArrDiskSpace
+import com.dnfapps.arrmatey.arr.api.model.ArrHealth
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
+import com.dnfapps.arrmatey.arr.api.model.ArrSoftwareStatus
 import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.CommandResponse
 import com.dnfapps.arrmatey.arr.api.model.DownloadReleasePayload
@@ -70,6 +73,15 @@ abstract class BaseArrClient(
             "blocklist" to blocklist,
             "skipRedownload" to skipRedownload
         ))
+
+    override suspend fun getStatus(): NetworkResult<ArrSoftwareStatus> =
+        get("system/status")
+
+    override suspend fun getDiskSpace(): NetworkResult<List<ArrDiskSpace>> =
+        get("diskspace")
+
+    override suspend fun getHealth(): NetworkResult<List<ArrHealth>> =
+        get("health")
 
     /**
      * Helpers

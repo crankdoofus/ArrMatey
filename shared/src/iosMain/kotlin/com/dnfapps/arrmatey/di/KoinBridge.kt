@@ -4,6 +4,7 @@ import com.dnfapps.arrmatey.arr.api.client.GenericClient
 import com.dnfapps.arrmatey.arr.api.model.Episode
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.AddInstanceViewModel
+import com.dnfapps.arrmatey.arr.viewmodel.ArrInstanceDashboardViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaDetailsViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrMediaViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.ArrSearchViewModel
@@ -59,6 +60,9 @@ object KoinBridge: KoinComponent {
 
     fun getCalendarViewModel(): CalendarViewModel =
         getKoin().get()
+
+    fun getArrInstanceDashboardViewModel(instanceId: Long): ArrInstanceDashboardViewModel =
+        getKoin().get { parametersOf(instanceId) }
 
 
     fun getGenericClient(): GenericClient =

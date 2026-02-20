@@ -31,4 +31,5 @@ sealed interface SettingsScreen : NavKey {
     data class EditInstance(val id: Long): SettingsScreen
     data object Dev: SettingsScreen
     data object TabPreferences: SettingsScreen
+    data class ArrDashboard(val id: Long): SettingsScreen
 }

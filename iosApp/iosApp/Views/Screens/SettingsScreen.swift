@@ -21,11 +21,20 @@ struct SettingsScreen: View {
         viewModel.instances
     }
     
+    private func route(for instance: Instance) -> SettingsRoute {
+        switch instance.type {
+        case .sonarr, .radarr, .lidarr:
+            return .arrDashboard(instance.id)
+        default:
+            return .editInstance(instance.id)
+        }
+    }
+    
     var body: some View {
         Form {
             Section {
                 ForEach(instances, id: \.self) { instance in
-                    NavigationLink(value: SettingsRoute.editInstance(instance.id)) {
+                    NavigationLink(value: route(for: instance)) {
                         HStack(spacing: 24){
                             SVGImageView(filename: instance.type.iconKey)
                                 .frame(width: 32, height: 32)

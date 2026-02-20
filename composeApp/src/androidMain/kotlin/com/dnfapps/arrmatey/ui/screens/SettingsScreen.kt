@@ -109,7 +109,7 @@ fun SettingsScreen(
                                 shape = MaterialTheme.shapes.extraLarge,
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
-                                    settingsNav.navigateTo(SettingsScreen.EditInstance(instance.id))
+                                    settingsNav.onInstanceTap(instance.id, instance.type)
                                 },
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -184,6 +184,12 @@ fun SettingsScreen(
                         }
                     }
                 }
+
+                Text(
+                    text = mokoString(MR.strings.user_interface),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,

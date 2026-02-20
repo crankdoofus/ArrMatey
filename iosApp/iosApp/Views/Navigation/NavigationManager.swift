@@ -129,4 +129,5 @@ enum SettingsRoute : Hashable {
     case dev
     case editInstance(Int64)
     case navigationConfig
+    case arrDashboard(Int64)
 }

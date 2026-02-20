@@ -11,6 +11,7 @@ import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
 import com.dnfapps.arrmatey.navigation.SettingsScreen
 import com.dnfapps.arrmatey.ui.screens.AddInstanceScreen
+import com.dnfapps.arrmatey.ui.screens.ArrInstanceDashboard
 import com.dnfapps.arrmatey.ui.screens.DevSettingsScreen
 import com.dnfapps.arrmatey.ui.screens.EditInstanceScreen
 import com.dnfapps.arrmatey.ui.screens.SettingsScreen
@@ -39,6 +40,7 @@ fun SettingsTabNavHost(
             entry<SettingsScreen.EditInstance> { EditInstanceScreen(it.id) }
             entry<SettingsScreen.Dev> { DevSettingsScreen() }
             entry<SettingsScreen.TabPreferences> { TabCustomizationScreen() }
+            entry<SettingsScreen.ArrDashboard> { ArrInstanceDashboard(it.id) }
         }
     )
 }

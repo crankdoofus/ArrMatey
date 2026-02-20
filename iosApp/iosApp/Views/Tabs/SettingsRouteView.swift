@@ -24,6 +24,8 @@ struct SettingsRouteView: View {
             }
         case .navigationConfig:
             TabConfigurationScreen()
+        case .arrDashboard(let id):
+            ArrInstanceDashboard(id: id)
         }
     }
 }

@@ -5,10 +5,13 @@ import com.dnfapps.arrmatey.arr.api.client.LidarrClient
 import com.dnfapps.arrmatey.arr.api.client.RadarrClient
 import com.dnfapps.arrmatey.arr.api.client.SonarrClient
 import com.dnfapps.arrmatey.arr.api.model.ArrAlbum
+import com.dnfapps.arrmatey.arr.api.model.ArrDiskSpace
+import com.dnfapps.arrmatey.arr.api.model.ArrHealth
 import com.dnfapps.arrmatey.arr.api.model.ArrMedia
 import com.dnfapps.arrmatey.arr.api.model.ArrMovie
 import com.dnfapps.arrmatey.arr.api.model.ArrRelease
 import com.dnfapps.arrmatey.arr.api.model.ArrSeries
+import com.dnfapps.arrmatey.arr.api.model.ArrSoftwareStatus
 import com.dnfapps.arrmatey.arr.api.model.Arrtist
 import com.dnfapps.arrmatey.arr.api.model.CommandPayload
 import com.dnfapps.arrmatey.arr.api.model.DownloadReleasePayload
@@ -32,7 +35,6 @@ import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.instances.model.InstanceType
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -89,6 +91,15 @@ class InstanceScopedRepository(
 
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags.asStateFlow()
+
+    private val _softwareStatus = MutableStateFlow<ArrSoftwareStatus?>(null)
+    val softwareStatus: StateFlow<ArrSoftwareStatus?> = _softwareStatus.asStateFlow()
+
+    private val _diskSpace = MutableStateFlow<List<ArrDiskSpace>>(emptyList())
+    val diskSpace: StateFlow<List<ArrDiskSpace>> = _diskSpace.asStateFlow()
+
+    private val _health = MutableStateFlow<List<ArrHealth>>(emptyList())
+    val health: StateFlow<List<ArrHealth>> = _health.asStateFlow()
 
     private val _activityTasks = MutableStateFlow<List<QueueItem>>(emptyList())
     val activityTasks: StateFlow<List<QueueItem>> = _activityTasks.asStateFlow()
@@ -159,11 +170,30 @@ class InstanceScopedRepository(
             .onSuccess { _tags.value = it }
     }
 
+    suspend fun refreshStatus() {
+        client.getStatus()
+            .onSuccess { _softwareStatus.value = it }
+    }
+
+    suspend fun refreshDiskSpace() {
+        client.getDiskSpace()
+            .onSuccess { _diskSpace.value = it }
+    }
+
+    suspend fun refreshHealth() {
+        client.getHealth()
+            .onSuccess { _health.value = it }
+            .onError { i, string, throwable -> print("ERROR - $i, $string, $throwable") }
+    }
+
     suspend fun refreshAllMetadata() {
         coroutineScope {
             launch { refreshQualityProfiles() }
             launch { refreshRootFolders() }
             launch { refreshTags() }
+            launch { refreshStatus() }
+            launch { refreshDiskSpace() }
+            launch { refreshHealth() }
         }
     }
 
@@ -590,7 +620,7 @@ class InstanceScopedRepository(
         seriesId: Long,
         seasonNumber: Int
     ): NetworkResult<Unit> =
-        safePerformSonarr { client ->
+        safePerformSonarr {
             val episodes = _episodes.value[seriesId]?.filter { it.seasonNumber == seasonNumber } ?: emptyList()
             deleteEpisodes(seriesId, episodes)
                 .onSuccess {

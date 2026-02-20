@@ -11,9 +11,6 @@ import com.dnfapps.arrmatey.arr.usecase.AddMediaItemUseCase
 import com.dnfapps.arrmatey.instances.usecase.GetInstanceRepositoryUseCase
 import com.dnfapps.arrmatey.client.OperationStatus
 import com.dnfapps.arrmatey.instances.model.InstanceType
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,16 +51,13 @@ class MediaPreviewViewModel(
                 .filterNotNull()
                 .collectLatest { repository ->
                     currentRepository = repository
-
-                    observeMetadata(repository)
-                    observeAddStatus(repository)
-
+                    observeData(repository)
                     repository.refreshAllMetadata()
                 }
         }
     }
 
-    private fun observeMetadata(repository: InstanceScopedRepository) {
+    private fun observeData(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.qualityProfiles.collect { profiles ->
                 _qualityProfiles.emit(profiles)
@@ -79,9 +73,7 @@ class MediaPreviewViewModel(
                 _tags.emit(tags)
             }
         }
-    }
 
-    private fun observeAddStatus(repository: InstanceScopedRepository) {
         viewModelScope.launch {
             repository.addItemStatus.collect { status ->
                 _addItemStatus.value = status
