@@ -75,7 +75,7 @@ class EditInstanceViewModel(
     }
 
     fun setCustomTimeout(value: Long?) {
-        _uiState.update { it.copy(customTimeout = value) }
+        _uiState.update { it.copy(customTimeout = value?.takeIf { v -> v > 0L } ) }
     }
 
     fun setInstanceLabel(value: String) {
