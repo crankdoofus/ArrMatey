@@ -30,7 +30,10 @@ class GetReleasesUseCase(
                         null -> ReleaseLibrary.Initial
                         is NetworkResult.Loading -> ReleaseLibrary.Loading
                         is NetworkResult.Error ->
-                            ReleaseLibrary.Error(message = result.message ?: "")
+                            ReleaseLibrary.Error(
+                                message = result.message ?: "",
+                                type = result.errorType
+                            )
 
                         is NetworkResult.Success ->
                             ReleaseLibrary.Success(

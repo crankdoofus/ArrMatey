@@ -109,8 +109,25 @@ struct InteractiveSearchScreen: View {
                 .padding(.horizontal, 18)
             }
         case let error as ReleaseLibraryError:
-            Text(error.message)
-                .foregroundColor(.red)
+            if error.type == ErrorType.timeout {
+                TimeoutErrorView(
+                    message: error.message,
+                    onOpenSettings: {
+                        // Navigate to settings - user can find instance settings there
+                        dismiss()
+                    },
+                    onRetry: {
+                        viewModel.getRelease(releaseParams)
+                    }
+                )
+            } else {
+                GenericErrorView(
+                    message: error.message,
+                    onRetry: {
+                        viewModel.getRelease(releaseParams)
+                    }
+                )
+            }
         default:
             EmptyView()
         }
