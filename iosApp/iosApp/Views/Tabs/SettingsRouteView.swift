@@ -8,15 +8,20 @@ import Shared
 
 struct SettingsRouteView: View {
     let route: SettingsRoute
+    @EnvironmentObject private var navigationManager: NavigationManager
 
     var body: some View {
         switch route {
         case .newInstance(let initialType):
-            NewInstanceView(initialType: initialType)
+            NewInstanceView(initialType: initialType) {
+                navigationManager.completeSetupAndDismiss()
+            }
         case .dev:
             DevSettingsScreen()
         case .editInstance(let id):
-            EditInstanceScreen(id: id)
+            EditInstanceScreen(id: id) {
+                navigationManager.completeSetupAndDismiss()
+            }
         case .navigationConfig:
             TabConfigurationScreen()
         }

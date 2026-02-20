@@ -63,7 +63,15 @@ struct InteractiveSearchScreen: View {
 
     var body: some View {
         ZStack {
-            contentForState()
+//            contentForState()
+            ErrorView(
+                errorType: .timeout,
+                message: "",
+                onOpenSettings: openSelectedInstanceSettings,
+                onRetry: {
+                    viewModel.getRelease(releaseParams)
+                }
+            )
         }
         .searchable(text: Binding(get: { viewModel.searchQuery }, set: { viewModel.updateSearchQuery($0) }), isPresented: $searchPresented, prompt: MR.strings().search.localized())
         .onAppear {
@@ -167,10 +175,8 @@ struct InteractiveSearchScreen: View {
     }
 
     private func openSelectedInstanceSettings() {
-        navigationManager.selectedTab = .settings
-
         if let selectedInstance = instancesViewModel.instancesState.selectedInstance {
-            navigationManager.go(to: .editInstance(selectedInstance.id))
+            navigationManager.goToEditInstance(of: type, selectedInstance.id)
         }
     }
 

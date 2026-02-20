@@ -9,15 +9,19 @@ import SwiftUI
 import Shared
 
 struct NewInstanceView: View {
-    
     @Environment(\.dismiss) var dismiss
     
     @ObservedObject private var viewModel = AddInstanceViewModelS()
     
-    @State private var instanceType: InstanceType// = .sonarr
+    @State private var instanceType: InstanceType
+    private let onSaveSuccess: () -> Void
     
-    init(initialType: InstanceType = .sonarr) {
+    init(
+        initialType: InstanceType = .sonarr,
+        onSaveSuccess: @escaping () -> Void
+    ) {
         self.instanceType = initialType
+        self.onSaveSuccess = onSaveSuccess
     }
     
     private var uiState: AddInstanceUiState {
@@ -37,6 +41,7 @@ struct NewInstanceView: View {
             .onChange(of: viewModel.createWasSuccessful) { _, newValue in
                 if newValue {
                     dismiss()
+                    onSaveSuccess()
                 }
             }
     }
