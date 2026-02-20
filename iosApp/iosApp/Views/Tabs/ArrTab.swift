@@ -105,9 +105,9 @@ struct ArrTab: View {
         
         ToolbarItem(placement: .topBarLeading) {
             InstancePickerMenu(
-                type: type,
                 instances: instanceState.instances,
-                onChangeInstance: { instancesViewModel.setInstanceActive($0) }
+                onChangeInstance: { instancesViewModel.setInstanceActive($0) },
+                onAddNewInstance: { navigation.goToNewInstance(of: type) }
             )
             .menuIndicator(.hidden)
         }
