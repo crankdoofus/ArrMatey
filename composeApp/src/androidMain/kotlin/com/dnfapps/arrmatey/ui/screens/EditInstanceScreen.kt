@@ -1,6 +1,5 @@
 package com.dnfapps.arrmatey.ui.screens
 
-import com.dnfapps.arrmatey.shared.MR
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +34,8 @@ import com.dnfapps.arrmatey.arr.viewmodel.EditInstanceViewModel
 import com.dnfapps.arrmatey.database.dao.InsertResult
 import com.dnfapps.arrmatey.di.koinInjectParams
 import com.dnfapps.arrmatey.navigation.SettingsNavigation
+import com.dnfapps.arrmatey.shared.MR
+import com.dnfapps.arrmatey.utils.MokoStrings
 import com.dnfapps.arrmatey.utils.mokoString
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -44,7 +45,8 @@ import org.koin.compose.koinInject
 fun EditInstanceScreen(
     id: Long,
     viewModel: EditInstanceViewModel = koinInjectParams(id),
-    settingsNav: SettingsNavigation = koinInject<SettingsNavigation>()
+    settingsNav: SettingsNavigation = koinInject<SettingsNavigation>(),
+    moko: MokoStrings = koinInject()
 ) {
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,7 +70,7 @@ fun EditInstanceScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = mokoString(MR.strings.add_instance)) },
+                title = { Text(text = mokoString(MR.strings.edit_instance)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { settingsNav.popBackStack() }
@@ -131,34 +133,36 @@ fun EditInstanceScreen(
                     onHeadersChanged = { viewModel.updateHeaders(it) },
                     onTestConnection = { viewModel.testConnection() },
                 )
+            }
 
-                if (confirmDelete) {
-                    AlertDialog(
-                        onDismissRequest = { confirmDelete = false},
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    scope.launch {
+            if (confirmDelete) {
+                AlertDialog(
+                    onDismissRequest = { confirmDelete = false},
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                scope.launch {
+                                    instance?.let { instance ->
                                         viewModel.deleteInstance(instance)
                                         settingsNav.popBackStack()
                                     }
                                 }
-                            ) { Text(mokoString(MR.strings.yes)) }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    confirmDelete = false
+                            }
+                        ) { Text(mokoString(MR.strings.yes)) }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                confirmDelete = false
 
-                                }
-                            ) { Text(mokoString(MR.strings.no)) }
-                        },
-                        title = { Text(mokoString(MR.strings.confirm)) },
-                        text = {
-                            Text(mokoString(MR.strings.confirm_delete_instance, instance.label))
-                        }
-                    )
-                }
+                            }
+                        ) { Text(mokoString(MR.strings.no)) }
+                    },
+                    title = { Text(mokoString(MR.strings.confirm)) },
+                    text = {
+                        Text(mokoString(MR.strings.confirm_delete_instance, instance?.label ?: ""))
+                    }
+                )
             }
         }
     }

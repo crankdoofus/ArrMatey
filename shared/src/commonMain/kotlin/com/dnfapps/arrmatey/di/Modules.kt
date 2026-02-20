@@ -52,6 +52,7 @@ import com.dnfapps.arrmatey.arr.usecase.PerformAutomaticSearchUseCase
 import com.dnfapps.arrmatey.arr.usecase.PerformRefreshUseCase
 import com.dnfapps.arrmatey.arr.usecase.ToggleMonitorUseCase
 import com.dnfapps.arrmatey.arr.usecase.UpdateMediaUseCase
+import com.dnfapps.arrmatey.arr.viewmodel.ArrInstanceDashboardViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.CalendarViewModel
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.database.ArrMateyDatabase
@@ -178,6 +179,9 @@ val viewModelModule = module {
     factory { AddInstanceViewModel(get(), get(), get(), get()) }
     factory { (instanceId: Long) ->
         EditInstanceViewModel(instanceId, get(), get(), get(), get())
+    }
+    factory { (instanceId: Long) ->
+        ArrInstanceDashboardViewModel(instanceId, get())
     }
     factory { CalendarViewModel(get(), get(), get(), get()) }
 }
