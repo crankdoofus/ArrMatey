@@ -63,15 +63,7 @@ struct InteractiveSearchScreen: View {
 
     var body: some View {
         ZStack {
-//            contentForState()
-            ErrorView(
-                errorType: .timeout,
-                message: "",
-                onOpenSettings: openSelectedInstanceSettings,
-                onRetry: {
-                    viewModel.getRelease(releaseParams)
-                }
-            )
+            contentForState()
         }
         .searchable(text: Binding(get: { viewModel.searchQuery }, set: { viewModel.updateSearchQuery($0) }), isPresented: $searchPresented, prompt: MR.strings().search.localized())
         .onAppear {
