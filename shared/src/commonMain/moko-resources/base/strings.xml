@@ -182,11 +182,20 @@
     <string name="donate">Donate</string>
     <string name="libraries">Libraries</string>
     <string name="press_again_to_exit">Press back again to exit</string>
+<<<<<<< feat/timeout-ui-improvements
+    <string name="error_timeout_title">Request Timed Out</string>
+    <string name="error_timeout_description">The search took too long to complete. This can happen with slower indexers or network connections.</string>
+    <string name="error_timeout_configure_instance">Configure Instance</string>
+    <string name="error_timeout_tip">Tip: Enable "%1$s" in instance settings for indexers that need more time.</string>
+    <string name="error_network_title">Network Error</string>
+    <string name="error_generic_title">Something went wrong</string>
+=======
     <string name="health">Health</string>
     <string name="disk_space">Disk space</string>
     <string name="system_info">System details</string>
     <string name="no_issues">No issues</string>
     <string name="user_interface">User Interface</string>
+>>>>>>> main
 
     <!-- History Event Type -->
     <string name="grabbed">Grabbed</string>

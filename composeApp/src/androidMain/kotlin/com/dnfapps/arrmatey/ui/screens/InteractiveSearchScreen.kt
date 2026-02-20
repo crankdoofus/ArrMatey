@@ -48,6 +48,7 @@ import com.dnfapps.arrmatey.arr.api.model.ArrRelease
 import com.dnfapps.arrmatey.arr.api.model.ReleaseParams
 import com.dnfapps.arrmatey.arr.state.DownloadState
 import com.dnfapps.arrmatey.arr.state.ReleaseLibrary
+import com.dnfapps.arrmatey.arr.viewmodel.InstancesViewModel
 import com.dnfapps.arrmatey.arr.viewmodel.InteractiveSearchViewModel
 import com.dnfapps.arrmatey.compose.utils.ReleaseFilterBy
 import com.dnfapps.arrmatey.compose.utils.bytesAsFileSizeString
@@ -62,6 +63,7 @@ import com.dnfapps.arrmatey.navigation.Navigation
 import com.dnfapps.arrmatey.navigation.NavigationManager
 import com.dnfapps.arrmatey.shared.MR
 import com.dnfapps.arrmatey.ui.components.ArrAppBarWithSearch
+import com.dnfapps.arrmatey.ui.components.ErrorView
 import com.dnfapps.arrmatey.ui.components.ProgressBox
 import com.dnfapps.arrmatey.ui.components.navigation.BackButton
 import com.dnfapps.arrmatey.ui.menu.InteractiveSearchMenu
@@ -76,6 +78,7 @@ fun InteractiveSearchScreen(
     releaseParams: ReleaseParams,
     defaultFilter: ReleaseFilterBy = ReleaseFilterBy.Any,
     viewModel: InteractiveSearchViewModel = koinInjectParams(instanceType, defaultFilter),
+    instanceViewModel: InstancesViewModel = koinInjectParams(instanceType),
     navigationManager: NavigationManager = koinInject(),
     navigation: Navigation<ArrScreen> = navigationManager.arr(instanceType)
 ) {
@@ -90,6 +93,8 @@ fun InteractiveSearchScreen(
 
     val downloadQueueSuccessMessage = mokoString(MR.strings.download_queue_success)
     val downloadQueueErrorMessage = mokoString(MR.strings.download_queue_error)
+
+    val instanceState by instanceViewModel.instancesState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         snapshotFlow { textFieldState.text.toString() }
@@ -194,9 +199,15 @@ fun InteractiveSearchScreen(
                     }
                 }
                 is ReleaseLibrary.Error -> {
-                    Text(
-                        text = state.message,
-                        modifier = Modifier.align(Alignment.Center)
+                    ErrorView(
+                        errorType = state.type,
+                        message = state.message,
+                        onOpenSettings = {
+                            instanceState.selectedInstance?.let {
+                                navigationManager.openEditInstanceScreen(it.id)
+                            }
+                        },
+                        onRetry = {}
                     )
                 }
                 else -> {}

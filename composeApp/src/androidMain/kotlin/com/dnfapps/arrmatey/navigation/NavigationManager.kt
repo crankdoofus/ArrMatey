@@ -57,4 +57,9 @@ class NavigationManager(
         settings().navigateTo(SettingsScreen.AddInstance(type))
     }
 
+    fun openEditInstanceScreen(id: Long) {
+        _selectedDrawerTab.value = TabItem.SETTINGS
+        settings().navigateTo(SettingsScreen.EditInstance(id))
+    }
+
 }

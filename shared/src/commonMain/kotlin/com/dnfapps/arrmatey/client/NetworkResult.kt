@@ -11,13 +11,14 @@ sealed interface NetworkResult<out T> {
     data class Error(
         val code: Int? = null,
         val message: String? = null,
-        val cause: Throwable? = null
+        val cause: Throwable? = null,
+        val errorType: ErrorType = ErrorType.Unexpected
     ): NetworkResult<Nothing>
 
     fun <R> map(transform: (T) -> R): NetworkResult<R> {
         return when (this) {
             is Loading -> Loading
-            is Error -> Error(code, message, cause)
+            is Error -> Error(code, message, cause, errorType)
             is Success -> Success(transform(data))
         }
     }
@@ -26,7 +27,7 @@ sealed interface NetworkResult<out T> {
 fun <T, R> NetworkResult<List<T>>.mapValues(transform: (T) -> R): NetworkResult<List<R>> {
     return when (this) {
         is Loading -> Loading
-        is Error -> Error(code, message, cause)
+        is Error -> Error(code, message, cause, errorType)
         is Success -> Success(data = data.map(transform))
     }
 }

@@ -56,9 +56,35 @@ class NavigationManager: ObservableObject {
     }
     
     func goToNewInstance(of type: InstanceType) {
-        settingsPath = NavigationPath()
+        switch type {
+        case .sonarr: seriesPath = NavigationPath()
+        case .radarr: moviePath = NavigationPath()
+        case .lidarr: musicPath = NavigationPath()
+        }
+
+        launcherPath = NavigationPath()
         pendingSettingsRoute = .newInstance(type)
+        
         showLauncher = true
+    }
+    
+    func goToEditInstance(of type: InstanceType, _ id: Int64) {
+        switch type {
+        case .sonarr: seriesPath = NavigationPath()
+        case .radarr: moviePath = NavigationPath()
+        case .lidarr: musicPath = NavigationPath()
+        }
+
+        launcherPath = NavigationPath()
+        pendingSettingsRoute = .editInstance(id)
+        
+        showLauncher = true
+    }
+    
+    func maybeEditInstance(of type: InstanceType, _ instance: Instance?) {
+        if let i = instance {
+            goToEditInstance(of: type, i.id)
+        }
     }
 
     func applyPendingRoute() {
@@ -66,6 +92,17 @@ class NavigationManager: ObservableObject {
             launcherPath.append(route)
             pendingSettingsRoute = nil
         }
+    }
+    
+    func completeSetupAndDismiss() {
+        self.showLauncher = false
+        
+        self.launcherPath = NavigationPath()
+        self.settingsPath = NavigationPath()
+        
+        self.seriesPath = NavigationPath()
+        self.moviePath = NavigationPath()
+        self.musicPath = NavigationPath()
     }
 }
 

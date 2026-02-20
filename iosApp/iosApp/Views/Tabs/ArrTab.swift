@@ -84,9 +84,16 @@ struct ArrTab: View {
             }
         } else if let success = uiState as? ArrLibrarySuccess {
             ArrLibraryView(type: type, state: success, searchQuery: $arrMediaViewModel.searchQuery, searchPresented: $searchPresented)
-    } else if uiState is ArrLibraryError {
+        } else if let error = uiState as? ArrLibraryError {
             ZStack {
-                errorView()
+                ErrorView(
+                    errorType: error.type,
+                    message: error.message,
+                    onOpenSettings: {
+                        navigation.maybeEditInstance(of: type, instanceState.selectedInstance)
+                    },
+                    onRetry: { arrMediaViewModel.refresh() }
+                )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
