@@ -80,6 +80,12 @@ class NavigationManager: ObservableObject {
         
         showLauncher = true
     }
+    
+    func maybeEditInstance(of type: InstanceType, _ instance: Instance?) {
+        if let i = instance {
+            goToEditInstance(of: type, i.id)
+        }
+    }
 
     func applyPendingRoute() {
         if let route = pendingSettingsRoute {

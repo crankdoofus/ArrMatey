@@ -114,7 +114,9 @@ struct InteractiveSearchScreen: View {
             ErrorView(
                 errorType: error.type,
                 message: error.message,
-                onOpenSettings: error.type == .timeout ? openSelectedInstanceSettings : nil,
+                onOpenSettings: {
+                    navigationManager.maybeEditInstance(of: type, instancesViewModel.instancesState.selectedInstance)
+                },
                 onRetry: {
                     viewModel.getRelease(releaseParams)
                 }
@@ -164,12 +166,6 @@ struct InteractiveSearchScreen: View {
 
     private var indexers: Set<String> {
         (viewModel.releaseUiState as? ReleaseLibrarySuccess)?.filterIndexers ?? Set()
-    }
-
-    private func openSelectedInstanceSettings() {
-        if let selectedInstance = instancesViewModel.instancesState.selectedInstance {
-            navigationManager.goToEditInstance(of: type, selectedInstance.id)
-        }
     }
 
 }

@@ -11,14 +11,14 @@ import Shared
 struct ErrorView: View {
     let errorType: ErrorType
     let message: String
-    let onOpenSettings: (() -> Void)?
-    let onRetry: (() -> Void)?
+    let onOpenSettings: () -> Void
+    let onRetry: () -> Void
 
     init(
         errorType: ErrorType,
         message: String,
-        onOpenSettings: (() -> Void)? = nil,
-        onRetry: (() -> Void)? = nil
+        onOpenSettings: @escaping () -> Void,
+        onRetry: @escaping () -> Void
     ) {
         self.errorType = errorType
         self.message = message
@@ -42,7 +42,7 @@ struct ErrorView: View {
                 .padding(.horizontal)
 
             VStack(spacing: 12) {
-                if errorType == .timeout, let onOpenSettings {
+                if errorType == .timeout {
                     Button(action: onOpenSettings) {
                         Label(MR.strings().error_timeout_configure_instance.localized(), systemImage: "gear")
                             .frame(maxWidth: .infinity)
@@ -50,13 +50,11 @@ struct ErrorView: View {
                     .buttonStyle(.borderedProminent)
                 }
 
-                if let onRetry {
-                    Button(action: onRetry) {
-                        Label(MR.strings().retry.localized(), systemImage: "arrow.clockwise")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
+                Button(action: onRetry) {
+                    Label(MR.strings().retry.localized(), systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.bordered)
             }
             .padding(.horizontal, 32)
             .padding(.top, 8)
@@ -129,6 +127,7 @@ struct ErrorView: View {
     ErrorView(
         errorType: .unexpected,
         message: MR.strings().instance_connect_error_ios.localized(),
+        onOpenSettings: {},
         onRetry: {}
     )
 }

@@ -13,6 +13,7 @@ struct MediaDetailsScreen: View {
     private let type: InstanceType
     
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var navigation: NavigationManager
     
     @ObservedObject private var viewModel: ArrMediaDetailsViewModelS
     
