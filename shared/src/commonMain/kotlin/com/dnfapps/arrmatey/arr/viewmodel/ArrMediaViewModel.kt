@@ -132,7 +132,7 @@ class ArrMediaViewModel(
     private fun filterSuccessState(state: ArrLibrary.Success, query: String) =
         state.copy(
             items = state.items.filter {
-                it.sortTitle?.contains(query, ignoreCase = true) == true
+                it.title?.contains(query, ignoreCase = true) == true
             }
         )
 
