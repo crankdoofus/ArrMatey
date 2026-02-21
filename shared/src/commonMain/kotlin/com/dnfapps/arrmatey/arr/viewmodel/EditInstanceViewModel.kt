@@ -8,7 +8,7 @@ import com.dnfapps.arrmatey.instances.model.InstanceHeader
 import com.dnfapps.arrmatey.instances.state.AddInstanceUiState
 import com.dnfapps.arrmatey.instances.usecase.DeleteInstanceUseCase
 import com.dnfapps.arrmatey.instances.usecase.GetInstanceByIdUseCase
-import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
+import com.dnfapps.arrmatey.instances.usecase.TestNewInstanceConnectionUseCase
 import com.dnfapps.arrmatey.instances.usecase.UpdateInstanceUseCase
 import com.dnfapps.arrmatey.utils.isValidUrl
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class EditInstanceViewModel(
     private val instanceId: Long,
-    private val testInstanceConnectionUseCase: TestInstanceConnectionUseCase,
+    private val testNewInstanceConnectionUseCase: TestNewInstanceConnectionUseCase,
     private val updateInstanceUseCase: UpdateInstanceUseCase,
     private val getInstanceByIdUseCase: GetInstanceByIdUseCase,
     private val deleteInstanceUseCase: DeleteInstanceUseCase
@@ -109,7 +109,7 @@ class EditInstanceViewModel(
 
             _uiState.update { it.copy(testing = true, endpointError = false) }
 
-            val success = testInstanceConnectionUseCase(state.apiEndpoint, state.apiKey)
+            val success = testNewInstanceConnectionUseCase(state.apiEndpoint, state.apiKey)
 
             _uiState.update {
                 it.copy(
