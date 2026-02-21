@@ -39,8 +39,24 @@ struct SettingsScreen: View {
                             SVGImageView(filename: instance.type.iconKey)
                                 .frame(width: 32, height: 32)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text(instance.label)
-                                    .font(.system(size: 18, weight: .medium))
+                                HStack(alignment: .center, spacing: 12) {
+                                    Text(instance.label)
+                                        .font(.system(size: 18, weight: .medium))
+                                    Group {
+                                        switch viewModel.connectionStatuses[instance.id.asKotlinLong] {
+                                        case is OperationStatusInProgress:
+                                            ProgressView()
+                                                .progressViewStyle(CircularProgressViewStyle())
+                                        case is OperationStatusError:
+                                            Image(systemName: "wifi.slash")
+                                                .tint(.red)
+                                        case is OperationStatusSuccess:
+                                            Image(systemName: "wifi")
+                                        default: ZStack{}
+                                        }
+                                    }
+                                    .frame(width: 8, height: 8)
+                                }
                                 Text(instance.url)
                                     .font(.system(size: 16))
                             }

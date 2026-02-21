@@ -22,7 +22,7 @@ import com.dnfapps.arrmatey.instances.usecase.ObserveSelectedInstanceScopedRepoU
 import com.dnfapps.arrmatey.instances.usecase.ObserveSelectedInstanceUseCase
 import com.dnfapps.arrmatey.arr.usecase.PerformLookupUseCase
 import com.dnfapps.arrmatey.instances.usecase.SetInstanceActiveUseCase
-import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
+import com.dnfapps.arrmatey.instances.usecase.TestNewInstanceConnectionUseCase
 import com.dnfapps.arrmatey.instances.usecase.UpdateInstanceUseCase
 import com.dnfapps.arrmatey.instances.usecase.UpdateInstancePreferencesUseCase
 import com.dnfapps.arrmatey.arr.viewmodel.ActivityQueueViewModel
@@ -62,6 +62,7 @@ import com.dnfapps.arrmatey.datastore.DataStoreFactory
 import com.dnfapps.arrmatey.datastore.InstancePreferenceStoreRepository
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.InstanceType
+import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
 import com.dnfapps.arrmatey.instances.usecase.UpdateCalendarFilterPreferenceUseCase
 import com.dnfapps.arrmatey.utils.MokoStrings
 import com.dnfapps.arrmatey.utils.NetworkConnectivityObserverFactory
@@ -130,6 +131,7 @@ val useCaseModule = module {
     factory { DownloadReleaseUseCase(get()) }
     factory { GetMovieFilesUseCase(get()) }
     factory { TestInstanceConnectionUseCase(get()) }
+    factory { TestNewInstanceConnectionUseCase(get()) }
     factory { CreateInstanceUseCase(get()) }
     factory { UpdateInstanceUseCase(get()) }
     factory { DismissInfoCardUseCase(get()) }
@@ -175,7 +177,7 @@ val viewModelModule = module {
     factory { (seriesId: Long, episode: Episode) ->
         EpisodeDetailsViewModel(seriesId, episode, get(), get(), get(), get(), get())
     }
-    factory { MoreScreenViewModel(get()) }
+    factory { MoreScreenViewModel(get(), get()) }
     factory { AddInstanceViewModel(get(), get(), get(), get()) }
     factory { (instanceId: Long) ->
         EditInstanceViewModel(instanceId, get(), get(), get(), get())

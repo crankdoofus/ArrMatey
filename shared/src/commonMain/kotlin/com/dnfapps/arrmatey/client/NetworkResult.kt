@@ -37,7 +37,7 @@ suspend fun <T> NetworkResult<T>.onSuccess(action: suspend (T) -> Unit): Network
     return this
 }
 
-suspend fun <T> NetworkResult<T>.onError(action: suspend (Int?, String?, Throwable?) -> Unit): NetworkResult<T> {
+suspend fun <T> NetworkResult<T>.onError(action: suspend (code: Int?, message: String?, cause: Throwable?) -> Unit): NetworkResult<T> {
     if (this is NetworkResult.Error) action(code, message, cause)
     return this
 }

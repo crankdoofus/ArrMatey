@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.dnfapps.arrmatey.instances.state.AddInstanceUiState
 import com.dnfapps.arrmatey.instances.usecase.CreateInstanceUseCase
 import com.dnfapps.arrmatey.instances.usecase.DismissInfoCardUseCase
-import com.dnfapps.arrmatey.instances.usecase.TestInstanceConnectionUseCase
+import com.dnfapps.arrmatey.instances.usecase.TestNewInstanceConnectionUseCase
 import com.dnfapps.arrmatey.datastore.PreferencesStore
 import com.dnfapps.arrmatey.instances.model.Instance
 import com.dnfapps.arrmatey.instances.model.InstanceHeader
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddInstanceViewModel(
-    private val testInstanceConnectionUseCase: TestInstanceConnectionUseCase,
+    private val testNewInstanceConnectionUseCase: TestNewInstanceConnectionUseCase,
     private val createInstanceUseCase: CreateInstanceUseCase,
     private val dismissInfoCardUseCase: DismissInfoCardUseCase,
     preferencesStore: PreferencesStore
@@ -98,7 +98,7 @@ class AddInstanceViewModel(
 
             _uiState.update { it.copy(testing = true, endpointError = false) }
 
-            val success = testInstanceConnectionUseCase(state.apiEndpoint, state.apiKey)
+            val success = testNewInstanceConnectionUseCase(state.apiEndpoint, state.apiKey)
 
             _uiState.update {
                 it.copy(

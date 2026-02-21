@@ -23,6 +23,7 @@ import com.dnfapps.arrmatey.client.NetworkResult
 import kotlinx.datetime.LocalDate
 
 interface ArrClient {
+    suspend fun testConnection(): NetworkResult<Unit>
     suspend fun getStatus(): NetworkResult<ArrSoftwareStatus>
     suspend fun getDiskSpace(): NetworkResult<List<ArrDiskSpace>>
     suspend fun getHealth(): NetworkResult<List<ArrHealth>>

@@ -141,6 +141,10 @@ class InstanceScopedRepository(
     private val _artistTrackFiles = MutableStateFlow<Map<Long, Map<Long, List<LidarrTrackFile>>>>(emptyMap())
     val artistTrackFiles: StateFlow<Map<Long, Map<Long, List<LidarrTrackFile>>>> = _artistTrackFiles.asStateFlow()
 
+    suspend fun testConnection(): NetworkResult<Unit> {
+        return client.testConnection()
+    }
+
     suspend fun refreshLibrary() {
         _library.value = NetworkResult.Loading
         _library.value = client.getLibrary()
