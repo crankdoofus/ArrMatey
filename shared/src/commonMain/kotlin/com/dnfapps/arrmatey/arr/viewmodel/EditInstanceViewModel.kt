@@ -46,7 +46,10 @@ class EditInstanceViewModel(
                         isSlowInstance = instance.slowInstance,
                         customTimeout = instance.customTimeout,
                         instanceLabel = instance.label,
-                        headers = instance.headers
+                        headers = instance.headers,
+                        enableLocalConnectionSwitching = instance.enableLocalConnectionSwitching,
+                        localConnectionAddress = instance.localConnectionAddress,
+                        localNetworkSsid = instance.localNetworkSsid
                     )
                 }
             }
@@ -93,6 +96,18 @@ class EditInstanceViewModel(
         }
     }
 
+    fun setEnableLocalConnectionSwitching(value: Boolean) {
+        _uiState.update { it.copy(enableLocalConnectionSwitching = value) }
+    }
+
+    fun setLocalConnectionAddress(value: String) {
+        _uiState.update { it.copy(localConnectionAddress = value) }
+    }
+
+    fun setLocalNetworkSsid(value: String) {
+        _uiState.update { it.copy(localNetworkSsid = value) }
+    }
+
     fun reset() {
         _uiState.value = AddInstanceUiState()
     }
@@ -132,7 +147,10 @@ class EditInstanceViewModel(
             apiKey = s.apiKey,
             slowInstance = s.isSlowInstance,
             customTimeout = if (s.isSlowInstance) s.customTimeout else null,
-            headers = s.headers.filter { it.key.isNotEmpty() && it.value.isNotEmpty() }
+            headers = s.headers.filter { it.key.isNotEmpty() && it.value.isNotEmpty() },
+            enableLocalConnectionSwitching = s.enableLocalConnectionSwitching,
+            localConnectionAddress = s.localConnectionAddress,
+            localNetworkSsid = s.localNetworkSsid
         ) ?: run {
             _uiState.update { it.copy(
                 editResult = InsertResult.Error("Instance doesn't exist")

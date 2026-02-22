@@ -12,5 +12,15 @@ private val MIGRATION_1_2 = object: Migration(1, 2) {
     }
 }
 
+private val MIGRATION_2_3 = object: Migration(2, 3) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            "ALTER TABLE instances ADD COLUMN enableLocalConnectionSwitching INTEGER NOT NULL DEFAULT 0," +
+            "ADD COLUMN localConnectionAddress TEXT NOT NULL DEFAULT ''," +
+            "ADD COLUMN localNetworkSsid TEXT NOT NULL DEFAULT ''"
+        )
+    }
+}
 
-val migrations = listOf(MIGRATION_1_2)
+
+val migrations = listOf(MIGRATION_1_2, MIGRATION_2_3)

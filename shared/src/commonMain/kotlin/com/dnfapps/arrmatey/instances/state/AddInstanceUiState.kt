@@ -17,11 +17,15 @@ data class AddInstanceUiState(
     val createResult: InsertResult? = null,
     val editResult: InsertResult? = null,
     val infoCardMaps: Map<InstanceType, Boolean> = emptyMap(),
-    val headers: List<InstanceHeader> = emptyList()
+    val headers: List<InstanceHeader> = emptyList(),
+    val enableLocalConnectionSwitching: Boolean = false,
+    val localConnectionAddress: String = "",
+    val localNetworkSsid: String = ""
 ) {
     constructor(): this(
         "", "", "", false,
         null, false, false, null,
         false, null, null,
-        emptyMap(), emptyList())
+        emptyMap(), emptyList(),
+        false, "", "")
 }

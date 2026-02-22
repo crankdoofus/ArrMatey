@@ -57,6 +57,9 @@ fun ArrConfigurationScreen(
     onIsSlowInstanceChanged: (Boolean) -> Unit,
     onCustomTimeoutChanged: (Long?) -> Unit,
     onHeadersChanged: (List<InstanceHeader>) -> Unit,
+    onEnableLocalConnectionSwitchingChanged: (Boolean) -> Unit,
+    onLocalConnectionAddressChanged: (String) -> Unit,
+    onLocalNetworkSsidChanged: (String) -> Unit,
     onTestConnection: () -> Unit
 ) {
     val apiEndpoint = uiState.apiEndpoint
@@ -228,6 +231,73 @@ fun ArrConfigurationScreen(
                     placeholder = "300",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+            }
+        }
+
+        Card(
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = mokoString(MR.strings.local_connection_handling),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = uiState.enableLocalConnectionSwitching,
+                            onValueChange = onEnableLocalConnectionSwitchingChanged
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = mokoString(MR.strings.enable_local_connection_switching),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = mokoString(MR.strings.enable_local_connection_switching_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = uiState.enableLocalConnectionSwitching,
+                        onCheckedChange = null,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+
+                if (uiState.enableLocalConnectionSwitching) {
+                    AMOutlinedTextField(
+                        value = uiState.localConnectionAddress,
+                        onValueChange = onLocalConnectionAddressChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = mokoString(MR.strings.local_connection_address),
+                        placeholder = mokoString(MR.strings.local_connection_address_placeholder),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
+                    )
+
+                    AMOutlinedTextField(
+                        value = uiState.localNetworkSsid,
+                        onValueChange = onLocalNetworkSsidChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = mokoString(MR.strings.local_network_ssid),
+                        placeholder = mokoString(MR.strings.local_network_ssid_placeholder),
+                        singleLine = true
+                    )
+                }
             }
         }
 

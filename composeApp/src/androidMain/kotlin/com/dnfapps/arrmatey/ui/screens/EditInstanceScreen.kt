@@ -131,7 +131,10 @@ fun EditInstanceScreen(
                     onIsSlowInstanceChanged = { viewModel.setIsSlowInstance(it) },
                     onCustomTimeoutChanged = { viewModel.setCustomTimeout(it) },
                     onHeadersChanged = { viewModel.updateHeaders(it) },
-                    onTestConnection = { viewModel.testConnection() },
+                    onEnableLocalConnectionSwitchingChanged = { viewModel.setEnableLocalConnectionSwitching(it) },
+                    onLocalConnectionAddressChanged = { viewModel.setLocalConnectionAddress(it) },
+                    onLocalNetworkSsidChanged = { viewModel.setLocalNetworkSsid(it) },
+                    onTestConnection = { viewModel.testConnection() }
                 )
             }
 

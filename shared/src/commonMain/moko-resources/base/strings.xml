@@ -69,6 +69,13 @@
     <string name="host_placeholder">eg. http://10.0.0.1:</string>
     <string name="api_key">API Key</string>
     <string name="api_key_placeholder">0a1b2c3d4e...</string>
+    <string name="local_connection_handling">Local Connection Handling</string>
+    <string name="enable_local_connection_switching">Enable Local Connection Switching</string>
+    <string name="enable_local_connection_switching_description">Automatically switch to a local connection when connected to the local network.</string>
+    <string name="local_connection_address">Local Connection Address</string>
+    <string name="local_connection_address_placeholder">http://192.168.0.1:8989</string>
+    <string name="local_network_ssid">Local Network SSID</string>
+    <string name="local_network_ssid_placeholder">MyWiFi,MyWifi-5G</string>
     <string name="test">Test</string>
     <string name="success">Success</string>
     <string name="failure">Failure</string>

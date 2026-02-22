@@ -24,7 +24,10 @@ data class Instance(
     val slowInstance: Boolean = false,
     val customTimeout: Long? = null,
     val selected: Boolean = false,
-    val headers: List<InstanceHeader> = emptyList()
+    val headers: List<InstanceHeader> = emptyList(),
+    val enableLocalConnectionSwitching: Boolean = false,
+    val localConnectionAddress: String = "",
+    val localNetworkSsid: String = ""
 )
 
 enum class InstanceType(
